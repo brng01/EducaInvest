@@ -135,9 +135,9 @@ interface TermCardProps {
 }
 
 const levelLabels = {
-  iniciante: { label: "Iniciante", color: "bg-success/20 text-success", emoji: "🌱" },
-  intermediario: { label: "Intermediário", color: "bg-warning/20 text-warning", emoji: "🌿" },
-  avancado: { label: "Avançado", color: "bg-accent/20 text-accent", emoji: "🌳" },
+  iniciante: { label: "Iniciante", color: "bg-success/20 text-success"},
+  intermediario: { label: "Intermediário", color: "bg-warning/20 text-warning"},
+  avancado: { label: "Avançado", color: "bg-accent/20 text-accent"},
 };
 
 export function TermCard({ term }: TermCardProps) {
