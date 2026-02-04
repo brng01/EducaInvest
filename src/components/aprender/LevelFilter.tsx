@@ -36,7 +36,7 @@ export function LevelFilter({ selectedLevel, onLevelChange }: LevelFilterProps) 
           onClick={() => onLevelChange(level.id)}
           className="rounded-full"
         >
-          <span className="mr-2">{level.emoji}</span>
+          {/* Removi o <span> que tinha o emoji e o mr-2 aqui */}
           {level.label}
         </Button>
       ))}
