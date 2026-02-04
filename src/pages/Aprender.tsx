@@ -7,7 +7,7 @@ import { LevelFilter } from "@/components/aprender/LevelFilter";
 import { TermCard, financialTerms, Term } from "@/components/aprender/TermCard";
 import { Input } from "@/components/ui/input";
 
-type Level = "iniciante" | "intermediario" | "avancado";
+type Level = "iniciante" | "intermediario" | "experiente";
 
 export default function Aprender() {
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
