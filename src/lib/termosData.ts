@@ -1,5 +1,5 @@
-import { Level } from "../components/aprender/LevelFilter";
-import { Category } from "../components/aprender/CategoryFilter";
+import type { Level } from "../components/aprender/LevelFilter";
+import type { Category } from "../components/aprender/CategoryFilter";
 
 export interface Termo {
   id: number;
