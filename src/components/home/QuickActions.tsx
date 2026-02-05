@@ -26,7 +26,7 @@ const actions = [
     subtitle: "Quero Praticar",
     description: "Aprenda brincando com jogos educativos sobre investimentos.",
     icon: Gamepad2,
-    path: "/arcade",
+    path: "/praticar",
     gradient: "bg-gradient-arcade",
     iconBg: "bg-accent/20",
   },
