@@ -38,23 +38,25 @@ export default function Aprender() {
       <div className="py-8 md:py-16">
         <div className="container mx-auto px-4">
           
-          {/* Header */}
+          {/* Header Refinado: Título mais imponente e descrição direta */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-8"
+            className="text-center mb-12"
           >
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-4">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 backdrop-blur-sm text-primary px-4 py-2 rounded-full mb-6">
               <BookOpen className="w-4 h-4" />
-              <span className="text-sm font-medium tracking-tight">Biblioteca do Investidor</span>
+              <span className="text-sm font-bold uppercase tracking-widest">Biblioteca do Investidor</span>
             </div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-              Aprenda os termos financeiros
+            
+            <h1 className="font-display text-4xl md:text-5xl font-bold mb-6 tracking-tight text-balance">
+              Domine o vocabulário <br className="hidden md:block" /> do mercado financeiro
             </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
-              Sem jargões complicados. Aqui você encontra explicações simples, 
-              exemplos práticos e pode até ouvir em áudio.
+            
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance leading-relaxed">
+              Traduzimos o "economês" para você investir com total confiança. 
+              Explicações simples, exemplos práticos e aulas em áudio.
             </p>
           </motion.div>
 
@@ -64,9 +66,7 @@ export default function Aprender() {
 
           {/* Área de Filtros e Busca */}
           <div className="flex flex-col gap-6 mb-12">
-            
             <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
-              {/* Filtro de Nível com Scroll Horizontal no Mobile */}
               <div className="overflow-x-auto pb-2 md:pb-0 no-scrollbar">
                 <LevelFilter 
                   selectedLevel={selectedLevel} 
@@ -86,12 +86,11 @@ export default function Aprender() {
                   placeholder="Buscar termo (ex: Selic)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-secondary/30 border-border focus:bg-background transition-colors"
+                  className="pl-10 bg-secondary/30 border-border focus:bg-background transition-colors rounded-xl"
                 />
               </motion.div>
             </div>
 
-            {/* Filtro de Categorias com Visibilidade Reforçada */}
             <div className="overflow-x-auto pb-2 no-scrollbar">
               <CategoryFilter 
                 selectedCategory={selectedCategory}
