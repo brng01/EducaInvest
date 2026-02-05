@@ -219,3 +219,16 @@ export function TermCard({ term }: TermCardProps) {
                     <h4 className="text-xs font-bold text-primary uppercase mb-1">
                       Como Começar
                     </h4>
+                    <p className="text-xs text-foreground/80 leading-normal">
+                      {term.dicaComoComecar}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
