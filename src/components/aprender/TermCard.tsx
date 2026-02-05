@@ -21,10 +21,11 @@ interface TermCardProps {
   term: Termo;
 }
 
+// Ajustei as cores das badges para ficarem mais vibrantes no fundo escuro
 const levelLabels: Record<Level, { label: string; color: string; bg: string }> = {
-  iniciante: { label: "Iniciante", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
-  intermediario: { label: "Intermediário", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
-  avancado: { label: "Avançado", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-100 dark:bg-rose-900/30" },
+  iniciante: { label: "Iniciante", color: "text-emerald-400", bg: "bg-emerald-400/10 border border-emerald-400/20" },
+  intermediario: { label: "Intermediário", color: "text-amber-400", bg: "bg-amber-400/10 border border-amber-400/20" },
+  avancado: { label: "Avançado", color: "text-rose-400", bg: "bg-rose-400/10 border border-rose-400/20" },
 };
 
 const getCategoryIcon = (category: string) => {
@@ -77,31 +78,33 @@ export function TermCard({ term }: TermCardProps) {
       style={{ borderRadius: "0.75rem" }} 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`group border transition-colors duration-300 overflow-hidden w-full ${
+      // --- AQUI ESTÁ A MÁGICA DO ESTILO DA HOME ---
+      // Mudamos de 'bg-card' para um estilo 'glassmorphism' escuro com borda azulada
+      className={`group border transition-all duration-300 overflow-hidden w-full backdrop-blur-md ${
         isExpanded 
-          ? "bg-card border-primary/50 shadow-lg ring-1 ring-primary/20" 
-          : "bg-card border-border/60 hover:border-primary/40 hover:shadow-md"
+          ? "bg-slate-900/60 border-primary/50 shadow-[0_0_20px_rgba(var(--primary-rgb),0.15)]" 
+          : "bg-slate-900/40 border-white/10 hover:border-primary/40 hover:shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]"
       }`}
     >
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-4 flex items-start gap-3 sm:gap-4 cursor-pointer relative"
+        className="w-full p-4 flex items-start gap-3 sm:gap-4 cursor-pointer relative z-10"
       >
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-all mt-0.5 ${
+        {/* Ícone com brilho da cor primária */}
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-all mt-0.5 border ${
           isExpanded 
-            ? "bg-primary text-primary-foreground shadow-md rotate-3" 
-            : "bg-secondary text-primary"
+            ? "bg-primary/20 border-primary/30 text-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.2)] rotate-3" 
+            : "bg-slate-800/50 border-white/10 text-primary/80 group-hover:border-primary/30 group-hover:text-primary"
         }`}>
           {getCategoryIcon(term.categoria)}
         </div>
 
         <div className="flex-1 min-w-0">
-          {/* CORREÇÃO AQUI: flex-nowrap e truncate */}
           <div className="flex flex-nowrap items-center gap-2 mb-1">
             <h3 className="font-bold text-base text-foreground leading-tight truncate">
               {term.sigla}
             </h3>
-            <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wide border border-transparent whitespace-nowrap ${levelInfo.bg} ${levelInfo.color}`}>
+            <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wide whitespace-nowrap ${levelInfo.bg} ${levelInfo.color}`}>
               {levelInfo.label}
             </span>
           </div>
@@ -115,7 +118,8 @@ export function TermCard({ term }: TermCardProps) {
             variant="ghost"
             size="icon"
             onClick={handlePlayAudio}
-            className={`h-8 w-8 rounded-full ${isSpeaking ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}
+            // Botão de áudio mais integrado ao tema escuro
+            className={`h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary ${isSpeaking ? "text-primary bg-primary/10 shadow-[0_0_10px_rgba(var(--primary-rgb),0.2)]" : "text-muted-foreground"}`}
           >
             {isSpeaking ? <PauseCircle className="w-4 h-4 animate-pulse" /> : <Volume2 className="w-4 h-4" />}
           </Button>
@@ -123,7 +127,7 @@ export function TermCard({ term }: TermCardProps) {
           <motion.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={{ duration: 0.2 }}
-            className="text-muted-foreground/50 p-1"
+            className="text-muted-foreground/50 p-1 group-hover:text-primary/70"
           >
             <ChevronDown className="w-5 h-5" />
           </motion.div>
@@ -137,7 +141,8 @@ export function TermCard({ term }: TermCardProps) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden border-t border-border/40 bg-muted/30"
+            // Fundo da área expandida mais escuro para contraste
+            className="overflow-hidden border-t border-white/5 bg-[#0B1120]/50 relative z-0"
           >
             <div className="p-4 space-y-4">
               <div className="relative pl-3 border-l-2 border-primary">
@@ -146,13 +151,14 @@ export function TermCard({ term }: TermCardProps) {
                 </p>
               </div>
 
-              <div className="bg-background/50 p-1 rounded-lg flex gap-1 border border-border/50">
+              {/* Seletor de Abas com estilo Glass */}
+              <div className="bg-slate-900/50 border border-white/5 p-1 rounded-lg flex gap-1">
                 <button
                   onClick={() => setActiveTab('tecnico')}
                   className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs font-medium rounded-md transition-all ${
                     activeTab === 'tecnico' 
-                      ? "bg-primary/10 text-primary shadow-sm" 
-                      : "text-muted-foreground hover:bg-background hover:text-foreground"
+                      ? "bg-primary/10 text-primary shadow-sm border border-primary/20" 
+                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                   }`}
                 >
                   <BookOpen className="w-3.5 h-3.5" />
@@ -163,8 +169,8 @@ export function TermCard({ term }: TermCardProps) {
                   onClick={() => setActiveTab('exemplo')}
                   className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs font-medium rounded-md transition-all ${
                     activeTab === 'exemplo' 
-                      ? "bg-primary/10 text-primary shadow-sm" 
-                      : "text-muted-foreground hover:bg-background hover:text-foreground"
+                      ? "bg-primary/10 text-primary shadow-sm border border-primary/20" 
+                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                   }`}
                 >
                   <Lightbulb className="w-3.5 h-3.5" />
@@ -181,7 +187,8 @@ export function TermCard({ term }: TermCardProps) {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 10 }}
                       transition={{ duration: 0.2 }}
-                      className="bg-slate-500/5 border border-border/50 rounded-lg p-3 min-h-full"
+                      // Caixas de texto internas com fundo mais escuro e bordas sutis
+                      className="bg-slate-900/40 border border-white/5 rounded-lg p-3 min-h-full"
                     >
                       <p className="text-sm text-muted-foreground italic leading-normal">
                         "{term.explicacaoCompleta || "Definição não disponível."}"
@@ -194,7 +201,8 @@ export function TermCard({ term }: TermCardProps) {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
                       transition={{ duration: 0.2 }}
-                      className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3 min-h-full"
+                      // Usei um tom azulado sutil para o exemplo em vez de amarelo, para combinar mais
+                      className="bg-primary/5 border border-primary/10 rounded-lg p-3 min-h-full"
                     >
                       <p className="text-sm text-foreground/90 leading-normal">
                         {term.exemplo || "Exemplo não disponível."}
@@ -208,13 +216,14 @@ export function TermCard({ term }: TermCardProps) {
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-2 bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3 flex gap-3 items-start"
+                  // Dica com estilo neon vibrante
+                  className="mt-2 bg-primary/5 border border-primary/20 rounded-lg p-3 flex gap-3 items-start shadow-[0_0_15px_rgba(var(--primary-rgb),0.05)]"
                 >
-                  <div className="bg-emerald-500/10 p-1.5 rounded-full shrink-0 mt-0.5">
-                    <Rocket className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500" />
+                  <div className="bg-primary/10 p-1.5 rounded-full shrink-0 mt-0.5 border border-primary/20">
+                    <Rocket className="w-3.5 h-3.5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-500 uppercase mb-1">
+                    <h4 className="text-xs font-bold text-primary uppercase mb-1">
                       Como Começar
                     </h4>
                     <p className="text-xs text-foreground/80 leading-normal">
