@@ -20,6 +20,7 @@ export function TermCard({ term }: TermCardProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [activeTab, setActiveTab] = useState<'exemplo' | 'tecnico'>('exemplo');
   
+  // Fallback seguro caso o nível não exista (proteção contra erros)
   const levelInfo = levelLabels[term.nivelId] || levelLabels['iniciante'];
 
   const handlePlayAudio = (e: React.MouseEvent) => {
@@ -49,9 +50,13 @@ export function TermCard({ term }: TermCardProps) {
   return (
     <motion.div
       layout
+      // Fixando o borderRadius para evitar distorção visual na animação (O segredo do "esquadro")
+      style={{ borderRadius: "0.75rem" }} 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`group rounded-xl border transition-all duration-300 overflow-hidden ${
+      // REMOVIDO: "transition-all" (causava o conflito)
+      // ADICIONADO: "transition-colors" (anima só a cor, sem brigar com o layout)
+      className={`group border transition-colors duration-300 overflow-hidden ${
         isExpanded 
           ? "bg-card border-primary/50 shadow-lg ring-1 ring-primary/20" 
           : "bg-card border-border/60 hover:border-primary/40 hover:shadow-md"
@@ -146,8 +151,7 @@ export function TermCard({ term }: TermCardProps) {
                 </button>
               </div>
 
-              {/* Conteúdo da Aba */}
-              {/* ALTERAÇÃO AQUI: Adicionado overflow-x-hidden para evitar scroll lateral na animação */}
+              {/* Conteúdo da Aba (com altura fixa) */}
               <div className="h-[130px] overflow-y-auto overflow-x-hidden pr-1 custom-scrollbar">
                 <AnimatePresence mode="wait">
                   {activeTab === 'tecnico' ? (
