@@ -12,11 +12,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// AQUI FOI FEITA A ALTERAÇÃO: Label de "Arcade" para "Praticar"
 const navItems = [
   { path: "/", label: "Home", icon: Home },
   { path: "/aprender", label: "Aprender", icon: BookOpen },
   { path: "/simular", label: "Simular", icon: Calculator },
-  { path: "/arcade", label: "Arcade", icon: Gamepad2 },
+  { path: "/arcade", label: "Praticar", icon: Gamepad2 },
 ];
 
 export function Header() {
