@@ -238,7 +238,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "Você vira sócio da empresa. Se ela lucrar, você recebe parte (dividendos). Se ela valorizar, ganha na venda. Se falir, você perde.",
     exemplo: "Ter uma ação da Apple é ser dono de um pedacinho microscópico da empresa. Você não apita na reunião, mas tem direito aos lucros.",
     dicaComoComecar: "Não compre dica de youtuber. Comece estudando empresas sólidas (Blue Chips) que dão lucro há anos e pague um preço justo.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "renda_variavel"
   },
   {
@@ -249,7 +249,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "O jeito de investir no exterior sem tirar o dinheiro do Brasil. Um recibo aqui que vale por uma ação lá fora.",
     exemplo: "Você usa seus Reais na bolsa brasileira para comprar BDRs da Disney. Se o dólar subir ou a empresa crescer, você ganha.",
     dicaComoComecar: "Busque pelos códigos que terminam em 34 (ex: AAPL34 para Apple). É uma ótima forma de dolarizar parte da carteira.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "renda_variavel"
   },
   {
@@ -260,7 +260,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "Apostas sobre o futuro. Você não compra a coisa em si, mas faz um contrato sobre o preço dela numa data futura.",
     exemplo: "Um fazendeiro vende 'Milho Futuro' para garantir o preço da saca (proteção). Um especulador compra achando que o preço vai explodir (aposta).",
     dicaComoComecar: "Cuidado! Esse mercado é complexo. Comece estudando 'Hedge' para proteção de carteira, não especulação pura.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "renda_variavel"
   },
   {
@@ -271,7 +271,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "As empresas 'adolescentes'. Elas são menores e têm chance de crescer muito (te deixar rico), mas têm mais chance de quebrar.",
     exemplo: "Enquanto a Petrobras é um transatlântico (lento e seguro), uma Small Cap é uma lancha (rápida, mas balança muito).",
     dicaComoComecar: "Existe um índice chamado SMLL que reúne essas empresas. Você pode investir nelas via ETF 'SMAL11' para não arriscar escolher uma só.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "renda_variavel"
   },
   {
@@ -282,7 +282,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "A intensidade do sobe-e-desce. Alta volatilidade assusta o iniciante, mas gera oportunidade de lucro rápido para o profissional.",
     exemplo: "A Poupança é uma estrada reta (baixa volatilidade). O Bitcoin é uma montanha-russa insana (altíssima volatilidade).",
     dicaComoComecar: "Para dormir tranquilo, sua carteira deve ter um equilíbrio. Se tiver muita volatilidade, compense com Renda Fixa segura.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "conceitos"
   },
   {
@@ -293,7 +293,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "Investir 'fiado'. Você usa mais dinheiro do que tem para tentar ganhar mais. Se der certo, lucro turbinado. Se der errado, dívida.",
     exemplo: "Você tem R$ 1.000,00, mas opera como se tivesse R$ 10.000,00. Se a ação subir 1%, você ganha 10%. Se cair 1%, você perde 10%.",
     dicaComoComecar: "Evite alavancagem no início. O risco de ruína é real. Use apenas seu próprio dinheiro até ter muita experiência.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "conceitos"
   },
   {
@@ -304,7 +304,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "O seguro do investidor. Uma aposta contrária ao seu investimento principal para que, se tudo der errado, você não perca tudo.",
     exemplo: "Você tem ações brasileiras. Para se proteger, compra Dólar. Se a bolsa cair (crise), o Dólar sobe e compensa sua perda.",
     dicaComoComecar: "A forma mais simples de hedge é ter parte do patrimônio em moeda forte (Dólar) ou Ouro.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "conceitos"
   },
   {
@@ -315,7 +315,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "Comprar de manhã e vender à tarde. É a modalidade mais arriscada. Exige tela ligada o dia todo e sangue frio.",
     exemplo: "É comprar um carro de manhã por R$ 20.000,00 achando que vai vender por R$ 20.200,00 antes do almoço. Lucro pequeno, repetido várias vezes.",
     dicaComoComecar: "Estatisticamente, 95% das pessoas perdem dinheiro com isso. Se quiser tentar, separe um dinheiro que você aceita perder (dinheiro da 'pinga').",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "conceitos"
   },
   {
@@ -326,7 +326,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "Um prêmio pela competência. Se o gestor fizer seu dinheiro render MUITO mais que o combinado, ele fica com um pedacinho desse lucro extra.",
     exemplo: "O combinado era render 10%. O gestor fez render 15%. Sobre esses 5% 'extras', ele cobra uma taxa de sucesso.",
     dicaComoComecar: "Não ache ruim pagar taxa de performance. Geralmente, significa que o fundo entregou muito resultado para você.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "taxas"
   },
   {
@@ -337,7 +337,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "O pedágio da Bolsa. Toda vez que você compra ou vende uma ação, a Bolsa cobra uns centavos pelo serviço.",
     exemplo: "Para usar a 'estrada' da Bolsa de Valores e negociar suas ações, você paga uma taxinha a cada passagem (operação).",
     dicaComoComecar: "Essas taxas já vêm descontadas na 'Nota de Corretagem'. Sempre confira esse documento no fim do dia.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "taxas"
   },
   {
@@ -348,7 +348,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "A diferença entre o preço que compram e o preço que vendem. Se o spread é alto, você já começa perdendo dinheiro.",
     exemplo: "No câmbio: Você compra Dólar a R$ 5,50, mas se vender no mesmo segundo, a casa só paga R$ 5,00. Esses R$ 0,50 são o spread.",
     dicaComoComecar: "Em ativos com pouca negociação (pouca liquidez), o spread é alto. Evite comprar ações que quase ninguém negocia.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "taxas"
   },
   {
@@ -359,7 +359,7 @@ export const listaCompletaTermos: Termo[] = [
     explicacaoSimplificada: "O freio de mão. Quando o mercado entra em pânico e cai 10%, a bolsa 'puxa a tomada' por 30 minutos para todos se acalmarem.",
     exemplo: "Imagine um estádio pegando fogo. O Circuit Breaker fecha as portas por 30min para organizar a saída e evitar que todos se pisoteiem.",
     dicaComoComecar: "Se isso acontecer, não venda nada no desespero. Desligue o computador e vá fazer outra coisa. O pânico é o pior conselheiro.",
-    nivelId: "experiente",
+    nivelId: "avancado",
     categoria: "conceitos"
   }
 ];
