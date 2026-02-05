@@ -1,8 +1,3 @@
-import { motion } from "framer-motion";
-import { ArrowRight, Shield, TrendingUp, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden py-16 md:py-24">
@@ -19,34 +14,32 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-6"
+            className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 backdrop-blur-sm text-primary px-4 py-2 rounded-full mb-6"
           >
             <Shield className="w-4 h-4" />
             <span className="text-sm font-medium">Espaço seguro para aprender</span>
           </motion.div>
 
-          {/* Main heading */}
+          {/* Main heading - AJUSTADO PARA MELHOR FLUXO */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+            className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1] tracking-tight text-white"
           >
-            Domine seu dinheiro{" "}
-            <span className="text-gradient-hero">antes que ele</span>
-            <br />
-            <span className="text-gradient-hero">domine você.</span>
+            Domine seu dinheiro <br className="hidden md:block" />
+            <span className="text-gradient-hero">antes que ele domine você.</span>
           </motion.h1>
 
-          {/* Subtext */}
+          {/* Subtext - MAIS DIRETO */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
+            className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed"
           >
-            Aqui você aprende sobre investimentos de forma simples, sem jargões 
-            complicados. Um lugar acolhedor para começar sua jornada financeira.
+            Descomplique seus investimentos com explicações claras e sem jargões. 
+            O ponto de partida ideal para sua liberdade financeira.
           </motion.p>
 
           {/* CTA Buttons */}
@@ -54,16 +47,16 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <Link to="/aprender">
-              <Button size="lg" className="bg-gradient-hero text-primary-foreground shadow-glow w-full sm:w-auto">
+              <Button size="lg" className="bg-gradient-hero text-primary-foreground shadow-glow w-full sm:w-64 h-14 text-lg font-bold rounded-full">
                 Começar a Aprender
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
             <Link to="/simular">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-64 h-14 text-lg border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 rounded-full transition-all">
                 Ver Simuladores
               </Button>
             </Link>
@@ -74,19 +67,19 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-wrap justify-center gap-6 mt-12 text-sm text-muted-foreground"
+            className="flex flex-wrap justify-center gap-8 mt-16 text-sm font-medium text-muted-foreground/80"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 hover:text-accent transition-colors">
               <Heart className="w-4 h-4 text-accent" />
               <span>100% Gratuito</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 hover:text-primary transition-colors">
               <Shield className="w-4 h-4 text-primary" />
               <span>Sem Vendas</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 hover:text-success transition-colors">
               <TrendingUp className="w-4 h-4 text-success" />
-              <span>Aprenda no seu ritmo</span>
+              <span>No seu ritmo</span>
             </div>
           </motion.div>
         </div>
