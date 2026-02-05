@@ -114,7 +114,6 @@ export function TermCard({ term }: TermCardProps) {
               
               {/* Resumo */}
               <div className="relative pl-3 border-l-2 border-primary">
-                {/* AJUSTE DE TIPOGRAFIA: Removido leading-relaxed para o texto ficar mais compacto de forma saudável */}
                 <p className="text-sm text-foreground leading-normal">
                   {term.explicacaoSimplificada}
                 </p>
@@ -147,9 +146,9 @@ export function TermCard({ term }: TermCardProps) {
                 </button>
               </div>
 
-              {/* Conteúdo da Aba (AJUSTE DE ALTURA E TIPOGRAFIA) */}
-              {/* Aumentei de h-[110px] para h-[130px] para caber mais texto confortavelmente */}
-              <div className="h-[130px] overflow-y-auto pr-1 custom-scrollbar">
+              {/* Conteúdo da Aba */}
+              {/* ALTERAÇÃO AQUI: Adicionado overflow-x-hidden para evitar scroll lateral na animação */}
+              <div className="h-[130px] overflow-y-auto overflow-x-hidden pr-1 custom-scrollbar">
                 <AnimatePresence mode="wait">
                   {activeTab === 'tecnico' ? (
                     <motion.div
@@ -160,7 +159,6 @@ export function TermCard({ term }: TermCardProps) {
                       transition={{ duration: 0.2 }}
                       className="bg-slate-500/5 border border-border/50 rounded-lg p-3 min-h-full"
                     >
-                      {/* Usei leading-normal em vez de relaxed */}
                       <p className="text-sm text-muted-foreground italic leading-normal">
                         "{term.explicacaoCompleta || "Definição não disponível."}"
                       </p>
@@ -174,7 +172,6 @@ export function TermCard({ term }: TermCardProps) {
                       transition={{ duration: 0.2 }}
                       className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3 min-h-full"
                     >
-                       {/* Usei leading-normal em vez de relaxed */}
                       <p className="text-sm text-foreground/90 leading-normal">
                         {term.exemplo || "Exemplo não disponível."}
                       </p>
@@ -183,24 +180,20 @@ export function TermCard({ term }: TermCardProps) {
                 </AnimatePresence>
               </div>
 
-              {/* DICA EXTRA: Como Começar (CORRIGIDO AS CORES) */}
+              {/* DICA EXTRA: Como Começar */}
               {term.dicaComoComecar && (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  // Fundo sutil, borda sutil
                   className="mt-2 bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3 flex gap-3 items-start"
                 >
                   <div className="bg-emerald-500/10 p-1.5 rounded-full shrink-0 mt-0.5">
-                    {/* Ícone com cor vibrante */}
                     <Rocket className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500" />
                   </div>
                   <div>
-                    {/* Título com cor vibrante */}
                     <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-500 uppercase mb-1">
                       Como Começar
                     </h4>
-                    {/* CORREÇÃO PRINCIPAL: Texto do corpo agora usa a cor padrão do tema (foreground) para contraste perfeito */}
                     <p className="text-xs text-foreground/80 leading-normal">
                       {term.dicaComoComecar}
                     </p>
