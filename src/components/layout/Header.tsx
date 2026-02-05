@@ -17,7 +17,7 @@ const navItems = [
   { path: "/", label: "Home", icon: Home },
   { path: "/aprender", label: "Aprender", icon: BookOpen },
   { path: "/simular", label: "Simular", icon: Calculator },
-  { path: "/arcade", label: "Praticar", icon: Gamepad2 },
+  { path: "/praticar", label: "Praticar", icon: Gamepad2 },
 ];
 
 export function Header() {
