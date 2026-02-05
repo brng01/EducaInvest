@@ -23,10 +23,11 @@ const actions = [
   },
   {
     title: "Quero me divertir",
-    subtitle: "Quero Praticar",
+    // CORREÇÃO AQUI: De "Jogar Arcade" para "Quero Praticar"
+    subtitle: "Quero Praticar", 
     description: "Aprenda brincando com jogos educativos sobre investimentos.",
     icon: Gamepad2,
-    path: "/praticar",
+    path: "/praticar", // Confirme se você já alterou a rota no App.tsx para /praticar
     gradient: "bg-gradient-arcade",
     iconBg: "bg-accent/20",
   },
