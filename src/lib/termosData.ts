@@ -102,8 +102,8 @@ export const listaCompletaTermos: Termo[] = [
   // --- Conceitos ---
   {
     id: 8,
-    sigla: "RE",
-    nome: "Reserva de Emergência",
+    sigla: "Reserva de Emergência",
+    nome: "Reserva Emergencial",
     explicacaoCompleta: "Montante financeiro acumulado para cobrir despesas imprevistas, equivalente a 6 a 12 meses do custo de vida.",
     explicacaoSimplificada: "O colchão de segurança. Dinheiro para quando o carro quebra ou você perde o emprego. Não é para ganhar dinheiro, é para não se endividar.",
     exemplo: "Se você gasta R$ 2.000,00 por mês, sua reserva deve ser de pelo menos R$ 12.000,00 em um lugar seguro, que é possível sacar a qualquer momento.",
