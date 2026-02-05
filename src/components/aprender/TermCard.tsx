@@ -20,7 +20,6 @@ export function TermCard({ term }: TermCardProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [activeTab, setActiveTab] = useState<'exemplo' | 'tecnico'>('exemplo');
   
-  // Fallback seguro caso o nível não exista (proteção contra erros)
   const levelInfo = levelLabels[term.nivelId] || levelLabels['iniciante'];
 
   const handlePlayAudio = (e: React.MouseEvent) => {
@@ -50,42 +49,48 @@ export function TermCard({ term }: TermCardProps) {
   return (
     <motion.div
       layout
-      // Fixando o borderRadius para evitar distorção visual na animação (O segredo do "esquadro")
+      // Mantém o borderRadius fixo para não distorcer na animação
       style={{ borderRadius: "0.75rem" }} 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      // REMOVIDO: "transition-all" (causava o conflito)
-      // ADICIONADO: "transition-colors" (anima só a cor, sem brigar com o layout)
-      className={`group border transition-colors duration-300 overflow-hidden ${
+      // Removemos transition-all para evitar conflito com o Framer Motion
+      className={`group border transition-colors duration-300 overflow-hidden w-full ${
         isExpanded 
           ? "bg-card border-primary/50 shadow-lg ring-1 ring-primary/20" 
           : "bg-card border-border/60 hover:border-primary/40 hover:shadow-md"
       }`}
     >
-      {/* --- HEADER COMPACTO --- */}
+      {/* --- HEADER ADAPTÁVEL (Melhor UX Mobile) --- */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-4 flex items-center gap-4 cursor-pointer relative"
+        // items-start: Alinha ícones no topo caso o texto quebre linha (fica mais bonito)
+        className="w-full p-4 flex items-start gap-3 sm:gap-4 cursor-pointer relative"
       >
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+        {/* Ícone Sigla */}
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors mt-0.5 ${
           isExpanded ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70"
         }`}>
           <span className="text-lg font-bold">{term.sigla.charAt(0)}</span>
         </div>
 
+        {/* Info Principal - Agora permite quebra de linha */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-bold text-base text-foreground leading-none">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <h3 className="font-bold text-base text-foreground leading-tight break-words">
               {term.sigla}
             </h3>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wide border border-transparent ${levelInfo.bg} ${levelInfo.color}`}>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wide border border-transparent whitespace-nowrap ${levelInfo.bg} ${levelInfo.color}`}>
               {levelInfo.label}
             </span>
           </div>
-          <p className="text-sm text-muted-foreground truncate">{term.nome}</p>
+          {/* line-clamp-2 permite até 2 linhas de texto antes de cortar, melhor que truncate */}
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-snug">
+            {term.nome}
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Controles da Direita */}
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
            <Button
             variant="ghost"
             size="icon"
@@ -98,7 +103,7 @@ export function TermCard({ term }: TermCardProps) {
           <motion.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={{ duration: 0.2 }}
-            className="text-muted-foreground/50"
+            className="text-muted-foreground/50 p-1"
           >
             <ChevronDown className="w-5 h-5" />
           </motion.div>
@@ -151,7 +156,7 @@ export function TermCard({ term }: TermCardProps) {
                 </button>
               </div>
 
-              {/* Conteúdo da Aba (com altura fixa) */}
+              {/* Conteúdo da Aba (Altura Fixa e Scroll) */}
               <div className="h-[130px] overflow-y-auto overflow-x-hidden pr-1 custom-scrollbar">
                 <AnimatePresence mode="wait">
                   {activeTab === 'tecnico' ? (
