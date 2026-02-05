@@ -1,18 +1,19 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Search } from "lucide-react";
+import { BookOpen, Search, Ghost } from "lucide-react"; // Adicionado ícone Ghost
 import { Layout } from "@/components/layout/Layout";
 import { PodcastCard } from "@/components/aprender/PodcastCard";
 import { LevelFilter, Level } from "@/components/aprender/LevelFilter";
-import { CategoryFilter, Category } from "@/components/aprender/CategoryFilter"; // Novo Import
+import { CategoryFilter, Category } from "@/components/aprender/CategoryFilter";
 import { TermCard } from "@/components/aprender/TermCard";
 import { Input } from "@/components/ui/input";
-import { listaCompletaTermos } from "@/lib/termosData"; // Importando do arquivo de dados correto
+import { Button } from "@/components/ui/button"; // Importando Button
+import { listaCompletaTermos } from "@/lib/termosData";
 
 export default function Aprender() {
   // Estados
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category>("todos"); // Novo Estado
+  const [selectedCategory, setSelectedCategory] = useState<Category>("todos");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Lógica de Filtragem Unificada
@@ -92,7 +93,7 @@ export default function Aprender() {
                   placeholder="Buscar termo (ex: Selic)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white"
+                  className="pl-10 bg-background border-border" // Ajustado para tema escuro
                 />
               </motion.div>
             </div>
@@ -113,32 +114,37 @@ export default function Aprender() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                {/* Certifique-se que TermCard aceita a prop 'termo' ou 'term' conforme seu componente */}
                 <TermCard term={term} /> 
               </motion.div>
             ))}
           </div>
 
-          {/* Estado Vazio (Sem resultados) */}
+          {/* Estado Vazio (Visual Novo e Escuro) */}
           {filteredTerms.length === 0 && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-16 bg-slate-50 rounded-lg border border-dashed border-slate-200"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-16 px-4 rounded-xl border-2 border-dashed border-muted bg-muted/5 flex flex-col items-center justify-center"
             >
-              <p className="text-muted-foreground mb-4">
-                Nenhum termo encontrado para sua busca.
+              <div className="bg-muted/20 p-4 rounded-full mb-4">
+                <Ghost className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Ops! Nenhum termo encontrado
+              </h3>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Não encontramos nada com esses filtros. Tente mudar a categoria ou buscar por outra palavra.
               </p>
-              <button 
+              <Button 
+                variant="outline"
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedLevel(null);
                   setSelectedCategory("todos");
                 }}
-                className="text-primary hover:underline font-medium"
               >
-                Limpar todos os filtros
-              </button>
+                Limpar filtros e ver tudo
+              </Button>
             </motion.div>
           )}
         </div>
