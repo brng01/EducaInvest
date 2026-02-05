@@ -128,7 +128,8 @@ export default function Aprender() {
                 <div className="h-px bg-white/10 flex-1" />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* AQUI ESTÁ A CORREÇÃO: items-start adicionado */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 {termosDaAula.length > 0 ? (
                   termosDaAula.map((term, index) => (
                     <motion.div
@@ -137,7 +138,6 @@ export default function Aprender() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
-                      {/* ALTERAÇÃO AQUI: hideLevel={true} para esconder a etiqueta de nível */}
                       <TermCard term={term} hideLevel={true} /> 
                     </motion.div>
                   ))
