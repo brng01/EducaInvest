@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { 
   BookOpen, 
   ChevronRight, 
-  ChevronLeft, // <--- 1. Importando o ícone
+  ChevronLeft,
   Layers, 
   PlayCircle, 
   CheckCircle2, 
@@ -34,7 +34,7 @@ export default function Aprender() {
     if (currentAulaId < aulas.length) setCurrentAulaId(prev => prev + 1);
   };
 
-  // 2. Função para voltar
+  // Função para voltar
   const handlePrev = () => {
     if (currentAulaId > 1) setCurrentAulaId(prev => prev - 1);
   };
@@ -137,7 +137,8 @@ export default function Aprender() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
-                      <TermCard term={term} /> 
+                      {/* ALTERAÇÃO AQUI: hideLevel={true} para esconder a etiqueta de nível */}
+                      <TermCard term={term} hideLevel={true} /> 
                     </motion.div>
                   ))
                 ) : (
@@ -169,7 +170,7 @@ export default function Aprender() {
                     disabled={currentAulaId === aulas.length}
                     className="group bg-white text-slate-900 hover:bg-white/90 font-bold rounded-full px-8 py-6 text-base shadow-lg shadow-white/5 transition-all hover:scale-105"
                   >
-                    {currentAulaId === aulas.length ? "Concluir Curso 🏆" : "Próxima Aula"}
+                    {currentAulaId === aulas.length ? "Concluir Curso" : "Próxima Aula"}
                     {currentAulaId !== aulas.length && (
                       <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     )}
