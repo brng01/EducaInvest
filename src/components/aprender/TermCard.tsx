@@ -12,7 +12,7 @@ interface TermCardProps {
 const levelLabels: Record<Level, { label: string; color: string; bg: string }> = {
   iniciante: { label: "Iniciante", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
   intermediario: { label: "Intermediário", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
-  experiente: { label: "Avançado", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-100 dark:bg-rose-900/30" },
+  avancado: { label: "Avançado", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-100 dark:bg-rose-900/30" },
 };
 
 export function TermCard({ term }: TermCardProps) {
