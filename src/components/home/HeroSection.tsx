@@ -1,3 +1,8 @@
+import { motion } from "framer-motion";
+import { Shield, ArrowRight, Heart, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden py-16 md:py-24">
