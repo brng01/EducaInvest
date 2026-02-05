@@ -16,53 +16,38 @@ import { cn } from "@/lib/utils";
 
 export default function Aprender() {
   const [currentAulaId, setCurrentAulaId] = useState(1);
-  
-  // Encontra os dados da aula atual
   const currentAula = aulas.find(a => a.id === currentAulaId) || aulas[0];
 
-  // Filtra os termos dessa aula
   const termosDaAula = useMemo(() => {
     return listaCompletaTermos.filter((term) => term.aulaAssociadaId === currentAulaId);
   }, [currentAulaId]);
 
   const modulos = [
-    {
-      titulo: "Módulo 1: O Básico Invisível",
-      nivel: "iniciante",
-      aulas: aulas.filter(a => a.nivel === "iniciante")
-    },
-    {
-      titulo: "Módulo 2: O Mercado",
-      nivel: "intermediario",
-      aulas: aulas.filter(a => a.nivel === "intermediario")
-    },
-    {
-      titulo: "Módulo 3: Jogo Avançado",
-      nivel: "avancado",
-      aulas: aulas.filter(a => a.nivel === "avancado")
-    }
+    { titulo: "Módulo 1: O Básico Invisível", aulas: aulas.filter(a => a.nivel === "iniciante") },
+    { titulo: "Módulo 2: O Mercado", aulas: aulas.filter(a => a.nivel === "intermediario") },
+    { titulo: "Módulo 3: Jogo Avançado", aulas: aulas.filter(a => a.nivel === "avancado") }
   ];
 
   const handleNext = () => {
     if (currentAulaId < aulas.length) setCurrentAulaId(prev => prev + 1);
   };
 
+  // Estilos da Scrollbar Personalizada (Dark & Slim)
+  const scrollbarClass = "overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700/50 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-600 transition-colors";
+
   return (
     <Layout>
-      {/* MUDANÇA 1: Container Principal TRAVADO na altura da tela.
-        h-[calc(100vh-80px)]: Altura total da tela MENOS aprox o tamanho do Header (80px).
-        overflow-hidden: Impede que a página inteira role.
-      */}
+      {/* Container Principal Travado */}
       <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
         
         {/* --- COLUNA 1: MENU LATERAL (SIDEBAR) --- */}
-        {/* w-80: Largura fixa no desktop.
-            overflow-y-auto: Cria uma barra de rolagem SÓ para o menu se precisar.
-            border-r: Linha divisória.
-        */}
-        <aside className="w-full lg:w-96 bg-slate-900/50 backdrop-blur-md border-r border-white/10 lg:h-full overflow-y-auto shrink-0 z-20">
-          <div className="p-6">
-            <div className="flex items-center gap-2 mb-6 text-primary sticky top-0 bg-slate-900/50 backdrop-blur-md py-2 z-10">
+        {/* MUDANÇA: Reduzi de w-96 para w-72 (288px) e apliquei a scrollbar fina */}
+        <aside className={cn(
+          "w-full lg:w-72 bg-slate-900/50 backdrop-blur-md border-r border-white/10 shrink-0 z-20",
+          scrollbarClass
+        )}>
+          <div className="p-4 lg:p-6">
+            <div className="flex items-center gap-2 mb-6 text-primary sticky top-0 bg-slate-900/90 backdrop-blur-xl py-2 z-10 -mx-2 px-2 rounded-lg">
               <BookOpen className="w-5 h-5" />
               <h2 className="font-display font-bold text-lg text-white">Cronograma</h2>
             </div>
@@ -70,7 +55,7 @@ export default function Aprender() {
             <div className="space-y-6">
               {modulos.map((modulo, index) => (
                 <div key={index}>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 px-2">
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 px-2">
                     {modulo.titulo}
                   </h3>
                   <div className="space-y-1">
@@ -83,18 +68,18 @@ export default function Aprender() {
                           key={aula.id}
                           onClick={() => setCurrentAulaId(aula.id)}
                           className={cn(
-                            "w-full text-left px-3 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-3 group",
+                            "w-full text-left px-3 py-2.5 rounded-lg text-xs font-medium transition-all flex items-center gap-3 group",
                             isActive 
-                              ? "bg-primary/10 text-primary border border-primary/20" 
+                              ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_10px_rgba(var(--primary-rgb),0.1)]" 
                               : "text-muted-foreground hover:bg-white/5 hover:text-white border border-transparent"
                           )}
                         >
                             {isActive ? (
-                              <PlayCircle className="w-4 h-4 shrink-0 animate-pulse" />
+                              <PlayCircle className="w-3.5 h-3.5 shrink-0 animate-pulse" />
                             ) : isCompleted ? (
-                              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
+                              <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                             ) : (
-                              <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30 shrink-0" />
+                              <div className="w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/30 shrink-0" />
                             )}
                             
                             <span className="line-clamp-1">{aula.id}. {aula.titulo}</span>
@@ -109,12 +94,9 @@ export default function Aprender() {
         </aside>
 
         {/* --- COLUNA 2: CONTEÚDO DA AULA --- */}
-        {/* flex-1: Ocupa todo o espaço restante.
-            overflow-y-auto: Cria a barra de rolagem SÓ para o conteúdo da aula.
-            scroll-smooth: Rolagem suave.
-        */}
-        <main className="flex-1 h-full overflow-y-auto scroll-smooth relative">
-          <div className="p-6 md:p-12 max-w-5xl mx-auto space-y-8 pb-32">
+        {/* MUDANÇA: Apliquei a scrollbar fina aqui também */}
+        <main className={cn("flex-1 h-full relative scroll-smooth bg-slate-950/30", scrollbarClass)}>
+          <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-8 pb-32">
               
               {/* Cabeçalho da Aula */}
               <motion.div
@@ -123,25 +105,25 @@ export default function Aprender() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
               >
-                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-muted-foreground mb-4">
+                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wider">
                     <span>Aula {currentAula.id} de {aulas.length}</span>
                     <span className="w-1 h-1 rounded-full bg-white/20" />
-                    <span className="capitalize text-primary">{currentAula.nivel}</span>
+                    <span className="text-primary">{currentAula.nivel}</span>
                  </div>
-                 <h1 className="font-display text-3xl md:text-5xl font-bold text-white mb-2">
+                 <h1 className="font-display text-2xl md:text-4xl font-bold text-white mb-2 leading-tight">
                    {currentAula.titulo}
                  </h1>
               </motion.div>
 
-              {/* O Player e Transcrição */}
+              {/* O Player */}
               <PodcastCard aula={currentAula} />
 
               {/* Divisor Visual */}
-              <div className="flex items-center gap-4 py-4">
+              <div className="flex items-center gap-4 py-2">
                 <div className="h-px bg-white/10 flex-1" />
-                <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Layers className="w-4 h-4" />
-                  Conceitos abordados nesta aula
+                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                  <Layers className="w-3 h-3" />
+                  Conceitos da Aula
                 </span>
                 <div className="h-px bg-white/10 flex-1" />
               </div>
@@ -161,29 +143,28 @@ export default function Aprender() {
                   ))
                 ) : (
                   <div className="col-span-full p-8 border border-dashed border-white/10 rounded-xl text-center text-muted-foreground/50">
-                    <p>Esta aula foca na teoria e mentalidade, sem termos técnicos específicos.</p>
+                    <p className="text-sm">Esta aula foca na teoria e mentalidade, sem termos técnicos específicos.</p>
                   </div>
                 )}
               </div>
 
-              {/* Navegação Inferior (Botão Próxima) */}
-              <div className="pt-12 border-t border-white/10 flex justify-end">
+              {/* Navegação Inferior */}
+              <div className="pt-10 border-t border-white/10 flex justify-end">
                 <Button 
                     size="lg"
                     onClick={handleNext} 
                     disabled={currentAulaId === aulas.length}
-                    className="group bg-white text-slate-900 hover:bg-white/90 font-bold rounded-full px-8 py-6 text-lg shadow-lg shadow-white/5"
+                    className="group bg-white text-slate-900 hover:bg-white/90 font-bold rounded-full px-8 py-6 text-base shadow-lg shadow-white/5 transition-all hover:scale-105"
                   >
-                    {currentAulaId === aulas.length ? "Curso Concluído! 🏆" : "Próxima Aula"}
+                    {currentAulaId === aulas.length ? "Concluir Curso 🏆" : "Próxima Aula"}
                     {currentAulaId !== aulas.length && (
-                      <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     )}
                 </Button>
               </div>
 
-              {/* Footer dentro do scroll da aula */}
-              <footer className="text-center text-xs text-muted-foreground/40 pt-12 pb-4">
-                <p>© 2026 EducaInvest. Feito com ❤️ para sua liberdade financeira.</p>
+              <footer className="text-center text-[10px] text-muted-foreground/30 pt-8">
+                <p>© 2026 EducaInvest.</p>
               </footer>
           </div>
         </main>
