@@ -91,4 +91,61 @@ export default function Aprender() {
               </motion.div>
             </div>
 
-            {/* Filtro
+            {/* Filtro de Categorias com Visibilidade Reforçada */}
+            <div className="overflow-x-auto pb-2 no-scrollbar">
+              <CategoryFilter 
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            </div>
+          </div>
+
+          {/* Grid de Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTerms.map((term, index) => (
+              <motion.div
+                key={term.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                <TermCard term={term} /> 
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Estado Vazio */}
+          {filteredTerms.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-20 px-6 rounded-2xl border-2 border-dashed border-muted bg-muted/5 flex flex-col items-center justify-center"
+            >
+              <div className="bg-muted/20 p-5 rounded-full mb-6">
+                <Ghost className="w-10 h-10 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-2">
+                Ops! Nenhum termo encontrado
+              </h3>
+              <p className="text-muted-foreground mb-8 max-w-sm text-balance">
+                Não encontramos resultados para os filtros selecionados. Tente ajustar sua busca ou mudar a categoria.
+              </p>
+              <Button 
+                variant="default"
+                size="lg"
+                className="rounded-full px-8"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedLevel(null);
+                  setSelectedCategory("todos");
+                }}
+              >
+                Ver todos os termos
+              </Button>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </Layout>
+  );
+}
