@@ -62,7 +62,7 @@ export default function Arcade() {
             </div>
             
             <h1 className="font-display text-4xl md:text-5xl font-bold mb-6 tracking-tight text-white drop-shadow-sm">
-              Aprenda na prática 🎮
+              Aprenda na prática
             </h1>
             
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance leading-relaxed">
