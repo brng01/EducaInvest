@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Aprender from "./pages/Aprender";
 import Simular from "./pages/Simular";
-import Arcade from "./pages/Arcade";
+import Arcade from "./pages/Praticar";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
