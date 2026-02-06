@@ -39,22 +39,34 @@ export function Header() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Busca sessão inicial
+    // 1. Busca sessão inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) fetchPerfil(session.user.id);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) {
+        fetchPerfil(currentUser.id);
+        setupRealtimeSubscription(currentUser.id); // Ativa o Realtime
+      }
     });
 
-    // Escuta mudanças de auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) fetchPerfil(session.user.id);
-      else setPerfil(null);
+    // 2. Escuta mudanças de auth
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) {
+        fetchPerfil(currentUser.id);
+        setupRealtimeSubscription(currentUser.id);
+      } else {
+        setPerfil(null);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      authSubscription.unsubscribe();
+    };
   }, []);
 
+  // Busca dados iniciais de XP e Nível
   const fetchPerfil = async (userId: string) => {
     const { data } = await supabase
       .from("perfis")
@@ -62,6 +74,30 @@ export function Header() {
       .eq("id", userId)
       .single();
     if (data) setPerfil(data);
+  };
+
+  // --- LOGICA REALTIME ---
+  const setupRealtimeSubscription = (userId: string) => {
+    const channel = supabase
+      .channel(`perfil_changes_${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'perfis',
+          filter: `id=eq.${userId}`,
+        },
+        (payload) => {
+          // Atualiza o estado local assim que o banco mudar
+          setPerfil(payload.new);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   };
 
   const handleLogout = async () => {
@@ -115,15 +151,18 @@ export function Header() {
             <div className="flex items-center gap-3 pl-4 border-l border-white/10">
               {user ? (
                 <>
-                  {/* Badge de XP */}
-                  <motion.div 
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full"
-                  >
-                    <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="text-xs font-bold text-white">{perfil?.xp_total || 0} XP</span>
-                  </motion.div>
+                  {/* Badge de XP com animação de pulso quando o valor mudar */}
+                  <AnimatePresence mode="wait">
+                    <motion.div 
+                      key={perfil?.xp_total}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full"
+                    >
+                      <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="text-xs font-bold text-white">{perfil?.xp_total || 0} XP</span>
+                    </motion.div>
+                  </AnimatePresence>
 
                   {/* Dropdown do Usuário */}
                   <DropdownMenu>
@@ -171,10 +210,15 @@ export function Header() {
           {/* Mobile Menu Button */}
           <div className="flex items-center gap-2 md:hidden">
             {user && (
-               <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full mr-2">
+               <motion.div 
+                key={perfil?.xp_total}
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full mr-2"
+               >
                  <Trophy className="w-3 h-3 text-amber-400" />
                  <span className="text-[10px] font-bold text-white">{perfil?.xp_total || 0}</span>
-               </div>
+               </motion.div>
             )}
             <Button
               variant="ghost"
@@ -187,7 +231,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation (Mantenha o código original aqui...) */}
       <AnimatePresence>
         {isOpen && (
           <motion.nav
