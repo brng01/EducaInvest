@@ -22,7 +22,7 @@ export default function Login() {
       email,
       options: {
         // Define para onde o usuário vai após clicar no link do e-mail
-        emailRedirectTo: window.location.origin + "/aprender",
+        emailRedirectTo: window.location.origin + "/home",
       },
     });
 
