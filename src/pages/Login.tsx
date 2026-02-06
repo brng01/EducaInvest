@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { Link } from "react-router-dom"; // Importado para permitir o retorno à home
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { Mail, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, ArrowRight, Loader2, Coins } from "lucide-react"; // Adicionado Coins para o logo
 import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
@@ -16,11 +17,9 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     
-    // Utilizamos signInWithOtp para enviar o link por e-mail
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        // Redireciona para a Home (/) após o clique no e-mail
         emailRedirectTo: window.location.origin,
       },
     });
@@ -45,7 +44,6 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        // Redireciona para a Home (/) após autorizar no Google
         redirectTo: window.location.origin,
       },
     });
@@ -60,14 +58,32 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
+      
+      {/* --- LOGO PARA RETORNO À HOME --- */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <Link to="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
+          <div className="bg-gradient-hero p-2 rounded-xl">
+            <Coins className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <span className="font-display font-bold text-2xl text-white">
+            Educa<span className="text-gradient-hero">Invest</span>
+          </span>
+        </Link>
+      </motion.div>
+
+      {/* --- CARD DE LOGIN --- */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md space-y-8 bg-slate-900/50 p-8 rounded-3xl border border-white/10 backdrop-blur-xl"
       >
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-white font-display">Bem-vindo ao EducaInvest</h1>
+          <h1 className="text-3xl font-bold text-white font-display">Bem-vindo</h1>
           <p className="text-muted-foreground">Sua jornada rumo à liberdade financeira começa aqui.</p>
         </div>
 
