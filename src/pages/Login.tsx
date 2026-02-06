@@ -12,7 +12,6 @@ export default function Login() {
   const { toast } = useToast();
 
   // Função para Magic Link
-  // Função para Magic Link atualizada
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -21,8 +20,8 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        // Define para onde o usuário vai após clicar no link do e-mail
-        emailRedirectTo: window.location.origin + "/home",
+        // Redireciona para a Home (/) após o clique no e-mail
+        emailRedirectTo: window.location.origin,
       },
     });
 
@@ -46,10 +45,18 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + "/aprender",
+        // Redireciona para a Home (/) após autorizar no Google
+        redirectTo: window.location.origin,
       },
     });
-    if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
+    
+    if (error) {
+      toast({ 
+        title: "Erro", 
+        description: error.message, 
+        variant: "destructive" 
+      });
+    }
   };
 
   return (
@@ -76,7 +83,9 @@ export default function Login() {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/5"></span></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-slate-900 px-2 text-muted-foreground font-medium tracking-widest">Ou use seu e-mail</span></div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-slate-900 px-2 text-muted-foreground font-medium tracking-widest">Ou use seu e-mail</span>
+          </div>
         </div>
 
         {/* Formulário Magic Link */}
