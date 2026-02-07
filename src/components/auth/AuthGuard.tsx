@@ -1,34 +1,26 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { LoginOverlay } from "./LoginOverlay";
 
 export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
-  const navigate = useNavigate();
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        navigate("/login");
-      } else {
-        setAuthenticated(true);
-      }
+    // Busca a sessão inicial
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
       setLoading(false);
-    };
+    });
 
-    checkUser();
-
-    // Escuta mudanças na autenticação (ex: logout em outra aba)
+    // Escuta mudanças na autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) navigate("/login");
+      setSession(session);
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   if (loading) {
     return (
@@ -38,5 +30,21 @@ export const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  return authenticated ? <>{children}</> : null;
+  // SE NÃO ESTIVER AUTENTICADO: Renderiza o conteúdo com Blur + Overlay
+  if (!session) {
+    return (
+      <div className="relative min-h-screen overflow-hidden">
+        {/* O conteúdo fica visível mas borrado e bloqueado */}
+        <div className="filter blur-md pointer-events-none select-none opacity-50">
+          {children}
+        </div>
+        
+        {/* O card de login fica por cima de tudo */}
+        <LoginOverlay />
+      </div>
+    );
+  }
+
+  // SE ESTIVER AUTENTICADO: Renderiza normal
+  return <>{children}</>;
 };
