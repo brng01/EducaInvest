@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { TrendingUp, CheckCircle2, DollarSign, Clock, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { MarketRates } from "@/pages/Simular"; // Importando a tipagem
+import { MarketRates } from "@/pages/Simular"; 
 import { cn } from "@/lib/utils";
 
 interface ComparatorProps {
@@ -16,16 +16,10 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
 
   // Lógica de Cálculo
   const results = useMemo(() => {
-    // Função auxiliar para calcular imposto e lucro
     const calculate = (annualRatePercentage: number, isTaxFree: boolean = false) => {
       const rateDecimal = annualRatePercentage / 100;
       const gross = amount * Math.pow(1 + rateDecimal, years);
       
-      // Tabela Regressiva de IR
-      // Até 180 dias (0.5 ano): 22.5%
-      // De 181 a 360 dias (1 ano): 20%
-      // De 361 a 720 dias (2 anos): 17.5%
-      // Acima de 720 dias: 15%
       let irRate = 0.15;
       if (years <= 0.5) irRate = 0.225;
       else if (years <= 1.0) irRate = 0.20;
@@ -45,13 +39,13 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
     };
 
     return {
-      poupanca: calculate(rates.poupanca, true), // Poupança é isenta
-      cdb: calculate(rates.cdi, false),          // CDB paga IR (usamos 100% do CDI)
-      tesouro: calculate(rates.selic, false),    // Tesouro paga IR (usamos a Selic)
+      poupanca: calculate(rates.poupanca, true),
+      cdb: calculate(rates.cdi, false),          
+      tesouro: calculate(rates.selic, false),    
     };
   }, [amount, years, rates]);
 
-  // Formatação
+  // Formatação Padronizada (Sempre 2 casas decimais)
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -61,8 +55,12 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
     }).format(value);
   };
 
+  // Formatação para o Input (Sempre 2 casas decimais)
   const formatNumberDisplay = (value: number) => {
-    return value.toLocaleString('pt-BR');
+    return value.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (val: number) => void) => {
@@ -70,7 +68,6 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
     setter(Number(rawValue));
   };
 
-  // Encontra a melhor opção
   const bestOption = Object.entries(results).reduce((best, [key, value]) => {
     return value.net > results[best as keyof typeof results].net ? key : best;
   }, "poupanca" as keyof typeof results);
@@ -102,7 +99,6 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
   return (
     <div className="space-y-8 text-foreground">
       
-      {/* CSS Hack para remover setinhas do input */}
       <style>{`
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -116,7 +112,6 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
 
       {/* --- INPUTS --- */}
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Valor a Investir */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
              <div className="flex items-center gap-2">
@@ -124,7 +119,7 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
                 <span className="text-sm font-bold text-slate-300">Valor a Investir</span>
              </div>
              
-             <div className="relative w-36">
+             <div className="relative w-40">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary font-semibold text-sm pointer-events-none">
                   R$
                 </span>
@@ -146,7 +141,6 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
           />
         </div>
 
-        {/* Período (Anos) */}
         <div className="space-y-4">
            <div className="flex justify-between items-center">
              <div className="flex items-center gap-2">
@@ -161,7 +155,6 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
                   onChange={(e) => setYears(Number(e.target.value))}
                   className="h-10 pl-3 pr-12 text-right font-medium bg-primary/5 border-primary/20 text-primary rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
                 />
-                {/* LÓGICA DE CONCORDÂNCIA AQUI */}
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 mt-[2px] text-primary/70 font-medium text-xs pointer-events-none uppercase tracking-wide">
                   {years === 1 ? "ano" : "anos"}
                 </span>
@@ -202,7 +195,6 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
                 </div>
               )}
 
-              {/* Cabeçalho do Card */}
               <div className="text-center mb-6">
                 <div className="text-4xl mb-3 filter drop-shadow-md">{inv.emoji}</div>
                 <h3 className="font-display font-bold text-lg text-white">
@@ -216,7 +208,6 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
                 </div>
               </div>
 
-              {/* Dados */}
               <div className="space-y-3 relative z-10">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground font-medium">Valor Bruto</span>
@@ -251,7 +242,6 @@ export function InvestmentComparator({ rates }: ComparatorProps) {
         })}
       </div>
 
-      {/* --- INFO BOX --- */}
       <div className="bg-slate-900/50 border border-white/5 rounded-xl p-4 flex gap-3 items-start">
         <AlertCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
         <p className="text-xs text-muted-foreground leading-relaxed">
