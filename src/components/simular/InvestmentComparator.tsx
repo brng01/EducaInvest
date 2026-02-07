@@ -1,37 +1,38 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, Info, CheckCircle2 } from "lucide-react";
+import { TrendingUp, CheckCircle2, DollarSign, Clock, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { MarketRates } from "@/pages/Simular"; // Importando a tipagem
+import { cn } from "@/lib/utils";
 
-export function InvestmentComparator() {
+interface ComparatorProps {
+  rates: MarketRates;
+}
+
+export function InvestmentComparator({ rates }: ComparatorProps) {
   const [amount, setAmount] = useState(10000);
   const [years, setYears] = useState(1);
 
-  // Current rates (approximate - these would be fetched from an API in production)
-  const rates = {
-    poupanca: 0.065, // ~6.5% (70% SELIC + TR)
-    cdb: 0.11, // ~11% (100% CDI approximation)
-    tesouro: 0.1175, // ~11.75% (Tesouro Selic)
-  };
-
+  // Lógica de Cálculo
   const results = useMemo(() => {
-    const calculate = (rate: number) => {
-      const gross = amount * Math.pow(1 + rate, years);
-      // IR rates: 22.5% (up to 180 days), 20% (181-360), 17.5% (361-720), 15% (720+)
+    // Função auxiliar para calcular imposto e lucro
+    const calculate = (annualRatePercentage: number, isTaxFree: boolean = false) => {
+      const rateDecimal = annualRatePercentage / 100;
+      const gross = amount * Math.pow(1 + rateDecimal, years);
+      
+      // Tabela Regressiva de IR
+      // Até 180 dias (0.5 ano): 22.5%
+      // De 181 a 360 dias (1 ano): 20%
+      // De 361 a 720 dias (2 anos): 17.5%
+      // Acima de 720 dias: 15%
       let irRate = 0.15;
       if (years <= 0.5) irRate = 0.225;
-      else if (years <= 1) irRate = 0.20;
-      else if (years <= 2) irRate = 0.175;
+      else if (years <= 1.0) irRate = 0.20;
+      else if (years <= 2.0) irRate = 0.175;
       
       const profit = gross - amount;
-      const tax = profit * irRate;
+      const tax = isTaxFree ? 0 : profit * irRate;
       const net = gross - tax;
       
       return {
@@ -39,24 +40,18 @@ export function InvestmentComparator() {
         profit,
         tax,
         net,
-        rate,
+        rate: annualRatePercentage,
       };
     };
 
-    const poupanca = {
-      ...calculate(rates.poupanca),
-      tax: 0, // Poupança is tax-free
-      net: amount * Math.pow(1 + rates.poupanca, years),
-    };
-    poupanca.profit = poupanca.net - amount;
-
     return {
-      poupanca,
-      cdb: calculate(rates.cdb),
-      tesouro: calculate(rates.tesouro),
+      poupanca: calculate(rates.poupanca, true), // Poupança é isenta
+      cdb: calculate(rates.cdi, false),          // CDB paga IR (usamos 100% do CDI)
+      tesouro: calculate(rates.selic, false),    // Tesouro paga IR (usamos a Selic)
     };
-  }, [amount, years]);
+  }, [amount, years, rates]);
 
+  // Formatação
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -66,11 +61,16 @@ export function InvestmentComparator() {
     }).format(value);
   };
 
-  const formatPercent = (value: number) => {
-    return `${(value * 100).toFixed(2)}%`;
+  const formatNumberDisplay = (value: number) => {
+    return value.toLocaleString('pt-BR');
   };
 
-  // Find the best option
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (val: number) => void) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    setter(Number(rawValue));
+  };
+
+  // Encontra a melhor opção
   const bestOption = Object.entries(results).reduce((best, [key, value]) => {
     return value.net > results[best as keyof typeof results].net ? key : best;
   }, "poupanca" as keyof typeof results);
@@ -80,99 +80,105 @@ export function InvestmentComparator() {
       key: "poupanca",
       name: "Poupança",
       emoji: "🐷",
-      description: "A mais tradicional, isenta de IR",
+      description: "Isento de IR",
       result: results.poupanca,
-      color: "bg-muted",
     },
     {
       key: "cdb",
       name: "CDB do Banco",
       emoji: "🏦",
-      description: "100% do CDI, com IR",
+      description: "100% do CDI",
       result: results.cdb,
-      color: "bg-primary/10",
     },
     {
       key: "tesouro",
       name: "Tesouro Direto",
       emoji: "🏛️",
-      description: "Tesouro Selic, com IR",
+      description: "Tesouro Selic",
       result: results.tesouro,
-      color: "bg-success/10",
     },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Inputs */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="amount">Valor a Investir</Label>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className="w-4 h-4 text-muted-foreground" />
-              </TooltipTrigger>
-              <TooltipContent>
-                Quanto você quer investir uma única vez
-              </TooltipContent>
-            </Tooltip>
-          </div>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              R$
-            </span>
-            <Input
-              id="amount"
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="pl-10"
-            />
+    <div className="space-y-8 text-foreground">
+      
+      {/* CSS Hack para remover setinhas do input */}
+      <style>{`
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+      `}</style>
+
+      {/* --- INPUTS --- */}
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Valor a Investir */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+             <div className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-emerald-400" />
+                <span className="text-sm font-bold text-slate-300">Valor a Investir</span>
+             </div>
+             
+             <div className="relative w-36">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary font-semibold text-sm pointer-events-none">
+                  R$
+                </span>
+                <Input 
+                  type="text"
+                  value={formatNumberDisplay(amount)}
+                  onChange={(e) => handleInputChange(e, setAmount)}
+                  className="h-10 pl-9 pr-3 text-right font-medium bg-primary/5 border-primary/20 text-primary rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary placeholder:text-primary/30"
+                />
+             </div>
           </div>
           <Slider
             value={[amount]}
-            onValueChange={([value]) => setAmount(value)}
-            min={1000}
-            max={100000}
-            step={1000}
-            className="mt-2"
+            min={100}
+            max={500000}
+            step={100}
+            onValueChange={(v) => setAmount(v[0])}
+            className="py-2 cursor-pointer"
           />
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="comp-years">Período (anos)</Label>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className="w-4 h-4 text-muted-foreground" />
-              </TooltipTrigger>
-              <TooltipContent>
-                Por quanto tempo vai deixar investido
-              </TooltipContent>
-            </Tooltip>
+        {/* Período (Anos) */}
+        <div className="space-y-4">
+           <div className="flex justify-between items-center">
+             <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-bold text-slate-300">Tempo Investido</span>
+             </div>
+             
+             <div className="relative w-32">
+                <Input 
+                  type="number"
+                  value={years}
+                  onChange={(e) => setYears(Number(e.target.value))}
+                  className="h-10 pl-3 pr-12 text-right font-medium bg-primary/5 border-primary/20 text-primary rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 mt-[2px] text-primary/70 font-medium text-xs pointer-events-none uppercase tracking-wide">
+                  anos
+                </span>
+             </div>
           </div>
-          <Input
-            id="comp-years"
-            type="number"
-            value={years}
-            onChange={(e) => setYears(Number(e.target.value))}
-            min={1}
-            max={30}
-          />
           <Slider
             value={[years]}
-            onValueChange={([value]) => setYears(value)}
             min={1}
-            max={10}
+            max={30}
             step={1}
-            className="mt-2"
+            onValueChange={(v) => setYears(v[0])}
+            className="py-2 cursor-pointer"
           />
         </div>
       </div>
 
-      {/* Comparison Cards */}
-      <div className="grid md:grid-cols-3 gap-4">
+      {/* --- CARDS DE COMPARAÇÃO --- */}
+      <div className="grid md:grid-cols-3 gap-4 pt-4">
         {investments.map((inv, index) => {
           const isBest = inv.key === bestOption;
           return (
@@ -181,56 +187,62 @@ export function InvestmentComparator() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`relative rounded-xl border p-6 transition-all ${
+              className={cn(
+                "relative rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between border",
                 isBest
-                  ? "border-success bg-success/5 ring-2 ring-success/20"
-                  : "border-border bg-card"
-              }`}
+                  ? "bg-gradient-to-b from-emerald-500/10 to-emerald-500/5 border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.1)] ring-1 ring-emerald-500/20"
+                  : "bg-slate-800/40 border-white/5 hover:border-white/10"
+              )}
             >
               {isBest && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-success text-success-foreground text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg">
                   <CheckCircle2 className="w-3 h-3" />
                   Melhor Opção
                 </div>
               )}
 
-              <div className="text-center mb-4">
-                <span className="text-3xl">{inv.emoji}</span>
-                <h3 className="font-display font-semibold text-lg mt-2">
+              {/* Cabeçalho do Card */}
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3 filter drop-shadow-md">{inv.emoji}</div>
+                <h3 className="font-display font-bold text-lg text-white">
                   {inv.name}
                 </h3>
-                <p className="text-xs text-muted-foreground">{inv.description}</p>
+                <div className="flex justify-center items-center gap-2 mt-2">
+                   <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-white/5 text-muted-foreground border border-white/5">
+                      {inv.result.rate.toFixed(2)}% a.a.
+                   </span>
+                   <span className="text-[10px] text-muted-foreground">{inv.description}</span>
+                </div>
               </div>
 
-              <div className="space-y-3">
+              {/* Dados */}
+              <div className="space-y-3 relative z-10">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Taxa</span>
-                  <span className="font-medium">{formatPercent(inv.result.rate)} a.a.</span>
+                  <span className="text-muted-foreground font-medium">Valor Bruto</span>
+                  <span className="text-slate-200">{formatCurrency(inv.result.gross)}</span>
                 </div>
+                
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Valor Bruto</span>
-                  <span className="font-medium">{formatCurrency(inv.result.gross)}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">IR Retido</span>
-                  <span className="font-medium text-destructive">
-                    -{formatCurrency(inv.result.tax)}
+                  <span className="text-muted-foreground font-medium">IR Estimado</span>
+                  <span className={cn("font-medium", inv.result.tax > 0 ? "text-rose-400" : "text-emerald-400")}>
+                    {inv.result.tax > 0 ? `-${formatCurrency(inv.result.tax)}` : "Isento"}
                   </span>
                 </div>
-                <div className="border-t border-border pt-3">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Valor Líquido</span>
-                    <span className={`font-display text-xl font-bold ${isBest ? "text-success" : ""}`}>
-                      {formatCurrency(inv.result.net)}
-                    </span>
+                
+                <div className="h-px bg-white/5 my-2" />
+
+                <div className="flex justify-between items-end">
+                  <div className="flex flex-col">
+                     <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Valor Líquido</span>
+                     <span className={cn("text-xl font-bold", isBest ? "text-emerald-400" : "text-white")}>
+                        {formatCurrency(inv.result.net)}
+                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-sm mt-1">
-                    <span className="text-muted-foreground">Lucro</span>
-                    <span className="text-success font-medium flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3" />
-                      +{formatCurrency(inv.result.profit)}
-                    </span>
-                  </div>
+                </div>
+                
+                <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium bg-emerald-400/5 p-2 rounded-lg border border-emerald-400/10">
+                   <TrendingUp className="w-3 h-3" />
+                   <span>Lucro: +{formatCurrency(inv.result.profit)}</span>
                 </div>
               </div>
             </motion.div>
@@ -238,12 +250,12 @@ export function InvestmentComparator() {
         })}
       </div>
 
-      {/* Info Box */}
-      <div className="bg-secondary/50 rounded-xl p-4 text-sm text-muted-foreground">
-        <p>
-          <strong>💡 Nota:</strong> As taxas utilizadas são aproximações das taxas atuais de mercado. 
-          O IR (Imposto de Renda) sobre investimentos segue a tabela regressiva: quanto mais tempo 
-          investido, menor a alíquota. A poupança é isenta de IR.
+      {/* --- INFO BOX --- */}
+      <div className="bg-slate-900/50 border border-white/5 rounded-xl p-4 flex gap-3 items-start">
+        <AlertCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          <strong>Como funciona o cálculo:</strong> As taxas utilizadas (Selic: {rates.selic}%, CDI: {rates.cdi}%, Poupança: {rates.poupanca}%) são baseadas nos dados reais de mercado mais recentes. 
+          O Imposto de Renda segue a tabela regressiva oficial (22,5% a 15%) dependendo do tempo investido. A Poupança é isenta.
         </p>
       </div>
     </div>
