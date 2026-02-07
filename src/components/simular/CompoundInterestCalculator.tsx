@@ -21,23 +21,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
-import { MarketRates } from "@/pages/Simular"; // Importando a interface do pai
+import { MarketRates } from "@/pages/Simular"; 
 
 interface CalculatorProps {
   rates: MarketRates;
 }
 
 export function CompoundInterestCalculator({ rates }: CalculatorProps) {
-  // Estados de Valores
-  const [initialValue, setInitialValue] = useState(1000); // Novo: Aporte Inicial
+  const [initialValue, setInitialValue] = useState(1000);
   const [monthlyInvestment, setMonthlyInvestment] = useState(500);
   const [years, setYears] = useState(10);
-
-  // Estados de Taxa
   const [rateType, setRateType] = useState<'SELIC' | 'CDI' | 'IPCA' | 'POUPANCA' | 'CUSTOM'>('SELIC');
   const [annualRate, setAnnualRate] = useState(rates.selic || 11.25);
 
-  // Sincroniza a taxa quando a seleção muda ou os dados da API chegam
   useEffect(() => {
     if (rateType === 'SELIC' && rates.selic) setAnnualRate(rates.selic);
     if (rateType === 'CDI' && rates.cdi) setAnnualRate(rates.cdi);
@@ -45,7 +41,6 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
     if (rateType === 'POUPANCA' && rates.poupanca) setAnnualRate(rates.poupanca);
   }, [rateType, rates]);
 
-  // Lógica de Cálculo (Memoized)
   const results = useMemo(() => {
     const monthlyRate = annualRate / 100 / 12;
     const months = years * 12;
@@ -54,7 +49,6 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
     let totalInvested = initialValue;
     const chartData = [];
 
-    // Adiciona o ponto inicial (mês 0)
     chartData.push({
       year: 0,
       "Juros Compostos": initialValue,
@@ -62,13 +56,9 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
     });
 
     for (let i = 1; i <= months; i++) {
-      // Cálculo Juros Compostos: Valor Anterior * (1 + taxa) + Aporte
       totalAmount = totalAmount * (1 + monthlyRate) + monthlyInvestment;
-      
-      // Cálculo Linear (Sem Juros): Apenas soma os aportes
       totalInvested += monthlyInvestment;
       
-      // Salva dados anualmente para o gráfico não ficar pesado
       if (i % 12 === 0) {
         chartData.push({
           year: i / 12,
@@ -97,7 +87,6 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
     }).format(value);
   };
 
-  // Opções de Taxas para os Botões
   const rateOptions = [
     { id: 'SELIC', label: 'SELIC', value: rates.selic, color: 'bg-primary' },
     { id: 'CDI', label: 'CDI', value: rates.cdi, color: 'bg-indigo-500' },
@@ -109,10 +98,21 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
   return (
     <div className="grid lg:grid-cols-12 gap-8 text-foreground">
       
+      {/* CSS Hack para remover as setinhas do input number */}
+      <style>{`
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+      `}</style>
+
       {/* --- COLUNA ESQUERDA: CONTROLES --- */}
       <div className="lg:col-span-5 space-y-8">
         
-        {/* 1. SELETOR DE TAXAS */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
              <Percent className="w-4 h-4 text-primary" />
@@ -127,7 +127,7 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
                   key={option.id}
                   onClick={() => setRateType(option.id as any)}
                   className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border",
+                    "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border cursor-pointer", // cursor-pointer adicionado
                     isActive 
                       ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] scale-105" 
                       : "bg-slate-800/50 text-slate-400 border-white/10 hover:border-white/30 hover:text-white"
@@ -154,9 +154,11 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
               readOnly={rateType !== 'CUSTOM'}
               className={cn(
                 "pl-14 h-14 text-lg font-bold bg-slate-950/50 border-white/10 rounded-xl transition-all",
+                // Removemos o outline padrão para não dar conflito visual
+                "focus-visible:ring-offset-0 focus-visible:ring-1",
                 rateType === 'CUSTOM' 
-                  ? "border-primary/50 focus:ring-primary/50 text-white" 
-                  : "opacity-80 cursor-not-allowed text-muted-foreground bg-slate-900/30"
+                  ? "border-primary/50 focus-visible:ring-primary text-white" 
+                  : "opacity-80 cursor-not-allowed text-muted-foreground bg-slate-900/30 border-transparent focus-visible:ring-0"
               )}
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">% ao ano</span>
@@ -180,7 +182,7 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
             max={100000}
             step={100}
             onValueChange={(v) => setInitialValue(v[0])}
-            className="py-2"
+            className="py-2 cursor-pointer"
           />
         </div>
 
@@ -201,7 +203,7 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
             max={20000}
             step={50}
             onValueChange={(v) => setMonthlyInvestment(v[0])}
-            className="py-2"
+            className="py-2 cursor-pointer"
           />
         </div>
 
@@ -222,17 +224,14 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
             max={50}
             step={1}
             onValueChange={(v) => setYears(v[0])}
-            className="py-2"
+            className="py-2 cursor-pointer"
           />
         </div>
       </div>
 
       {/* --- COLUNA DIREITA: RESULTADOS --- */}
       <div className="lg:col-span-7 space-y-6">
-        
-        {/* CARDS DE RESUMO */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Investido */}
           <div className="bg-slate-800/40 border border-white/5 p-5 rounded-2xl flex flex-col justify-between">
             <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
                <Calculator className="w-3 h-3" /> Total Investido
@@ -242,7 +241,6 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
             </p>
           </div>
 
-          {/* Juros */}
           <div className="bg-emerald-500/5 border border-emerald-500/10 p-5 rounded-2xl flex flex-col justify-between">
             <p className="text-[10px] text-emerald-400/80 font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
                <TrendingUp className="w-3 h-3" /> Juros Ganhos
@@ -252,7 +250,6 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
             </p>
           </div>
 
-          {/* Total */}
           <div className="md:col-span-1 bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 p-5 rounded-2xl relative overflow-hidden group">
              <div className="absolute inset-0 bg-primary/20 blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
              <div className="relative z-10">
@@ -266,7 +263,6 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
           </div>
         </div>
 
-        {/* GRÁFICO (AreaChart) */}
         <div className="h-[350px] w-full bg-slate-950/50 rounded-2xl border border-white/5 p-4 pt-8 shadow-inner">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={results.chartData}>
