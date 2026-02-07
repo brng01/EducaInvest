@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  BookOpen, 
-  ChevronRight, 
-  ChevronLeft, 
-  ChevronDown, 
-  Layers, 
-  PlayCircle, 
-  CheckCircle2, 
+import {
+  BookOpen,
+  ChevronRight,
+  ChevronLeft,
+  ChevronDown,
+  Layers,
+  PlayCircle,
+  CheckCircle2,
   Loader2,
   Timer,
   Lock,
@@ -28,15 +28,15 @@ import {
 } from "@/components/ui/tooltip";
 
 // Imports do Backend e Tipagem
-import { supabase } from "@/integrations/supabase/client"; 
-import { Aula, Termo } from "@/lib/termosData"; 
+import { supabase } from "@/integrations/supabase/client";
+import { Aula, Termo } from "@/lib/termosData";
 
 const TIME_LIMIT = 120; // Aumentado para 2 minutos (mais realista)
 
 // ========== COMPONENTE: BARRA DE PROGRESSO DO TIMER ==========
 const ProgressBar = ({ timeLeft, total }: { timeLeft: number; total: number }) => {
   const percentage = ((total - timeLeft) / total) * 100;
-  
+
   return (
     <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
       <motion.div
@@ -53,7 +53,7 @@ const ProgressBar = ({ timeLeft, total }: { timeLeft: number; total: number }) =
 export default function Aprender() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
-  
+
   // Estados para os Dados Reais
   const [lessons, setLessons] = useState<Aula[]>([]);
   const [allTerms, setAllTerms] = useState<Termo[]>([]);
@@ -64,7 +64,7 @@ export default function Aprender() {
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
   const [canComplete, setCanComplete] = useState(false);
   const [user, setUser] = useState<any>(null);
-  
+
   // ========== ESTADO COM PERSISTÊNCIA ==========
   const [currentAulaId, setCurrentAulaId] = useState(() => {
     // Carrega do localStorage como fallback imediato
@@ -78,7 +78,7 @@ export default function Aprender() {
     localStorage.setItem('educainvest_current_lesson', newId.toString());
     setIsMobileMenuOpen(false); // Fecha menu mobile
     window.scrollTo(0, 0); // Scroll para topo
-    
+
     // Salva no Supabase em background (não bloqueia UI)
     if (user) {
       supabase.from('user_progress').upsert({
@@ -103,11 +103,11 @@ export default function Aprender() {
         const [lessonsResult, termsResult, progressResult] = await Promise.all([
           supabase.from('lessons').select('*').order('order_index', { ascending: true }),
           supabase.from('terms').select('*'),
-          session?.user 
+          session?.user
             ? supabase.from('user_progress')
-                .select('lesson_id')
-                .eq('user_id', session.user.id)
-                .eq('is_completed', true)
+              .select('lesson_id')
+              .eq('user_id', session.user.id)
+              .eq('is_completed', true)
             : Promise.resolve({ data: null })
         ]);
 
@@ -142,7 +142,7 @@ export default function Aprender() {
             explicacaoSimplificada: t.explanation_simple,
             exemplo: t.example,
             dicaComoComecar: t.tip,
-            nivelId: parentLesson?.nivel || 'iniciante', 
+            nivelId: parentLesson?.nivel || 'iniciante',
             categoria: t.category,
             aulaAssociadaId: t.lesson_id
           };
@@ -151,23 +151,23 @@ export default function Aprender() {
 
         // Carrega última aula do Supabase (sobrescreve localStorage se houver)
         if (session?.user) {
-          const { data: lastLesson } = await supabase
+          const { data: progressList } = await supabase
             .from('user_progress')
-            .select('lesson_id')
+            .select('lesson_id, updated_at')
             .eq('user_id', session.user.id)
             .order('updated_at', { ascending: false })
-            .limit(1)
-            .single();
-          
-          if (lastLesson?.lesson_id) {
-            setCurrentAulaId(lastLesson.lesson_id);
-            localStorage.setItem('educainvest_current_lesson', lastLesson.lesson_id.toString());
+            .limit(1);
+
+          if (progressList && progressList.length > 0) {
+            const lastLessonId = progressList[0].lesson_id;
+            setCurrentAulaId(lastLessonId);
+            localStorage.setItem('educainvest_current_lesson', lastLessonId.toString());
           }
         }
 
       } catch (error: any) {
         console.error("Erro ao carregar dados:", error);
-        
+
         // Tratamento específico de erro de autenticação
         if (error?.code === 'PGRST116' || error?.message?.includes('JWT')) {
           toast({
@@ -223,7 +223,7 @@ export default function Aprender() {
     // Efeito de Confete apenas na última aula do módulo ou curso
     const isLastOfModule = lessons.filter(l => l.nivel === currentAula.nivel).pop()?.id === currentAulaId;
     const isLastOfCourse = currentAulaId === lessons.length;
-    
+
     if (isLastOfModule || isLastOfCourse) {
       confetti({
         particleCount: isLastOfCourse ? 200 : 100,
@@ -251,7 +251,7 @@ export default function Aprender() {
       // Adiciona XP Dinâmico ao Perfil
       const { data: perfil } = await supabase.from('perfis').select('xp_total').eq('id', user.id).single();
       const newTotal = (perfil?.xp_total || 0) + xpAmount;
-      
+
       await supabase.from('perfis').update({ xp_total: newTotal }).eq('id', user.id);
 
       toast({
@@ -281,7 +281,7 @@ export default function Aprender() {
     if (!allTerms.length) return [];
     return allTerms.filter(t => t.aulaAssociadaId === currentAulaId);
   }, [currentAulaId, allTerms]);
-  
+
   // ========== LÓGICA DE BLOQUEIO DO MENU (MELHORADA) ==========
   const maxCompletedId = completedLessonIds.length > 0 ? Math.max(...completedLessonIds) : 0;
 
@@ -311,15 +311,15 @@ export default function Aprender() {
     <Layout>
       <TooltipProvider>
         <div className="flex flex-col lg:flex-row min-h-screen lg:h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 lg:overflow-hidden">
-          
+
           {/* ========== COLUNA 1: MENU LATERAL ========== */}
           <aside className={cn(
             "w-full lg:w-72 bg-slate-900/50 backdrop-blur-md border-b lg:border-b-0 lg:border-r border-white/10 shrink-0 z-20 transition-all",
             scrollbarClass,
-            isMobileMenuOpen ? "h-auto" : "h-auto" 
+            isMobileMenuOpen ? "h-auto" : "h-auto"
           )}>
             <div className="p-4 lg:p-6">
-              <button 
+              <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="w-full flex items-center justify-between lg:justify-start gap-2 mb-2 lg:mb-6 text-primary sticky top-0 bg-slate-900/90 backdrop-blur-xl py-2 z-10 -mx-2 px-2 rounded-lg lg:cursor-default"
                 aria-label="Menu de aulas"
@@ -332,7 +332,7 @@ export default function Aprender() {
               </button>
 
               <div className={cn(
-                "space-y-6 lg:block", 
+                "space-y-6 lg:block",
                 isMobileMenuOpen ? "block animate-in slide-in-from-top-2 duration-200" : "hidden"
               )}>
                 {modulos.map((modulo, index) => (
@@ -352,10 +352,10 @@ export default function Aprender() {
                             onClick={() => !isLocked && handleLessonChange(aula.id)}
                             className={cn(
                               "w-full text-left px-3 py-2.5 rounded-lg text-xs font-medium transition-all flex items-center gap-3 group relative",
-                              isActive 
-                                ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_10px_rgba(59,130,246,0.1)]" 
-                                : isLocked 
-                                  ? "opacity-40 cursor-not-allowed bg-transparent text-muted-foreground" 
+                              isActive
+                                ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_10px_rgba(59,130,246,0.1)]"
+                                : isLocked
+                                  ? "opacity-40 cursor-not-allowed bg-transparent text-muted-foreground"
                                   : "text-muted-foreground hover:bg-white/5 hover:text-white border border-transparent"
                             )}
                             aria-label={`Aula ${aula.id}: ${aula.titulo}`}
@@ -372,7 +372,7 @@ export default function Aprender() {
                             ) : (
                               <div className="w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/30 shrink-0" />
                             )}
-                            
+
                             <span className="line-clamp-1">{aula.id}. {aula.titulo}</span>
                           </button>
                         );
@@ -401,104 +401,104 @@ export default function Aprender() {
           {/* ========== COLUNA 2: CONTEÚDO DA AULA ========== */}
           <main className={cn("flex-1 relative bg-slate-950/30 lg:h-full lg:overflow-y-auto", scrollbarClass)}>
             <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-8 pb-32">
-                
-                <motion.div
-                  key={`header-${currentAula.id}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wider">
-                    <span>Aula {currentAula.id} de {lessons.length}</span>
-                    <span className="w-1 h-1 rounded-full bg-white/20" />
-                    <span className="text-primary">{currentAula.nivel}</span>
-                  </div>
-                  <h1 className="font-display text-2xl md:text-4xl font-bold text-white mb-2 leading-tight">
-                    {currentAula.tituloCompleto}
-                  </h1>
-                </motion.div>
 
-                <PodcastCard aula={currentAula} />
-
-                <div className="flex items-center gap-4 py-2">
-                  <div className="h-px bg-white/10 flex-1" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                    <Layers className="w-3 h-3" /> Conceitos da Aula
-                  </span>
-                  <div className="h-px bg-white/10 flex-1" />
+              <motion.div
+                key={`header-${currentAula.id}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-medium text-muted-foreground mb-4 uppercase tracking-wider">
+                  <span>Aula {currentAula.id} de {lessons.length}</span>
+                  <span className="w-1 h-1 rounded-full bg-white/20" />
+                  <span className="text-primary">{currentAula.nivel}</span>
                 </div>
+                <h1 className="font-display text-2xl md:text-4xl font-bold text-white mb-2 leading-tight">
+                  {currentAula.tituloCompleto}
+                </h1>
+              </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                  {termosDaAula.length > 0 ? (
-                    termosDaAula.map((term, index) => (
-                      <motion.div
-                        key={term.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                      >
-                        <TermCard term={term} hideLevel={true} /> 
-                      </motion.div>
-                    ))
-                  ) : (
-                    <div className="col-span-full p-8 border border-dashed border-white/10 rounded-xl text-center text-muted-foreground/50 text-sm">
-                      Esta aula foca na teoria e mentalidade, sem termos técnicos específicos.
+              <PodcastCard aula={currentAula} />
+
+              <div className="flex items-center gap-4 py-2">
+                <div className="h-px bg-white/10 flex-1" />
+                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                  <Layers className="w-3 h-3" /> Conceitos da Aula
+                </span>
+                <div className="h-px bg-white/10 flex-1" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                {termosDaAula.length > 0 ? (
+                  termosDaAula.map((term, index) => (
+                    <motion.div
+                      key={term.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                    >
+                      <TermCard term={term} hideLevel={true} />
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="col-span-full p-8 border border-dashed border-white/10 rounded-xl text-center text-muted-foreground/50 text-sm">
+                    Esta aula foca na teoria e mentalidade, sem termos técnicos específicos.
+                  </div>
+                )}
+              </div>
+
+              {/* ========== NAVEGAÇÃO COM BOTÃO DE XP E TIMER ========== */}
+              <div className="pt-10 border-t border-white/10 flex flex-col-reverse gap-4 md:flex-row justify-between items-center">
+                <Button
+                  variant="ghost"
+                  onClick={() => handleLessonChange(currentAulaId - 1)}
+                  disabled={currentAulaId === 1}
+                  className="text-muted-foreground hover:text-white rounded-full px-6 w-full md:w-auto disabled:opacity-30"
+                  aria-label="Ir para aula anterior"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" /> Aula Anterior
+                </Button>
+
+                <div className="flex flex-col items-center gap-3 w-full md:w-auto">
+                  {!canComplete && (
+                    <ProgressBar timeLeft={timeLeft} total={TIME_LIMIT} />
+                  )}
+
+                  <Button
+                    size="lg"
+                    onClick={handleCompleteAndNext}
+                    disabled={!canComplete}
+                    className={cn(
+                      "group font-bold rounded-full px-8 py-6 text-base transition-all w-full md:w-auto relative overflow-hidden",
+                      canComplete
+                        ? "bg-white text-slate-900 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]"
+                        : "bg-white/5 text-white/20 border border-white/5 cursor-not-allowed"
+                    )}
+                    aria-label={canComplete ? `Concluir aula e ganhar ${xpAmount} XP` : `Aguarde ${timeLeft} segundos para liberar`}
+                    role="button"
+                    aria-disabled={!canComplete}
+                  >
+                    {!canComplete && <Timer className="w-4 h-4 mr-2 animate-pulse" />}
+                    {canComplete
+                      ? (currentAulaId === lessons.length ? "🎉 Concluir Curso" : `Concluir e Ganhar +${xpAmount} XP`)
+                      : `Aguarde ${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2, '0')}`}
+                    {canComplete && currentAulaId !== lessons.length && (
+                      <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    )}
+                  </Button>
+
+                  {!canComplete && (
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground/50 uppercase tracking-widest">
+                      <Info className="w-3 h-3" />
+                      <span>Estude o conteúdo para coletar seus pontos</span>
                     </div>
                   )}
                 </div>
+              </div>
 
-                {/* ========== NAVEGAÇÃO COM BOTÃO DE XP E TIMER ========== */}
-                <div className="pt-10 border-t border-white/10 flex flex-col-reverse gap-4 md:flex-row justify-between items-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleLessonChange(currentAulaId - 1)}
-                    disabled={currentAulaId === 1}
-                    className="text-muted-foreground hover:text-white rounded-full px-6 w-full md:w-auto disabled:opacity-30"
-                    aria-label="Ir para aula anterior"
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-2" /> Aula Anterior
-                  </Button>
-
-                  <div className="flex flex-col items-center gap-3 w-full md:w-auto">
-                    {!canComplete && (
-                      <ProgressBar timeLeft={timeLeft} total={TIME_LIMIT} />
-                    )}
-                    
-                    <Button 
-                      size="lg"
-                      onClick={handleCompleteAndNext} 
-                      disabled={!canComplete}
-                      className={cn(
-                        "group font-bold rounded-full px-8 py-6 text-base transition-all w-full md:w-auto relative overflow-hidden",
-                        canComplete 
-                          ? "bg-white text-slate-900 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]" 
-                          : "bg-white/5 text-white/20 border border-white/5 cursor-not-allowed"
-                      )}
-                      aria-label={canComplete ? `Concluir aula e ganhar ${xpAmount} XP` : `Aguarde ${timeLeft} segundos para liberar`}
-                      role="button"
-                      aria-disabled={!canComplete}
-                    >
-                      {!canComplete && <Timer className="w-4 h-4 mr-2 animate-pulse" />}
-                      {canComplete 
-                        ? (currentAulaId === lessons.length ? "🎉 Concluir Curso" : `Concluir e Ganhar +${xpAmount} XP`) 
-                        : `Aguarde ${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2, '0')}`}
-                      {canComplete && currentAulaId !== lessons.length && (
-                        <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      )}
-                    </Button>
-                    
-                    {!canComplete && (
-                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground/50 uppercase tracking-widest">
-                        <Info className="w-3 h-3" />
-                        <span>Estude o conteúdo para coletar seus pontos</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <footer className="text-center text-[10px] text-muted-foreground/30 pt-8">
-                  <p>© 2026 EducaInvest - Educação Financeira ao Seu Alcance</p>
-                </footer>
+              <footer className="text-center text-[10px] text-muted-foreground/30 pt-8">
+                <p>© 2026 EducaInvest - Educação Financeira ao Seu Alcance</p>
+              </footer>
             </div>
           </main>
         </div>
