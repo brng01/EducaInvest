@@ -233,7 +233,7 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
           />
         </div>
 
-        {/* 4. PERÍODO (Com ajuste de alinhamento óptico) */}
+        {/* 4. PERÍODO (Com ajuste de alinhamento) */}
         <div className="space-y-4">
            <div className="flex justify-between items-center">
              <div className="flex items-center gap-2">
@@ -248,8 +248,8 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
                   onChange={(e) => setYears(Number(e.target.value))}
                   className="h-10 pl-3 pr-12 text-right font-medium bg-primary/5 border-primary/20 text-primary rounded-lg focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
                 />
-                {/* AJUSTE AQUI: mt-[-1px] para subir o texto levemente e alinhar visualmente */}
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 mt-[-1px] text-primary/70 font-medium text-xs pointer-events-none uppercase tracking-wide">
+                {/* AJUSTE AQUI: mt-[2px] empurra o texto para baixo para alinhar com os números */}
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 mt-[2px] text-primary/70 font-medium text-xs pointer-events-none uppercase tracking-wide">
                   anos
                 </span>
              </div>
