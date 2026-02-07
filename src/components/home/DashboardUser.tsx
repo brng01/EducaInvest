@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, Play, CheckCircle2, Star } from "lucide-react";
 
-export function DashboardUser({ user, perfil }: { user: any; perfil: any }) {
+export function DashboardUser({ user, perfil }: { user: any; perfil: any; progress?: any; }) {
   const [nextLesson, setNextLesson] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
