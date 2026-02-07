@@ -24,9 +24,15 @@ interface TermCardProps {
   hideLevel?: boolean;
 }
 
-export function TermCard({ term, hideLevel = false }: TermCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
+export function TermCard({ term, hideLevel }: TermCardProps) {
+  return (
+    <div id={`term-${term.id}`} className="transition-all duration-300 rounded-xl">
+      <div className="bg-card rounded-xl ...">
+        {/* conteúdo */}
+      </div>
+    </div>
+  );
+}
   // Lógica dos Ícones (Mantida Original)
   const getTermIcon = (t: Termo) => {
     const nome = t.nome.toLowerCase();
