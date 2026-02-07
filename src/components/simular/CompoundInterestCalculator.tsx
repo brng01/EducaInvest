@@ -1,61 +1,92 @@
-import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Calculator, TrendingUp, Info } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RechartsTooltip,
-  ResponsiveContainer,
-  Legend,
+import { useState, useEffect, useMemo } from "react";
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip as RechartsTooltip, 
+  ResponsiveContainer, 
+  Legend 
 } from "recharts";
+import { 
+  Calculator, 
+  TrendingUp, 
+  Percent, 
+  DollarSign, 
+  Calendar,
+  Lock,
+  Unlock
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
+import { MarketRates } from "@/pages/Simular"; // Importando a interface do pai
 
-export function CompoundInterestCalculator() {
+interface CalculatorProps {
+  rates: MarketRates;
+}
+
+export function CompoundInterestCalculator({ rates }: CalculatorProps) {
+  // Estados de Valores
+  const [initialValue, setInitialValue] = useState(1000); // Novo: Aporte Inicial
   const [monthlyInvestment, setMonthlyInvestment] = useState(500);
-  const [annualRate, setAnnualRate] = useState(12);
   const [years, setYears] = useState(10);
 
+  // Estados de Taxa
+  const [rateType, setRateType] = useState<'SELIC' | 'CDI' | 'IPCA' | 'POUPANCA' | 'CUSTOM'>('SELIC');
+  const [annualRate, setAnnualRate] = useState(rates.selic || 11.25);
+
+  // Sincroniza a taxa quando a seleção muda ou os dados da API chegam
+  useEffect(() => {
+    if (rateType === 'SELIC' && rates.selic) setAnnualRate(rates.selic);
+    if (rateType === 'CDI' && rates.cdi) setAnnualRate(rates.cdi);
+    if (rateType === 'IPCA' && rates.ipca) setAnnualRate(rates.ipca);
+    if (rateType === 'POUPANCA' && rates.poupanca) setAnnualRate(rates.poupanca);
+  }, [rateType, rates]);
+
+  // Lógica de Cálculo (Memoized)
   const results = useMemo(() => {
     const monthlyRate = annualRate / 100 / 12;
     const months = years * 12;
     
-    let compound = 0;
-    let linear = 0;
+    let totalAmount = initialValue;
+    let totalInvested = initialValue;
     const chartData = [];
 
-    for (let i = 0; i <= months; i++) {
-      compound = monthlyInvestment * ((Math.pow(1 + monthlyRate, i) - 1) / monthlyRate);
-      linear = monthlyInvestment * i;
+    // Adiciona o ponto inicial (mês 0)
+    chartData.push({
+      year: 0,
+      "Juros Compostos": initialValue,
+      "Sem Juros": initialValue,
+    });
+
+    for (let i = 1; i <= months; i++) {
+      // Cálculo Juros Compostos: Valor Anterior * (1 + taxa) + Aporte
+      totalAmount = totalAmount * (1 + monthlyRate) + monthlyInvestment;
       
+      // Cálculo Linear (Sem Juros): Apenas soma os aportes
+      totalInvested += monthlyInvestment;
+      
+      // Salva dados anualmente para o gráfico não ficar pesado
       if (i % 12 === 0) {
         chartData.push({
           year: i / 12,
-          "Juros Compostos": Math.round(compound),
-          "Sem Juros": Math.round(linear),
+          "Juros Compostos": Math.round(totalAmount),
+          "Sem Juros": Math.round(totalInvested),
         });
       }
     }
 
-    const totalInvested = monthlyInvestment * months;
-    const totalInterest = compound - totalInvested;
+    const totalInterest = totalAmount - totalInvested;
 
     return {
-      total: compound,
+      total: totalAmount,
       invested: totalInvested,
       interest: totalInterest,
       chartData,
     };
-  }, [monthlyInvestment, annualRate, years]);
+  }, [initialValue, monthlyInvestment, annualRate, years]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -66,194 +97,243 @@ export function CompoundInterestCalculator() {
     }).format(value);
   };
 
+  // Opções de Taxas para os Botões
+  const rateOptions = [
+    { id: 'SELIC', label: 'SELIC', value: rates.selic, color: 'bg-primary' },
+    { id: 'CDI', label: 'CDI', value: rates.cdi, color: 'bg-indigo-500' },
+    { id: 'POUPANCA', label: 'Poupança', value: rates.poupanca, color: 'bg-emerald-500' },
+    { id: 'IPCA', label: 'IPCA', value: rates.ipca, color: 'bg-amber-500' },
+    { id: 'CUSTOM', label: 'Personalizado', value: null, color: 'bg-slate-500' },
+  ];
+
   return (
-    <div className="space-y-8">
-      {/* Inputs */}
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="monthly">Investimento Mensal</Label>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className="w-4 h-4 text-muted-foreground" />
-              </TooltipTrigger>
-              <TooltipContent>
-                Quanto você vai investir todo mês
-              </TooltipContent>
-            </Tooltip>
+    <div className="grid lg:grid-cols-12 gap-8 text-foreground">
+      
+      {/* --- COLUNA ESQUERDA: CONTROLES --- */}
+      <div className="lg:col-span-5 space-y-8">
+        
+        {/* 1. SELETOR DE TAXAS */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+             <Percent className="w-4 h-4 text-primary" />
+             <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Taxa Anual de Rentabilidade</span>
           </div>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              R$
-            </span>
+
+          <div className="flex flex-wrap gap-2">
+            {rateOptions.map((option) => {
+              const isActive = rateType === option.id;
+              return (
+                <button
+                  key={option.id}
+                  onClick={() => setRateType(option.id as any)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all border",
+                    isActive 
+                      ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)] scale-105" 
+                      : "bg-slate-800/50 text-slate-400 border-white/10 hover:border-white/30 hover:text-white"
+                  )}
+                >
+                  {option.label}
+                  {option.value ? ` ${option.value}%` : ''}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* INPUT DA TAXA */}
+          <div className="relative group">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-muted-foreground">
+              {rateType === 'CUSTOM' ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+            </div>
             <Input
-              id="monthly"
               type="number"
-              value={monthlyInvestment}
-              onChange={(e) => setMonthlyInvestment(Number(e.target.value))}
-              className="pl-10"
+              value={annualRate}
+              onChange={(e) => {
+                if (rateType === 'CUSTOM') setAnnualRate(Number(e.target.value));
+              }}
+              readOnly={rateType !== 'CUSTOM'}
+              className={cn(
+                "pl-14 h-14 text-lg font-bold bg-slate-950/50 border-white/10 rounded-xl transition-all",
+                rateType === 'CUSTOM' 
+                  ? "border-primary/50 focus:ring-primary/50 text-white" 
+                  : "opacity-80 cursor-not-allowed text-muted-foreground bg-slate-900/30"
+              )}
             />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">% ao ano</span>
+          </div>
+        </div>
+
+        {/* 2. VALOR INICIAL */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+             <div className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-emerald-400" />
+                <span className="text-sm font-bold text-slate-300">Investimento Inicial</span>
+             </div>
+             <span className="text-primary font-mono font-bold bg-primary/10 px-2 py-1 rounded border border-primary/20">
+                {formatCurrency(initialValue)}
+             </span>
+          </div>
+          <Slider
+            value={[initialValue]}
+            min={0}
+            max={100000}
+            step={100}
+            onValueChange={(v) => setInitialValue(v[0])}
+            className="py-2"
+          />
+        </div>
+
+        {/* 3. APORTE MENSAL */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+             <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-blue-400" />
+                <span className="text-sm font-bold text-slate-300">Aporte Mensal</span>
+             </div>
+             <span className="text-primary font-mono font-bold bg-primary/10 px-2 py-1 rounded border border-primary/20">
+                {formatCurrency(monthlyInvestment)}
+             </span>
           </div>
           <Slider
             value={[monthlyInvestment]}
-            onValueChange={([value]) => setMonthlyInvestment(value)}
-            min={50}
-            max={5000}
+            min={0}
+            max={20000}
             step={50}
-            className="mt-2"
+            onValueChange={(v) => setMonthlyInvestment(v[0])}
+            className="py-2"
           />
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="rate">Taxa Anual (%)</Label>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className="w-4 h-4 text-muted-foreground" />
-              </TooltipTrigger>
-              <TooltipContent>
-                Taxa de rendimento anual esperada (ex: CDI atual ~12%)
-              </TooltipContent>
-            </Tooltip>
+        {/* 4. PERÍODO (ANOS) */}
+        <div className="space-y-4">
+           <div className="flex justify-between items-center">
+             <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-bold text-slate-300">Tempo de Investimento</span>
+             </div>
+             <span className="text-white font-bold bg-white/10 px-2 py-1 rounded border border-white/10">
+                {years} anos
+             </span>
           </div>
-          <div className="relative">
-            <Input
-              id="rate"
-              type="number"
-              value={annualRate}
-              onChange={(e) => setAnnualRate(Number(e.target.value))}
-              className="pr-8"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              %
-            </span>
-          </div>
-          <Slider
-            value={[annualRate]}
-            onValueChange={([value]) => setAnnualRate(value)}
-            min={1}
-            max={30}
-            step={0.5}
-            className="mt-2"
-          />
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="years">Período (anos)</Label>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className="w-4 h-4 text-muted-foreground" />
-              </TooltipTrigger>
-              <TooltipContent>
-                Por quanto tempo você vai investir
-              </TooltipContent>
-            </Tooltip>
-          </div>
-          <Input
-            id="years"
-            type="number"
-            value={years}
-            onChange={(e) => setYears(Number(e.target.value))}
-          />
           <Slider
             value={[years]}
-            onValueChange={([value]) => setYears(value)}
             min={1}
-            max={40}
+            max={50}
             step={1}
-            className="mt-2"
+            onValueChange={(v) => setYears(v[0])}
+            className="py-2"
           />
         </div>
       </div>
 
-      {/* Results */}
-      <motion.div
-        key={`${monthlyInvestment}-${annualRate}-${years}`}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="grid md:grid-cols-3 gap-4"
-      >
-        <div className="bg-gradient-hero rounded-xl p-6 text-primary-foreground">
-          <div className="flex items-center gap-2 mb-2 opacity-90">
-            <TrendingUp className="w-5 h-5" />
-            <span className="text-sm font-medium">Total Acumulado</span>
+      {/* --- COLUNA DIREITA: RESULTADOS --- */}
+      <div className="lg:col-span-7 space-y-6">
+        
+        {/* CARDS DE RESUMO */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Investido */}
+          <div className="bg-slate-800/40 border border-white/5 p-5 rounded-2xl flex flex-col justify-between">
+            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+               <Calculator className="w-3 h-3" /> Total Investido
+            </p>
+            <p className="text-lg md:text-xl font-bold text-slate-200">
+              {formatCurrency(results.invested)}
+            </p>
           </div>
-          <p className="font-display text-3xl font-bold">
-            {formatCurrency(results.total)}
-          </p>
+
+          {/* Juros */}
+          <div className="bg-emerald-500/5 border border-emerald-500/10 p-5 rounded-2xl flex flex-col justify-between">
+            <p className="text-[10px] text-emerald-400/80 font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+               <TrendingUp className="w-3 h-3" /> Juros Ganhos
+            </p>
+            <p className="text-lg md:text-xl font-bold text-emerald-400">
+              +{formatCurrency(results.interest)}
+            </p>
+          </div>
+
+          {/* Total */}
+          <div className="md:col-span-1 bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 p-5 rounded-2xl relative overflow-hidden group">
+             <div className="absolute inset-0 bg-primary/20 blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+             <div className="relative z-10">
+                <p className="text-[10px] text-primary-foreground/80 font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                   Total Acumulado
+                </p>
+                <p className="text-xl md:text-2xl font-bold text-white">
+                  {formatCurrency(results.total)}
+                </p>
+             </div>
+          </div>
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-6">
-          <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-            <Calculator className="w-5 h-5" />
-            <span className="text-sm font-medium">Total Investido</span>
-          </div>
-          <p className="font-display text-2xl font-bold text-foreground">
-            {formatCurrency(results.invested)}
-          </p>
-        </div>
-
-        <div className="bg-success/10 border border-success/20 rounded-xl p-6">
-          <div className="flex items-center gap-2 mb-2 text-success">
-            <TrendingUp className="w-5 h-5" />
-            <span className="text-sm font-medium">Ganho com Juros</span>
-          </div>
-          <p className="font-display text-2xl font-bold text-success">
-            +{formatCurrency(results.interest)}
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Chart */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <h3 className="font-display font-semibold mb-6">
-          📈 A Mágica do Tempo: Juros Compostos vs Sem Juros
-        </h3>
-        <div className="h-[300px]">
+        {/* GRÁFICO (AreaChart) */}
+        <div className="h-[350px] w-full bg-slate-950/50 rounded-2xl border border-white/5 p-4 pt-8 shadow-inner">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={results.chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <AreaChart data={results.chartData}>
+              <defs>
+                <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorInvested" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.1}/>
+                  <stop offset="95%" stopColor="#94a3b8" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
               <XAxis 
                 dataKey="year" 
+                stroke="#64748b" 
+                fontSize={12} 
+                tickLine={false} 
+                axisLine={false} 
                 tickFormatter={(value) => `${value}a`}
-                stroke="hsl(var(--muted-foreground))"
               />
               <YAxis 
-                tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                stroke="hsl(var(--muted-foreground))"
+                stroke="#64748b" 
+                fontSize={12} 
+                tickLine={false} 
+                axisLine={false}
+                tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} 
               />
               <RechartsTooltip 
-                formatter={(value: number) => formatCurrency(value)}
-                labelFormatter={(label) => `Ano ${label}`}
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
+                contentStyle={{ 
+                  backgroundColor: '#020617', 
+                  borderColor: '#1e293b', 
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'
                 }}
+                itemStyle={{ color: '#fff', fontSize: '12px' }}
+                formatter={(value: number) => [formatCurrency(value), '']}
+                labelFormatter={(label) => `Ano ${label}`}
               />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="Juros Compostos"
-                stroke="hsl(var(--primary))"
+              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="circle" />
+              <Area 
+                type="monotone" 
+                dataKey="Juros Compostos" 
+                stroke="#3b82f6" 
                 strokeWidth={3}
-                dot={false}
+                fillOpacity={1} 
+                fill="url(#colorTotal)" 
+                name="Total Acumulado"
               />
-              <Line
-                type="monotone"
-                dataKey="Sem Juros"
-                stroke="hsl(var(--muted-foreground))"
+              <Area 
+                type="monotone" 
+                dataKey="Sem Juros" 
+                stroke="#94a3b8" 
                 strokeWidth={2}
                 strokeDasharray="5 5"
-                dot={false}
+                fill="url(#colorInvested)" 
+                name="Total Investido"
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-sm text-muted-foreground text-center mt-4">
-          A curva azul mostra o poder dos juros compostos trabalhando para você!
+        
+        <p className="text-xs text-center text-muted-foreground/60 italic">
+           *Valores estimados. Rentabilidade passada não garante rentabilidade futura.
         </p>
+
       </div>
     </div>
   );
