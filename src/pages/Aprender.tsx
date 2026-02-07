@@ -418,7 +418,7 @@ export default function Aprender() {
                 </h1>
               </motion.div>
 
-              <PodcastCard aula={currentAula} termos={termosDaAula} />
+              <PodcastCard aula={currentAula} />
 
               <div className="flex items-center gap-4 py-2">
                 <div className="h-px bg-white/10 flex-1" />

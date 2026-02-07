@@ -13,10 +13,10 @@ import {
   Zap,           
   Brain,
   Coins,
-  Target // Adicionado para o ícone de Exemplo
+  Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils"; // Importante para concatenar classes
+import { cn } from "@/lib/utils";
 import { Termo } from "@/lib/termosData";
 
 interface TermCardProps {
@@ -24,36 +24,27 @@ interface TermCardProps {
   hideLevel?: boolean;
 }
 
+const getTermIcon = (t: Termo) => {
+  const nome = t.nome.toLowerCase();
+  if (nome.includes("reserva")) return ShieldCheck;
+  if (nome.includes("liquidez")) return Zap;
+  if (nome.includes("juros")) return TrendingUp;
+  if (nome.includes("tesouro")) return Landmark;
+  if (nome.includes("bolsa") || nome.includes("ações")) return BarChart3;
+
+  switch (t.categoria) {
+    case 'taxas': return Percent;
+    case 'indicadores': return TrendingUp;
+    case 'renda_fixa': return Landmark;
+    case 'renda_variavel': return BarChart3;
+    default: return Coins;
+  }
+};
+
 export function TermCard({ term, hideLevel }: TermCardProps) {
-  return (
-    <div id={`term-${term.id}`} className="transition-all duration-300 rounded-xl">
-      <div className="bg-card rounded-xl ...">
-        {/* conteúdo */}
-      </div>
-    </div>
-  );
-}
-  // Lógica dos Ícones (Mantida Original)
-  const getTermIcon = (t: Termo) => {
-    const nome = t.nome.toLowerCase();
-    if (nome.includes("reserva")) return ShieldCheck;
-    if (nome.includes("liquidez")) return Zap;
-    if (nome.includes("juros")) return TrendingUp;
-    if (nome.includes("tesouro")) return Landmark;
-    if (nome.includes("bolsa") || nome.includes("ações")) return BarChart3;
-
-    switch (t.categoria) {
-      case 'taxas': return Percent;
-      case 'indicadores': return TrendingUp;
-      case 'renda_fixa': return Landmark;
-      case 'renda_variavel': return BarChart3;
-      default: return Coins;
-    }
-  };
-
+  const [isExpanded, setIsExpanded] = useState(false);
   const Icon = getTermIcon(term);
 
-  // Cores da borda baseadas no nível (sutil)
   const borderColor = 
     term.nivelId === 'iniciante' ? 'hover:border-emerald-500/40 hover:shadow-emerald-500/10' :
     term.nivelId === 'intermediario' ? 'hover:border-amber-500/40 hover:shadow-amber-500/10' :
@@ -63,18 +54,15 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
     <div 
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 cursor-pointer h-full",
-        "bg-gradient-to-b from-slate-800/50 to-slate-900/80", // Fundo Gradiente
-        "border border-white/5", // Borda Padrão
-        borderColor, // Borda Colorida no Hover
-        "hover:shadow-xl hover:-translate-y-1", // Efeito de Levitação
+        "bg-gradient-to-b from-slate-800/50 to-slate-900/80",
+        "border border-white/5",
+        borderColor,
+        "hover:shadow-xl hover:-translate-y-1",
         isExpanded ? "ring-1 ring-primary/30 bg-slate-900/90 shadow-lg" : ""
       )}
       onClick={() => setIsExpanded(!isExpanded)}
     >
-      
-      {/* --- CABEÇALHO DO CARD --- */}
       <div className="flex items-start gap-4 p-5 relative z-10">
-        {/* Ícone com Glow e Fundo Gradiente */}
         <div className="shrink-0 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 p-2.5 text-primary ring-1 ring-primary/20 group-hover:ring-primary/50 transition-all shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]">
           <Icon className="h-5 w-5" />
         </div>
@@ -107,7 +95,6 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
         </div>
       </div>
 
-      {/* --- ÁREA EXPANDIDA --- */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -117,8 +104,6 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
             className="border-t border-white/5 bg-slate-950/30"
           >
             <div className="p-5 space-y-4 text-sm relative z-10">
-              
-              {/* Explicação Completa */}
               <div className="bg-slate-900/50 rounded-xl p-4 border border-white/5">
                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary mb-2">
                     <Lightbulb className="w-3.5 h-3.5" /> Explicação Técnica
@@ -126,7 +111,6 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
                  <p className="text-slate-300 leading-relaxed">{term.explicacaoCompleta}</p>
               </div>
               
-              {/* Exemplo Prático */}
               {term.exemplo && (
                 <div className="rounded-xl bg-emerald-500/5 p-4 border border-emerald-500/10">
                   <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">
@@ -136,7 +120,6 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
                 </div>
               )}
 
-              {/* Dica de Ouro */}
               {term.dicaComoComecar && (
                  <div className="rounded-xl bg-amber-500/5 p-4 border border-amber-500/10">
                   <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">
@@ -146,7 +129,6 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
                  </div>
               )}
               
-              {/* Botão de Áudio (Opcional) */}
               {term.audioUrl && (
                  <div className="flex justify-end pt-2">
                    <Button variant="secondary" size="sm" className="h-8 text-xs gap-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/5">
@@ -159,7 +141,6 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
         )}
       </AnimatePresence>
 
-      {/* --- RODAPÉ (EXPANDIR/RECOLHER) --- */}
       <div 
         className={cn(
           "mt-auto flex items-center justify-center gap-2 py-3 text-xs font-bold uppercase tracking-wider transition-all border-t relative z-10",
@@ -171,7 +152,6 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
         <span>{isExpanded ? "Recolher detalhes" : "Ver mais detalhes"}</span>
         {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
       </div>
-
     </div>
   );
 }
