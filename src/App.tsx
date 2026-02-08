@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Aprender from "./pages/Aprender";
 import Simular from "./pages/Simular";
 import Arcade from "./pages/Praticar";
+import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { AuthGuard } from "./components/auth/AuthGuard";
@@ -21,16 +22,21 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/aprender" element={
-          <AuthGuard>
-          <Aprender />
-          </AuthGuard>}/>
+            <AuthGuard>
+              <Aprender />
+            </AuthGuard>} />
           <Route path="/" element={<Home />} />
           <Route path="/simular" element={<Simular />} />
           <Route path="/praticar" element={<Arcade />} />
+          <Route path="/perfil" element={
+            <AuthGuard>
+              <Perfil />
+            </AuthGuard>
+          } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           <Route path="/login" element={<Login />} />
-          
+
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

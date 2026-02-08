@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Home, 
-  BookOpen, 
-  Calculator, 
-  Gamepad2, 
-  Menu, 
+import {
+  Home,
+  BookOpen,
+  Calculator,
+  Gamepad2,
+  Menu,
   X,
   Coins,
   Trophy,
@@ -111,7 +111,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <motion.div 
+            <motion.div
               className="bg-gradient-hero p-2 rounded-xl"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -130,18 +130,20 @@ export function Header() {
                 const isActive = location.pathname === item.path;
                 return (
                   <Link key={item.path} to={item.path}>
-                    <motion.div
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-colors ${
-                        isActive 
-                          ? "bg-primary text-primary-foreground" 
-                          : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.label}</span>
-                    </motion.div>
+                    <div className="relative px-4 py-2 rounded-xl font-medium transition-colors hover:text-foreground hover:bg-secondary/50 group">
+                      {isActive && (
+                        <motion.div
+                          layoutId="desktopNavHighlight"
+                          className="absolute inset-0 bg-primary/10 rounded-xl"
+                          initial={false}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        />
+                      )}
+                      <div className={`flex items-center gap-2 relative z-10 ${isActive ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </div>
+                    </div>
                   </Link>
                 );
               })}
@@ -153,7 +155,7 @@ export function Header() {
                 <>
                   {/* Badge de XP com animação de pulso quando o valor mudar */}
                   <AnimatePresence mode="wait">
-                    <motion.div 
+                    <motion.div
                       key={perfil?.xp_total}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -183,11 +185,14 @@ export function Header() {
                         </p>
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
-                      <DropdownMenuItem className="focus:bg-white/5 cursor-pointer rounded-lg">
+                      <DropdownMenuItem
+                        onClick={() => navigate('/perfil')}
+                        className="focus:bg-white/5 cursor-pointer rounded-lg"
+                      >
                         <User className="mr-2 h-4 w-4" /> Perfil
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={handleLogout} 
+                      <DropdownMenuItem
+                        onClick={handleLogout}
                         className="focus:bg-rose-500/10 text-rose-400 cursor-pointer rounded-lg"
                       >
                         <LogOut className="mr-2 h-4 w-4" /> Sair
@@ -196,7 +201,7 @@ export function Header() {
                   </DropdownMenu>
                 </>
               ) : (
-                <Button 
+                <Button
                   onClick={() => navigate("/login")}
                   className="rounded-xl h-10 px-6 font-bold shadow-lg shadow-primary/20"
                 >
@@ -207,88 +212,23 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Header Elements (Logo + XP only, no menu) */}
           <div className="flex items-center gap-2 md:hidden">
             {user && (
-               <motion.div 
+              <motion.div
                 key={perfil?.xp_total}
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
-                className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full mr-2"
-               >
-                 <Trophy className="w-3 h-3 text-amber-400" />
-                 <span className="text-[10px] font-bold text-white">{perfil?.xp_total || 0}</span>
-               </motion.div>
+                className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
+              >
+                <Trophy className="w-3 h-3 text-amber-400" />
+                <span className="text-[10px] font-bold text-white">{perfil?.xp_total || 0}</span>
+              </motion.div>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
+            {/* Nav is now at the bottom */}
           </div>
         </div>
       </div>
-
-      {/* Mobile Navigation (Mantenha o código original aqui...) */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.nav
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-border bg-card"
-          >
-            <div className="container mx-auto px-4 py-4 flex flex-col gap-2">
-              {navItems.map((item) => {
-                const isActive = location.pathname === item.path;
-                return (
-                  <Link 
-                    key={item.path} 
-                    to={item.path}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <motion.div
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
-                        isActive 
-                          ? "bg-primary text-primary-foreground" 
-                          : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                      }`}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span>{item.label}</span>
-                    </motion.div>
-                  </Link>
-                );
-              })}
-              
-              {user ? (
-                <Button 
-                  variant="outline" 
-                  onClick={handleLogout}
-                  className="mt-2 w-full justify-start gap-3 rounded-xl border-rose-500/20 text-rose-400 hover:bg-rose-500/5"
-                >
-                  <LogOut className="w-5 h-5" />
-                  Sair da conta
-                </Button>
-              ) : (
-                <Button 
-                  onClick={() => {
-                    setIsOpen(false);
-                    navigate("/login");
-                  }}
-                  className="mt-2 w-full rounded-xl"
-                >
-                  <LogIn className="w-5 h-5 mr-2" />
-                  Entrar agora
-                </Button>
-              )}
-            </div>
-          </motion.nav>
-        )}
-      </AnimatePresence>
     </header>
   );
 }
