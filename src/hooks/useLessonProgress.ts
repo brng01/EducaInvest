@@ -143,6 +143,6 @@ export function useLessonProgress(
         handleLessonChange,
         handleCompleteAndNext,
         TIME_LIMIT,
-        xpAmount: getXpReward(currentAula.nivel || currentAula.level)
+        xpAmount: currentAula ? getXpReward(currentAula.nivel || currentAula.level) : 0
     };
 }
