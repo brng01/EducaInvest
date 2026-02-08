@@ -410,7 +410,7 @@ export default function Aprender() {
                 ))}
 
                 {/* --- TRILHAS EXTRAS (RENDERIZAÇÃO CONDICIONAL) --- */}
-                {(isBaseCourseComplete || true) && ( // TODO: Remover '|| true' após testes para travar real
+                {isBaseCourseComplete && (
                   <div className="pt-6 border-t border-white/5 mt-6">
                     <h3 className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 mb-4 px-2 flex items-center gap-2">
                       <Layers className="w-3 h-3" /> Especializações
