@@ -124,49 +124,59 @@ export function LessonSidebar({
                         </div>
                     ))}
 
-                    {isBaseCourseComplete && (
-                        <div className="pt-6 border-t border-white/5 mt-6">
-                            <h3 className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 mb-4 px-2 flex items-center gap-2">
-                                <Layers className="w-3 h-3" /> Especializações
-                            </h3>
+                    {/* --- TRILHAS EXTRAS (SEMPRE VISÍVEIS, MAS BLOQUEADAS SE NECESSÁRIO) --- */}
+                    <div className="pt-6 border-t border-white/5 mt-6">
+                        <h3 className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 mb-4 px-2 flex items-center gap-2">
+                            <Layers className="w-3 h-3" /> Especializações
+                        </h3>
 
-                            <div className="space-y-6">
-                                {trilhasExtras.map((trilha, index) => (
-                                    <div key={`trilha-${index}`}>
-                                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2 px-2">
-                                            {trilha.titulo}
-                                        </h4>
-                                        <div className="space-y-1">
-                                            {trilha.aulas.map((aula) => {
-                                                const isActive = currentAulaId === aula.id;
-                                                // For extra tracks, we can assume validation logic is similar or simplified
-                                                const isLocked = aula.id > (maxCompletedId + 1);
+                        <div className="space-y-6">
+                            {trilhasExtras.map((trilha, index) => (
+                                <div key={`trilha-${index}`} className={cn(
+                                    "transition-opacity duration-300",
+                                    !isBaseCourseComplete && "opacity-50"
+                                )}>
+                                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2 px-2 flex justify-between items-center">
+                                        {trilha.titulo}
+                                        {!isBaseCourseComplete && <Lock className="w-3 h-3 text-muted-foreground" />}
+                                    </h4>
+                                    <div className="space-y-1">
+                                        {trilha.aulas.map((aula) => {
+                                            const isActive = currentAulaId === aula.id;
+                                            // Locked if base course not complete OR if individual sequence logic applies
+                                            const isLocked = !isBaseCourseComplete || (aula.id > (maxCompletedId + 1));
 
-                                                return (
-                                                    <button
-                                                        key={aula.id}
-                                                        disabled={isLocked}
-                                                        onClick={() => !isLocked && handleLessonChange(aula.id)}
-                                                        className={cn(
-                                                            "w-full text-left px-3 py-2.5 rounded-lg text-xs font-medium transition-all flex items-center gap-3 group relative",
-                                                            isActive
-                                                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                                                : isLocked
-                                                                    ? "opacity-40 cursor-not-allowed bg-transparent text-muted-foreground"
-                                                                    : "text-muted-foreground hover:bg-emerald-500/5 hover:text-emerald-400 border border-transparent"
-                                                        )}
-                                                    >
-                                                        {isLocked ? <Lock className="w-3 h-3" /> : <PlayCircle className="w-3 h-3" />}
-                                                        <span className="line-clamp-1">{aula.title_short || aula.titulo}</span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
+                                            return (
+                                                <button
+                                                    key={aula.id}
+                                                    disabled={isLocked}
+                                                    onClick={() => !isLocked && handleLessonChange(aula.id)}
+                                                    className={cn(
+                                                        "w-full text-left px-3 py-2.5 rounded-lg text-xs font-medium transition-all flex items-center gap-3 group relative",
+                                                        isActive
+                                                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                                            : isLocked
+                                                                ? "opacity-40 cursor-not-allowed bg-transparent text-muted-foreground"
+                                                                : "text-muted-foreground hover:bg-emerald-500/5 hover:text-emerald-400 border border-transparent"
+                                                    )}
+                                                >
+                                                    {isLocked ? <Lock className="w-3 h-3 shrink-0" /> : <PlayCircle className="w-3 h-3 shrink-0" />}
+                                                    <span className="line-clamp-1 text-left">{aula.title_short || aula.titulo}</span>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
                         </div>
-                    )}
+                        {!isBaseCourseComplete && (
+                            <div className="mt-4 px-2">
+                                <p className="text-[10px] text-muted-foreground text-center bg-white/5 p-2 rounded-lg border border-white/5">
+                                    Complete os módulos anteriores para desbloquear as especializações.
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </aside>
