@@ -629,7 +629,68 @@ INSERT INTO lessons (title_short, title_full, level, duration, description, tran
 -- Nota: Limparemos e inseriremos apenas alguns essenciais para compatibilidade.
 -- O usuário pode pedir para popular mais termos depois.
 INSERT INTO terms (acronym, name, explanation_simple, explanation_full, category, lesson_id, example, tip) VALUES
-('IPCA', 'Índice Nacional de Preços ao Consumidor Amplo', 'A inflação oficial do Brasil.', 'Mede a variação de preços de uma cesta de produtos e serviços consumidos pelas famílias.', 'economia', 2, 'Se o IPCA é 10%, seu dinheiro compra 10% menos coisas.', 'Busque investimentos IPCA+ para se proteger.'),
+-- MÓDULO 1
+-- AULA 1: MATRIX
+('ATIVOS', 'Ativos', 'Tudo que coloca dinheiro no seu bolso.', 'Bens ou direitos que geram renda passiva ou valorização ao longo do tempo. É a chave para a riqueza.', 'fundamentos', 1, 'Imóveis alugados, Ações que pagam dividendos, Títulos Públicos.', 'Foque em adquirir ativos antes de passivos.'),
+('PASSIVOS', 'Passivos', 'Tudo que tira dinheiro do seu bolso.', 'Bens que geram despesas de manutenção, impostos ou desvalorização. Não são investimentos.', 'fundamentos', 1, 'Carro de uso pessoal, Casa de praia que não aluga, Dívidas de cartão.', 'Reduza seus passivos para sobrar dinheiro para ativos.'),
+
+-- AULA 2: INFLAÇÃO
+('IPCA', 'Índice Nacional de Preços ao Consumidor Amplo', 'A inflação oficial do Brasil.', 'Mede a variação de preços de uma cesta de produtos e serviços consumidos pelas famílias. Corrói o poder de compra.', 'economia', 2, 'Se o IPCA é 10%, seu dinheiro compra 10% menos coisas.', 'Busque investimentos IPCA+ para se proteger.'),
+('RENT REAL', 'Rentabilidade Real', 'O quanto você ganhou acima da inflação.', 'É o retorno do seu investimento subtraído da inflação do período. É o único ganho que te deixa mais rico.', 'indicadores', 2, 'Rendimento de 10% com inflação de 6% gera ganho real de 4%.', 'Sempre calcule o ganho real, não o nominal.'),
+
+-- AULA 3: RESERVA (Aqui entram os pedidos do usuário)
+('SELIC', 'Taxa Selic', 'A taxa básica de juros da economia.', 'Definida pelo Banco Central. É a referência para todos os juros do país. Quando sobe, a Renda Fixa rende mais.', 'economia', 3, 'O Tesouro Selic rende, aproximadamente, o valor da taxa Selic.', 'Ótima para Reserva de Emergência.'),
+('TESOURO', 'Tesouro Direto', 'Plataforma para emprestar dinheiro ao Governo.', 'O investimento mais seguro do país (Risco Soberano). Você compra títulos da dívida pública.', 'seguranca', 3, 'Tesouro Selic, Tesouro IPCA+, Tesouro Prefixado.', 'Ideal para começar a investir com pouco dinheiro.'),
+('LIQUIDEZ', 'Liquidez', 'A velocidade para transformar investimento em dinheiro.', 'A facilidade com que você consegue resgatar seu dinheiro sem perda de valor. Liquidez diária cai na conta no mesmo dia.', 'fundamentos', 3, 'A Poupança e o Tesouro Selic têm alta liquidez. Um Imóvel tem baixa liquidez.', 'Para Reserva de Emergência, exija Liquidez Diária.'),
+('CDB', 'Certificado de Depósito Bancário', 'Empréstimo para o banco.', 'Você empresta dinheiro para o banco e ele te devolve com juros. É garantido pelo FGC.', 'renda_fixa', 3, 'CDB do Nubank, CDB do Banco Inter.', 'CDBs de bancos menores costumam pagar mais.'),
+
+-- AULA 4: REGRA DO JOGO (RENDA FIXA)
 ('CDI', 'Certificado de Depósito Interbancário', 'A taxa que os bancos usam entre si.', 'Muitos investimentos de Renda Fixa rendem uma % do CDI. Ele anda sempre muito próximo da Selic.', 'economia', 4, 'Um CDB 100% do CDI rende praticamente a mesma coisa que a Selic.', NULL),
-('FGC', 'Fundo Garantidor de Créditos', 'O seguro dos investimentos.', 'Garante até R$ 250 mil por CPF por instituição financeira em caso de falência do banco.', 'seguranca', 4, 'Se o banco quebrar, o FGC devolve seu dinheiro investido em CDB, LCI ou LCA.', 'Tesouro Direto não tem FGC, pois é garantido pelo Tesouro Nacional (o que é ainda mais seguro).'),
-('ROE', 'Return on Equity', 'Retorno sobre o Patrimônio.', 'Mede a capacidade da empresa de agregar valor a partir de seus próprios recursos.', 'indicadores', 12, 'ROE de 20% significa que a cada R$ 100 investidos, a empresa lucra R$ 20.', 'Busque empresas com ROE acima de 15%.');
+('FGC', 'Fundo Garantidor de Créditos', 'O seguro dos investimentos.', 'Garante até R$ 250 mil por CPF por instituição financeira em caso de falência do banco.', 'seguranca', 4, 'Se o banco quebrar, o FGC devolve seu dinheiro investido em CDB, LCI ou LCA.', 'Tesouro Direto não tem FGC, pois é do Governo.'),
+('LCI/LCA', 'Letras de Crédito (Imobiliário/Agro)', 'Investimentos isentos de Imposto de Renda.', 'Títulos emitidos por bancos para financiar imóveis ou agronegócio. Pessoa física não paga IR sobre o lucro.', 'renda_fixa', 4, 'LCI 90% do CDI equivale a um CDB de 110% do CDI (com IR).', 'Compare sempre com a taxa equivalente do CDB.'),
+
+-- AULA 5: RISCO E RETORNO
+('VOLATILADE', 'Volatilidade', 'O quanto o preço sobe e desce.', 'Indica o risco de oscilação de um ativo. Alta volatilidade significa grandes variações de preço em curto prazo.', 'indicadores', 5, 'Ações e Criptomoedas têm alta volatilidade. Poupança tem volatilidade zero.', 'Não confunda volatilidade com risco de perda permanente.'),
+('DIVIDENDOS', 'Dividendos', 'Parte do lucro da empresa paga a você.', 'Distribuição de lucros aos acionistas. É isento de Imposto de Renda no Brasil.', 'renda_variavel', 5, 'Se você tem ações da Petrobras, recebe dividendos quando ela lucra.', 'Reinvista os dividendos para o efeito bola de neve.'),
+
+-- AULA 6: DIVERSIFICAÇÃO
+('CORRELACAO', 'Correlação', 'Como dois ativos se comportam juntos.', 'Correlação Negativa: Quando um sobe, o outro tende a cair. É o segredo da proteção.', 'indicadores', 6, 'Dólar e Bolsa Brasileira costumam ter correlação negativa.', 'Tenha ativos de classes diferentes (Ações, RF, Dólar).'),
+
+-- MÓDULO 3
+-- AULA 7: JUROS COMPOSTOS
+('JUROS COMP', 'Juros Compostos', 'Lucro sobre lucro.', 'Quando os juros ganhos também passam a render juros no mês seguinte. É exponencial.', 'fundamentos', 7, 'Investir R$ 100 hoje vira R$ 110. No mês seguinte, rende sobre R$ 110.', 'O tempo é o fator mais importante.'),
+
+-- AULA 8: TAXAS
+('TAXA ADM', 'Taxa de Administração', 'O salário do gestor do fundo.', 'Valor cobrado anualmente por Fundos de Investimento para gerir seu dinheiro. Deduzido automaticamente.', 'taxas', 8, 'Fundo com taxa de 2% a.a. precisa render muito para valer a pena.', 'Evite taxas acima de 1% para Renda Fixa.'),
+('TABELA REG', 'Tabela Regressiva', 'Quanto mais tempo, menos imposto.', 'Alíquota de IR para Renda Fixa: Começa em 22,5% e cai para 15% após 2 anos.', 'taxas', 8, 'Resgatar antes de 6 meses paga o maior imposto.', 'Segure o investimento por mais de 2 anos se possível.'),
+
+-- AULA 9: FIIs
+('TIJOLO', 'Fundo de Tijolo', 'FII dono de imóveis físicos.', 'O fundo compra prédios, shoppings ou galpões e ganha com aluguel.', 'renda_variavel', 9, 'Fundo que é dono de 5 Shoppings.', 'Melhor proteção contra inflação no longo prazo.'),
+('PAPEL', 'Fundo de Papel', 'Fundo de dívida imobiliária.', 'O fundo compra CRIs (dívidas) e ganha com os juros.', 'renda_variavel', 9, 'Fundo que financia a construção de prédios.', 'Paga dividendos maiores, mas não valoriza tanto a cota.'),
+
+-- AULA 10: RELATÓRIO
+('VACANCIA', 'Vacância', 'Imóvel vazio.', 'Porcentagem da área locável do fundo que não está alugada. Vacância alta = Menos aluguel = Prejuízo.', 'indicadores', 10, 'Fundo de lajes corporativas com 30% de vacância.', 'Fique alerta se a vacância subir constantemente.'),
+
+-- AULA 11: DY
+('DY', 'Dividend Yield', 'Rendimento dos dividendos.', 'Quanto o ativo pagou de proventos em relação ao preço da cota nos últimos 12 meses.', 'indicadores', 11, 'Preço R$ 100, Pagou R$ 10. DY = 10%.', 'Cuidado com DY muito alto, pode ser uma armadilha.'),
+
+-- AULA 12: INDICADORES
+('PL', 'P/L (Preço sobre Lucro)', 'Tempo de retorno do capital.', 'Resultado da divisão do preço da ação pelo lucro por ação. Indica se está cara ou barata.', 'indicadores', 12, 'P/L de 5 anos.', 'P/L histórico ajuda a saber se está barato.'),
+('PVP', 'P/VP', 'Preço sobre Valor Patrimonial.', 'Se a empresa fosse liquidada hoje, quanto valeria? P/VP 1 é o valor justo.', 'indicadores', 12, 'P/VP 0.8 indica desconto de 20%.', 'FIIs de Papel devem ser comprados próximos de P/VP 1.0.'),
+('ROE', 'Return on Equity', 'Retorno sobre o Patrimônio.', 'Mede a eficiência da empresa em gerar lucro com o dinheiro dos sócios.', 'indicadores', 12, 'ROE de 20% significa que a cada R$ 100 investidos, a empresa lucra R$ 20.', 'Busque empresas com ROE acima de 15%.'),
+
+-- AULA 13: SMALL CAPS
+('BLUE CHIP', 'Blue Chip', 'Empresa gigante e consolidada.', 'Líderes de mercado, lucros constantes, pagam dividendos. Menor risco.', 'renda_variavel', 13, 'Itaú, Vale, Petrobras, Ambev.', 'Base da carteira de ações.'),
+('SMALL CAP', 'Small Cap', 'Empresa pequena com potencial.', 'Empresas menores na bolsa. Podem crescer muito ou quebrar. Maior risco e volatilidade.', 'renda_variavel', 13, 'Empresas de tecnologia menores, varejo em expansão.', 'Use como "pimenta" na carteira.'),
+
+-- AULA 14: SETORES
+('PERENES', 'Setores Perenes', 'Setores à prova de crise.', 'Empresas que vendem serviços essenciais (energia, água, bancos, seguros). Lucros previsíveis.', 'especialista-acao', 14, 'Taesa (Energia), Sanepar (Água).', 'Ideais para quem busca dividendos constantes.'),
+('CICLICOS', 'Setores Cíclicos', 'Dependem da economia.', 'Varejo, construção, turismo. Sobem muito quando o PIB cresce, caem muito na crise.', 'especialista-acao', 14, 'Magazine Luiza (Varejo), CVC (Turismo).', 'Exigem timing: comprar na baixa do ciclo.'),
+
+-- AULA 15: MARCAÇÃO A MERCADO
+('PREFIXADO', 'Prefixado', 'Taxa combinada na hora.', 'Você sabe exatamente quanto vai receber no vencimento se segurar até o fim.', 'renda_fixa', 15, 'Tesouro Prefixado 12% a.a.', 'Se vender antes, sofre marcação a mercado.'),
+('IPCA+', 'Tesouro IPCA+', 'Inflação + Taxa Fixa.', 'Garante o poder de compra e um ganho real. O melhor para aposentadoria.', 'renda_fixa', 15, 'Tesouro IPCA+ 6% (Paga a inflação + 6%).', 'Proteção blindada contra inflação no longo prazo.'),
+
+-- AULA 16: CRÉDITO
+('DEBENTURE', 'Debênture', 'Empréstimo para empresa.', 'Título de dívida de empresas privadas. Risco maior que banco, mas paga mais.', 'renda_fixa', 16, 'Debêntures da Vale para financiar ferrovia.', 'Debêntures Incentivadas não têm IR.'),
+('RATING', 'Rating', 'Nota de crédito.', 'Nota dada por agências de risco (AAA, AA, B, C...) sobre a capacidade da empresa pagar a dívida.', 'indicadores', 16, 'Rating AAA é o mais seguro.', 'Nunca compre debênture sem ver o Rating.');
