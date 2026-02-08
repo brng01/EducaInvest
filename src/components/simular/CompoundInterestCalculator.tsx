@@ -201,7 +201,7 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
           <Slider
             value={[initialValue]}
             min={0}
-            max={100000}
+            max={50000}
             step={100}
             onValueChange={(v) => setInitialValue(v[0])}
             className="py-2 cursor-pointer"
@@ -231,7 +231,7 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
           <Slider
             value={[monthlyInvestment]}
             min={0}
-            max={20000}
+            max={5000}
             step={50}
             onValueChange={(v) => setMonthlyInvestment(v[0])}
             className="py-2 cursor-pointer"
