@@ -12,11 +12,22 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  const getErrorMessage = (error: any) => {
+    if (!error) return "Erro desconhecido";
+    const msg = error.message || error.error_description || "Erro ao conectar";
+
+    if (msg.includes("Invalid login credentials")) return "Credenciais inválidas. Verifique seu e-mail.";
+    if (msg.includes("Email not confirmed")) return "E-mail não confirmado. Verifique sua caixa de entrada.";
+    if (msg.includes("Rate limit exceeded")) return "Muitas tentativas. Tente novamente mais tarde.";
+
+    return msg;
+  };
+
   // Função para Magic Link
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -25,15 +36,16 @@ export default function Login() {
     });
 
     if (error) {
-      toast({ 
-        title: "Erro", 
-        description: error.message, 
-        variant: "destructive" 
+      toast({
+        title: "Erro ao enviar link",
+        description: getErrorMessage(error),
+        variant: "destructive"
       });
     } else {
-      toast({ 
-        title: "Verifique seu e-mail", 
-        description: "Enviamos um link mágico para você entrar!" 
+      toast({
+        title: "Verifique seu e-mail",
+        description: "Enviamos um link mágico para você entrar! Caso não encontre, verifique a caixa de spam.",
+        className: "bg-emerald-500 border-none text-white"
       });
     }
     setLoading(false);
@@ -47,19 +59,19 @@ export default function Login() {
         redirectTo: window.location.origin,
       },
     });
-    
+
     if (error) {
-      toast({ 
-        title: "Erro", 
-        description: error.message, 
-        variant: "destructive" 
+      toast({
+        title: "Erro no login com Google",
+        description: getErrorMessage(error),
+        variant: "destructive"
       });
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-      
+
       {/* --- LOGO PARA RETORNO À HOME --- */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -77,7 +89,7 @@ export default function Login() {
       </motion.div>
 
       {/* --- CARD DE LOGIN --- */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md space-y-8 bg-slate-900/50 p-8 rounded-3xl border border-white/10 backdrop-blur-xl"
@@ -88,9 +100,9 @@ export default function Login() {
         </div>
 
         {/* Botão Google */}
-        <Button 
+        <Button
           onClick={handleGoogleLogin}
-          variant="outline" 
+          variant="outline"
           className="w-full h-12 rounded-full border-white/10 bg-white/5 text-white hover:bg-white/10 gap-3"
         >
           <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="Google" />
@@ -108,16 +120,16 @@ export default function Login() {
         <form onSubmit={handleMagicLink} className="space-y-4">
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input 
-              type="email" 
-              placeholder="seu@email.com" 
+            <Input
+              type="email"
+              placeholder="seu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="h-12 pl-11 rounded-full bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50 focus:border-primary/50"
               required
             />
           </div>
-          <Button 
+          <Button
             disabled={loading}
             className="w-full h-12 rounded-full bg-primary text-primary-foreground font-bold hover:scale-[1.02] transition-transform"
           >

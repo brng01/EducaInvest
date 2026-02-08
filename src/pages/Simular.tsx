@@ -1,19 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Calculator, Sparkles, Scale, TrendingUp } from "lucide-react";
+import { Calculator, Sparkles, Scale, TrendingUp, Loader2 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CompoundInterestCalculator } from "@/components/simular/CompoundInterestCalculator";
 import { InvestmentComparator } from "@/components/simular/InvestmentComparator";
 import { supabase } from "@/integrations/supabase/client";
-
-// Tipo para os dados de mercado
-export interface MarketRates {
-  selic: number;
-  cdi: number;
-  ipca: number;
-  poupanca: number;
-}
+import { MarketRates } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Simular() {
   const [rates, setRates] = useState<MarketRates>({
@@ -22,25 +16,63 @@ export default function Simular() {
     ipca: 0,
     poupanca: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   // Busca dados do Supabase ao carregar
   useEffect(() => {
     async function fetchRates() {
-      const { data } = await supabase.from('dados_mercado').select('*');
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase.from('dados_mercado').select('*');
 
-      if (data) {
-        // Transforma o array do banco em um objeto fácil de usar
-        const newRates = {
-          selic: data.find(d => d.ticker === 'SELIC')?.preco_atual || 0,
-          cdi: data.find(d => d.ticker === 'CDI')?.preco_atual || 0,
-          ipca: data.find(d => d.ticker === 'IPCA')?.preco_atual || 0,
-          poupanca: data.find(d => d.ticker === 'POUPANCA')?.preco_atual || 0,
-        };
-        setRates(newRates);
+        if (error) throw error;
+
+        if (data) {
+          // Transforma o array do banco em um objeto fácil de usar
+          const newRates = {
+            selic: data.find(d => d.ticker === 'SELIC')?.preco_atual || 0,
+            cdi: data.find(d => d.ticker === 'CDI')?.preco_atual || 0,
+            ipca: data.find(d => d.ticker === 'IPCA')?.preco_atual || 0,
+            poupanca: data.find(d => d.ticker === 'POUPANCA')?.preco_atual || 0,
+          };
+          setRates(newRates);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar taxas:", error);
+        toast({
+          title: "Erro ao carregar dados de mercado",
+          description: "Usando valores padrão de referência.",
+          variant: "destructive"
+        });
+        // Set defaults if failed
+        setRates({
+          selic: 10.75,
+          cdi: 10.65,
+          ipca: 4.5,
+          poupanca: 6.17
+        });
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchRates();
-  }, []);
+  }, [toast]);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground animate-pulse">
+              Atualizando dados de mercado...
+            </p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

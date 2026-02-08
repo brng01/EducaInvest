@@ -5,24 +5,24 @@ import {
     Flame,
     BookOpen,
     Calendar,
-    User,
     Medal,
     Star,
     Target,
-    TrendingUp,
-    Clock
+    Clock,
+    CheckCircle2
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserProfile, UserProgress } from "@/lib/types";
 
 export default function Perfil() {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
-    const [perfil, setPerfil] = useState<any>(null);
+    const [perfil, setPerfil] = useState<UserProfile | null>(null);
     const [stats, setStats] = useState({
         completedLessons: 0,
         totalLessons: 0,
@@ -48,12 +48,15 @@ export default function Perfil() {
                     .select("*")
                     .eq("id", session.user.id)
                     .single();
-                setPerfil(perfilData);
+
+                if (perfilData) {
+                    setPerfil(perfilData as UserProfile);
+                }
 
                 // 2. Fetch Progress (Stats)
                 const { data: progressData } = await supabase
                     .from("user_progress")
-                    .select("lesson_id, completed_at")
+                    .select("lesson_id, completed_at, is_completed")
                     .eq("user_id", session.user.id)
                     .eq("is_completed", true)
                     .order("completed_at", { ascending: false });
@@ -62,9 +65,8 @@ export default function Perfil() {
                     .from("lessons")
                     .select("*", { count: "exact", head: true });
 
-                // Calculate Streak (Mocked logic for now, could be real later)
-                // Check consecutive days logic would go here
-                const streakDays = 7; // Mocked for positive reinforcement
+                // Calculate Streak
+                const streakDays = calculateStreak(progressData || []);
 
                 setStats({
                     completedLessons: progressData?.length || 0,
@@ -74,9 +76,6 @@ export default function Perfil() {
                 });
 
                 // 3. History (Last 5 activities)
-                // We need to join with lessons to get titles, but for now we'll fetch lessons separately or just IDs
-                // To keep it simple and performant, let's just use the IDs or fetch titles if needed.
-                // For this version, let's mock the titles or fetch them efficiently.
                 if (progressData && progressData.length > 0) {
                     const recentIds = progressData.slice(0, 5).map(p => p.lesson_id);
                     const { data: recentLessons } = await supabase
@@ -102,11 +101,57 @@ export default function Perfil() {
         }
     };
 
+    const calculateStreak = (progress: any[]) => {
+        if (!progress || progress.length === 0) return 0;
+
+        // Extract native dates without time, sorted descending
+        const uniqueDates = Array.from(new Set(
+            progress
+                .map(p => new Date(p.completed_at).toDateString())
+        )).map(dateStr => new Date(dateStr));
+
+        // Sort descending just to be safe
+        uniqueDates.sort((a, b) => b.getTime() - a.getTime());
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (uniqueDates.length === 0) return 0;
+
+        // Check if the most recent activity was today or yesterday
+        const lastActivity = uniqueDates[0];
+
+        // If last activity is older than yesterday, streak is broken (0)
+        // Unless we want to show the broken streak? usually it resets.
+        if (lastActivity < yesterday) return 0;
+
+        let streak = 1;
+        // Iterate to check consecutive days
+        for (let i = 0; i < uniqueDates.length - 1; i++) {
+            const current = uniqueDates[i];
+            const next = uniqueDates[i + 1];
+
+            const diffTime = Math.abs(current.getTime() - next.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+
+        return streak;
+    };
+
     const achievements = [
         { id: 1, title: "Primeiros Passos", desc: "Concluiu a primeira aula", icon: Star, color: "text-amber-400", bg: "bg-amber-400/10", unlocked: stats.completedLessons > 0 },
-        { id: 2, title: "Constante", desc: "7 dias de ofensiva", icon: Flame, color: "text-orange-500", bg: "bg-orange-500/10", unlocked: stats.streak >= 7 },
+        { id: 2, title: "Constante", desc: "3 dias de ofensiva", icon: Flame, color: "text-orange-500", bg: "bg-orange-500/10", unlocked: stats.streak >= 3 },
         { id: 3, title: "Dedicado", desc: "Concluiu 5 aulas", icon: BookOpen, color: "text-blue-400", bg: "bg-blue-400/10", unlocked: stats.completedLessons >= 5 },
-        { id: 4, title: "Investidor", desc: "Atingiu Nível Prática", icon: Trophy, color: "text-emerald-400", bg: "bg-emerald-400/10", unlocked: perfil?.current_level !== 'fundamentos' },
+        { id: 4, title: "Investidor", desc: "Atingiu Nível Investidor", icon: Trophy, color: "text-emerald-400", bg: "bg-emerald-400/10", unlocked: ['Investidor', 'Analista', 'Mestre'].includes(perfil?.current_level || '') },
     ];
 
     if (loading) {
@@ -130,7 +175,7 @@ export default function Perfil() {
         );
     }
 
-    const nextLevelXp = 1000; // Example fixed value or dynamic based on level
+    const nextLevelXp = 1000;
     const currentLevelProgress = ((perfil?.xp_total || 0) % nextLevelXp) / nextLevelXp * 100;
 
     return (
@@ -207,7 +252,7 @@ export default function Perfil() {
                         </Card>
                         <Card className="bg-slate-900/80 border-white/10 backdrop-blur-md">
                             <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                                <CheckCircle2Icon className="w-8 h-8 text-emerald-500 mb-2" />
+                                <CheckCircle2 className="w-8 h-8 text-emerald-500 mb-2" />
                                 <span className="text-2xl md:text-3xl font-bold text-white">{stats.completedLessons}</span>
                                 <span className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider font-medium">Aulas Completas</span>
                             </CardContent>
@@ -232,8 +277,8 @@ export default function Perfil() {
                                     key={ach.id}
                                     whileHover={{ scale: 1.02 }}
                                     className={`p-4 rounded-xl border flex items-center gap-4 transition-all ${ach.unlocked
-                                            ? "bg-slate-800/50 border-white/10"
-                                            : "bg-slate-900/30 border-white/5 opacity-50 grayscale"
+                                        ? "bg-slate-800/50 border-white/10"
+                                        : "bg-slate-900/30 border-white/5 opacity-50 grayscale"
                                         }`}
                                 >
                                     <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${ach.bg}`}>
@@ -243,7 +288,7 @@ export default function Perfil() {
                                         <h4 className={`font-bold ${ach.unlocked ? "text-white" : "text-slate-400"}`}>{ach.title}</h4>
                                         <p className="text-xs text-muted-foreground">{ach.desc}</p>
                                     </div>
-                                    {ach.unlocked && <CheckCircle2Icon className="w-5 h-5 text-emerald-500 ml-auto" />}
+                                    {ach.unlocked && <CheckCircle2 className="w-5 h-5 text-emerald-500 ml-auto" />}
                                 </motion.div>
                             ))}
                         </div>
@@ -284,25 +329,4 @@ export default function Perfil() {
             </div>
         </Layout>
     );
-}
-
-// Helper Icon Component since CheckCircle2 caused import issues in prev files sometimes
-function CheckCircle2Icon(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <circle cx="12" cy="12" r="10" />
-            <path d="m9 12 2 2 4-4" />
-        </svg>
-    )
 }

@@ -7,12 +7,15 @@ import { QuickActions } from "@/components/home/QuickActions";
 import { TipOfTheDay } from "@/components/home/TipOfTheDay";
 import { DashboardUser } from "@/components/home/DashboardUser";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { UserProfile } from "@/lib/types";
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
-  const [perfil, setPerfil] = useState<any>(null);
+  const [perfil, setPerfil] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState<any>(null);
+  const [progress, setProgress] = useState<{ completed: number; total: number; percentage: number } | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchUserData();
@@ -24,7 +27,7 @@ export default function Home() {
 
       // Busca sessão do usuário
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (session?.user) {
         setUser(session.user);
 
@@ -36,8 +39,10 @@ export default function Home() {
             .eq("user_id", session.user.id)
         ]);
 
+        if (perfilResult.error) throw perfilResult.error;
+
         if (perfilResult.data) {
-          setPerfil(perfilResult.data);
+          setPerfil(perfilResult.data as UserProfile);
         }
 
         if (progressResult.data) {
@@ -50,8 +55,13 @@ export default function Home() {
           });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao carregar dados do usuário:", error);
+      toast({
+        title: "Erro ao carregar dados",
+        description: "Não foi possível carregar suas informações. Tente recarregar a página.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -168,8 +178,8 @@ export default function Home() {
                     {progress.total - progress.completed}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {progress.total - progress.completed === 1 
-                      ? "aula restante" 
+                    {progress.total - progress.completed === 1
+                      ? "aula restante"
                       : "aulas restantes"}
                   </p>
                 </div>
