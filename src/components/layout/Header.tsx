@@ -39,30 +39,75 @@ export function Header() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 1. Busca sessão inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) {
-        fetchPerfil(currentUser.id);
-        setupRealtimeSubscription(currentUser.id); // Ativa o Realtime
-      }
-    });
+    let combinedSubscription: { unsubscribe: () => void } | null = null;
+    let channel: any = null;
 
-    // 2. Escuta mudanças de auth
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Função para configurar tudo
+    const initialize = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       const currentUser = session?.user ?? null;
       setUser(currentUser);
+
       if (currentUser) {
         fetchPerfil(currentUser.id);
-        setupRealtimeSubscription(currentUser.id);
+
+        // Setup Realtime
+        channel = supabase
+          .channel(`perfil_changes_${currentUser.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'perfis',
+              filter: `id=eq.${currentUser.id}`,
+            },
+            (payload) => {
+              console.log("Perfil atualizado via realtime:", payload.new);
+              setPerfil(payload.new);
+            }
+          )
+          .subscribe();
+      }
+    };
+
+    initialize();
+
+    // Escuta mudanças de auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      // Se mudou o usuário, refaz a inscrição realtime
+      if (channel) await supabase.removeChannel(channel);
+
+      if (currentUser) {
+        fetchPerfil(currentUser.id);
+        channel = supabase
+          .channel(`perfil_changes_${currentUser.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'perfis',
+              filter: `id=eq.${currentUser.id}`,
+            },
+            (payload) => {
+              setPerfil(payload.new);
+            }
+          )
+          .subscribe();
       } else {
         setPerfil(null);
       }
     });
 
+    combinedSubscription = subscription;
+
     return () => {
-      authSubscription.unsubscribe();
+      if (combinedSubscription) combinedSubscription.unsubscribe();
+      if (channel) supabase.removeChannel(channel);
     };
   }, []);
 
@@ -74,30 +119,6 @@ export function Header() {
       .eq("id", userId)
       .single();
     if (data) setPerfil(data);
-  };
-
-  // --- LOGICA REALTIME ---
-  const setupRealtimeSubscription = (userId: string) => {
-    const channel = supabase
-      .channel(`perfil_changes_${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'perfis',
-          filter: `id=eq.${userId}`,
-        },
-        (payload) => {
-          // Atualiza o estado local assim que o banco mudar
-          setPerfil(payload.new);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   };
 
   const handleLogout = async () => {
