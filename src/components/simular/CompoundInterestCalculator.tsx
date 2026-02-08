@@ -33,7 +33,7 @@ export function CompoundInterestCalculator({ rates }: CalculatorProps) {
   const [monthlyInvestment, setMonthlyInvestment] = useState(500);
   const [years, setYears] = useState(10);
   const [rateType, setRateType] = useState<'SELIC' | 'CDI' | 'IPCA' | 'POUPANCA' | 'CUSTOM'>('SELIC');
-  const [annualRate, setAnnualRate] = useState(rates.selic || 11.25);
+  const [annualRate, setAnnualRate] = useState(rates.selic || 0);
 
   useEffect(() => {
     if (rateType === 'SELIC' && rates.selic) setAnnualRate(rates.selic);
