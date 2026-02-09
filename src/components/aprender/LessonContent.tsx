@@ -18,7 +18,7 @@ interface LessonContentProps {
     handleCompleteAndNext: () => void;
     xpAmount: number;
     isAdmin?: boolean;
-    isCompleted?: boolean;
+    aulaFinalizada?: boolean;
 }
 
 const ProgressBar = ({ timeLeft, total }: { timeLeft: number; total: number }) => {
@@ -48,7 +48,7 @@ export function LessonContent({
     handleCompleteAndNext,
     xpAmount,
     isAdmin = false,
-    isCompleted = false
+    aulaFinalizada = false
 }: LessonContentProps) {
 
     const scrollbarClass = "lg:overflow-y-auto lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:bg-slate-700/50 lg:[&::-webkit-scrollbar-thumb]:rounded-full hover:lg:[&::-webkit-scrollbar-thumb]:bg-slate-600 transition-colors";
@@ -131,20 +131,20 @@ export function LessonContent({
                         <Button
                             size="lg"
                             onClick={handleCompleteAndNext}
-                            disabled={!canComplete && !isCompleted}
+                            disabled={!canComplete && !aulaFinalizada}
                             className={cn(
                                 "group font-bold rounded-full px-8 py-6 text-base transition-all w-full md:w-auto relative overflow-hidden",
-                                (canComplete || isCompleted)
+                                (canComplete || aulaFinalizada)
                                     ? "bg-white text-slate-900 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]"
                                     : "bg-white/5 text-white/20 border border-white/5 cursor-not-allowed"
                             )}
-                            aria-label={isCompleted ? "Ir para próxima aula" : canComplete ? `Concluir aula e ganhar ${xpAmount} XP` : `Aguarde ${timeLeft} segundos para liberar`}
+                            aria-label={aulaFinalizada ? "Ir para próxima aula" : canComplete ? `Concluir aula e ganhar ${xpAmount} XP` : `Aguarde ${timeLeft} segundos para liberar`}
                             role="button"
-                            aria-disabled={!canComplete && !isCompleted}
+                            aria-disabled={!canComplete && !aulaFinalizada}
                         >
-                            {!canComplete && !isCompleted && <Timer className="w-4 h-4 mr-2 animate-pulse" />}
+                            {!canComplete && !aulaFinalizada && <Timer className="w-4 h-4 mr-2 animate-pulse" />}
 
-                            {isCompleted ? (
+                            {aulaFinalizada ? (
                                 <>
                                     <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-500" />
                                     {currentAulaId === totalLessons ? "Curso Concluído" : "Próxima Aula"}
@@ -157,7 +157,7 @@ export function LessonContent({
                                 `Aguarde ${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2, '0')}`
                             )}
 
-                            {(canComplete || isCompleted) && currentAulaId !== totalLessons && (
+                            {(canComplete || aulaFinalizada) && currentAulaId !== totalLessons && (
                                 <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             )}
                         </Button>

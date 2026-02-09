@@ -75,7 +75,7 @@ export function LessonSidebar({
                             <div className="space-y-1">
                                 {modulo.aulas.map((aula) => {
                                     const isActive = currentAulaId === aula.id;
-                                    const isCompleted = completedLessonIds.includes(aula.id);
+                                    const aulaFinalizada = completedLessonIds.includes(aula.id);
                                     const isLocked = !isAdmin && aula.id > (maxCompletedId + 1);
 
                                     const buttonContent = (
@@ -99,7 +99,7 @@ export function LessonSidebar({
                                                 <Lock className="w-3.5 h-3.5 shrink-0 text-slate-500" />
                                             ) : isActive ? (
                                                 <PlayCircle className="w-3.5 h-3.5 shrink-0 animate-pulse" />
-                                            ) : isCompleted ? (
+                                            ) : aulaFinalizada ? (
                                                 <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                                             ) : (
                                                 <div className="w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/30 shrink-0" />
@@ -145,7 +145,7 @@ export function LessonSidebar({
                                     <div className="space-y-1">
                                         {trilha.aulas.map((aula) => {
                                             const isActive = currentAulaId === aula.id;
-                                            const isCompleted = completedLessonIds.includes(aula.id);
+                                            const aulaFinalizada = completedLessonIds.includes(aula.id);
                                             // Locked if base course not complete OR if individual sequence logic applies
                                             const isLocked = !isAdmin && (!isBaseCourseComplete || (aula.id > (maxCompletedId + 1)));
 
@@ -167,7 +167,7 @@ export function LessonSidebar({
                                                         <Lock className="w-3 h-3 shrink-0" />
                                                     ) : isActive ? (
                                                         <PlayCircle className="w-3 h-3 shrink-0 animate-pulse" />
-                                                    ) : isCompleted ? (
+                                                    ) : aulaFinalizada ? (
                                                         <CheckCircle2 className="w-3 h-3 shrink-0 text-emerald-500" />
                                                     ) : (
                                                         <div className="w-3 h-3 rounded-full border-2 border-muted-foreground/30 shrink-0" />

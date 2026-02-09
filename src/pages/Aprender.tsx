@@ -205,7 +205,7 @@ export default function Aprender() {
             handleCompleteAndNext={handleCompleteAndNext}
             xpAmount={xpAmount}
             isAdmin={isAdmin}
-            isCompleted={completedLessonIds.includes(currentAulaId)}
+            aulaFinalizada={completedLessonIds.includes(currentAulaId)}
           />
 
         </div>
