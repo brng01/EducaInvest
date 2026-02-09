@@ -1,7 +1,7 @@
 import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import confetti from 'canvas-confetti';
+
 import { Lesson } from '@/lib/types';
 
 const TIME_LIMIT = 120; // 2 minutes
@@ -85,14 +85,8 @@ export function useLessonProgress(
         const isLastOfModule = lessons.filter(l => (l.nivel || l.level) === currentLevel).pop()?.id === currentAulaId;
         const isLastOfCourse = currentAulaId === lessons.length;
 
-        if (isLastOfModule || isLastOfCourse) {
-            confetti({
-                particleCount: isLastOfCourse ? 200 : 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#3b82f6', '#ffffff', '#60a5fa', '#10b981']
-            });
-        }
+        // Confetti removed for professional look
+        // if (isLastOfModule || isLastOfCourse) { ... }
 
         const xpAmount = getXpReward(currentLevel);
 
