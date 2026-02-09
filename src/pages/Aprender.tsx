@@ -120,9 +120,13 @@ export default function Aprender() {
   }, [toast]);
 
   // ========== FILTER TERMS ==========
-  // ========== FILTER TERMS ==========
   const termosDaAula = useMemo(() => {
     if (!allTerms.length || !currentAula) return [];
+
+    // Função para escapar caracteres especiais de regex
+    const escapeRegExp = (string: string) => {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    };
 
     // Normaliza o texto da aula para busca
     const transcriptLower = (currentAula.transcricaoCompleta || "").toLowerCase();
@@ -140,8 +144,8 @@ export default function Aprender() {
       // Usaremos includes simples primeiro para performance, mas validação mais robusta seria regex
       // Regex: \btermo\b
 
-      const hasName = name && new RegExp(`\\b${name}\\b`, 'i').test(transcriptLower);
-      const hasAcronym = acronym && new RegExp(`\\b${acronym}\\b`, 'i').test(transcriptLower);
+      const hasName = name && new RegExp(`\\b${escapeRegExp(name)}\\b`, 'i').test(transcriptLower);
+      const hasAcronym = acronym && new RegExp(`\\b${escapeRegExp(acronym)}\\b`, 'i').test(transcriptLower);
 
       return hasName || hasAcronym;
     });

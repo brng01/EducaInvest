@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Layers, ChevronLeft, ChevronRight, Timer, Info } from "lucide-react";
+import { Layers, ChevronLeft, ChevronRight, Timer, Info, Lock } from "lucide-react";
 import { PodcastCard } from "@/components/aprender/PodcastCard";
 import { TermCard } from "@/components/aprender/TermCard";
 import { Button } from "@/components/ui/button";
