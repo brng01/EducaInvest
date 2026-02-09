@@ -6,6 +6,7 @@ import { gameService, GameQuestion } from "@/services/gameService";
 import { formatNumber, saveXP } from "@/lib/utils";
 import { GameHelp } from "./GameHelp";
 import { useToast } from "@/hooks/use-toast";
+import { useSound } from "@/hooks/useSound";
 
 interface Props {
     onBack: () => void;
