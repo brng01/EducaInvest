@@ -38,23 +38,23 @@ END $$;
 TRUNCATE TABLE public.game_questions RESTART IDENTITY;
 TRUNCATE TABLE public.empire_items RESTART IDENTITY;
 
--- Seed Data: O Consultor (15 Scenarios)
+-- Seed Data: O Consultor (15 Scenarios with Icons)
 INSERT INTO public.game_questions (game_type, content, difficulty) VALUES
-('consultor', '{"text": "Investimento com retorno garantido de 10% ao mês.", "type": "bad", "explanation": "Golpe! Retornos garantidos muito acima do mercado (como 1% a.m.) geralmente são pirâmides financeiras."}', 'easy'),
-('consultor', '{"text": "Empréstimo pessoal com juros de 8% ao mês para comprar roupas.", "type": "bad", "explanation": "Juros abusivos! 8% ao mês vira mais de 150% ao ano. Nunca tome dívida cara para consumo."}', 'easy'),
-('consultor', '{"text": "Reserva de Emergência no Tesouro Selic.", "type": "good", "explanation": "Ótima escolha! O Tesouro Selic é seguro e tem liquidez diária, ideal para emergências."}', 'easy'),
-('consultor', '{"text": "Vender todas as ações porque o mercado caiu hoje.", "type": "bad", "explanation": "Pânico! Vender na baixa consolida o prejuízo. O ideal é analisar os fundamentos e pensar no longo prazo."}', 'easy'),
-('consultor', '{"text": "Aporte mensal em fundos imobiliários para gerar renda passiva.", "type": "good", "explanation": "Excelente estratégia! A constância nos aportes e o reinvestimento dos dividendos criam uma bola de neve."}', 'easy'),
-('consultor', '{"text": "Financiar um carro de luxo em 60x sem entrada.", "type": "bad", "explanation": "Cuidado! O custo total será muito maior que o valor do carro, e o veículo desvaloriza rápido."}', 'medium'),
-('consultor', '{"text": "Diversificar a carteira entre Renda Fixa e Renda Variável.", "type": "good", "explanation": "Isso reduz riscos! Não colocar todos os ovos na mesma cesta protege seu patrimônio."}', 'medium'),
-('consultor', '{"text": "Título de Capitalização oferecido pelo gerente do banco.", "type": "bad", "explanation": "Péssimo negócio! Geralmente rende menos que a poupança e seu dinheiro fica preso. É um jogo, não investimento."}', 'medium'),
-('consultor', '{"text": "Seguro de Vida para proteger sua família.", "type": "good", "explanation": "Responsável! Proteção financeira para dependentes é fundamental em um planejamento financeiro sólido."}', 'medium'),
-('consultor', '{"text": "Usar a Reserva de Emergência para comprar ações em queda.", "type": "bad", "explanation": "Arriscado! A Reserva de Emergência deve ficar em liquidez imediata e baixo risco, não em renda variável."}', 'medium'),
-('consultor', '{"text": "Reinvestir os dividendos recebidos.", "type": "good", "explanation": "O segredo da riqueza! Reinvestir cria o efeito de juros compostos, acelerando o crescimento do patrimônio."}', 'hard'),
-('consultor', '{"text": "Comprar imóvel na planta sem verificar a construtora.", "type": "bad", "explanation": "Alto risco! A obra pode atrasar ou a construtora falir. Sempre pesquise o histórico antes."}', 'hard'),
-('consultor', '{"text": "Aumentar os aportes mensais ao receber um aumento de salário.", "type": "good", "explanation": "Mentalidade correta! Evite inflar seu custo de vida proporcionalmente. Invista a diferença."}', 'hard'),
-('consultor', '{"text": "Pegar empréstimo para investir em criptomoedas.", "type": "bad", "explanation": "Perigo máximo! Alavancagem em ativos voláteis pode te deixar com dívidas impagáveis se o ativo cair."}', 'hard'),
-('consultor', '{"text": "Estudar sobre a empresa antes de comprar suas ações.", "type": "good", "explanation": "Essencial! Investimento requer análise. Comprar \"dicas\" sem entender é receita para o fracasso."}', 'hard');
+('consultor', '{"text": "Investimento com retorno garantido de 10% ao mês.", "type": "bad", "icon": "🚀", "explanation": "Golpe! Retornos garantidos muito acima do mercado (como 1% a.m.) geralmente são pirâmides financeiras."}', 'easy'),
+('consultor', '{"text": "Empréstimo pessoal com juros de 8% ao mês para comprar roupas.", "type": "bad", "icon": "💸", "explanation": "Juros abusivos! 8% ao mês vira mais de 150% ao ano. Nunca tome dívida cara para consumo."}', 'easy'),
+('consultor', '{"text": "Reserva de Emergência no Tesouro Selic.", "type": "good", "icon": "🛡️", "explanation": "Ótima escolha! O Tesouro Selic é seguro e tem liquidez diária, ideal para emergências."}', 'easy'),
+('consultor', '{"text": "Vender todas as ações porque o mercado caiu hoje.", "type": "bad", "icon": "📉", "explanation": "Pânico! Vender na baixa consolida o prejuízo. O ideal é analisar os fundamentos e pensar no longo prazo."}', 'easy'),
+('consultor', '{"text": "Aporte mensal em fundos imobiliários para gerar renda passiva.", "type": "good", "icon": "🏢", "explanation": "Excelente estratégia! A constância nos aportes e o reinvestimento dos dividendos criam uma bola de neve."}', 'easy'),
+('consultor', '{"text": "Financiar um carro de luxo em 60x sem entrada.", "type": "bad", "icon": "🚗", "explanation": "Cuidado! O custo total será muito maior que o valor do carro, e o veículo desvaloriza rápido."}', 'medium'),
+('consultor', '{"text": "Diversificar a carteira entre Renda Fixa e Renda Variável.", "type": "good", "icon": "🎨", "explanation": "Isso reduz riscos! Não colocar todos os ovos na mesma cesta protege seu patrimônio."}', 'medium'),
+('consultor', '{"text": "Título de Capitalização oferecido pelo gerente do banco.", "type": "bad", "icon": "🎟️", "explanation": "Péssimo negócio! Geralmente rende menos que a poupança e seu dinheiro fica preso. É um jogo, não investimento."}', 'medium'),
+('consultor', '{"text": "Seguro de Vida para proteger sua família.", "type": "good", "icon": "👨‍👩‍👧‍👦", "explanation": "Responsável! Proteção financeira para dependentes é fundamental em um planejamento financeiro sólido."}', 'medium'),
+('consultor', '{"text": "Usar a Reserva de Emergência para comprar ações em queda.", "type": "bad", "icon": "🆘", "explanation": "Arriscado! A Reserva de Emergência deve ficar em liquidez imediata e baixo risco, não em renda variável."}', 'medium'),
+('consultor', '{"text": "Reinvestir os dividendos recebidos.", "type": "good", "icon": "🔄", "explanation": "O segredo da riqueza! Reinvestir cria o efeito de juros compostos, acelerando o crescimento do patrimônio."}', 'hard'),
+('consultor', '{"text": "Comprar imóvel na planta sem verificar a construtora.", "type": "bad", "icon": "🏗️", "explanation": "Alto risco! A obra pode atrasar ou a construtora falir. Sempre pesquise o histórico antes."}', 'hard'),
+('consultor', '{"text": "Aumentar os aportes mensais ao receber um aumento de salário.", "type": "good", "icon": "📈", "explanation": "Mentalidade correta! Evite inflar seu custo de vida proporcionalmente. Invista a diferença."}', 'hard'),
+('consultor', '{"text": "Pegar empréstimo para investir em criptomoedas.", "type": "bad", "icon": "🪙", "explanation": "Perigo máximo! Alavancagem em ativos voláteis pode te deixar com dívidas impagáveis se o ativo cair."}', 'hard'),
+('consultor', '{"text": "Estudar sobre a empresa antes de comprar suas ações.", "type": "good", "icon": "📖", "explanation": "Essencial! Investimento requer análise. Comprar \"dicas\" sem entender é receita para o fracasso."}', 'hard');
 
 -- Seed Data: Desafio de Termos (16 Terms)
 INSERT INTO public.game_questions (game_type, content, difficulty) VALUES
