@@ -10,6 +10,7 @@ import Arcade from "./pages/Praticar";
 import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Ranking from "./pages/Ranking";
 import { AuthGuard } from "./components/auth/AuthGuard";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
               <Perfil />
             </AuthGuard>
           } />
+          <Route path="/ranking" element={<Ranking />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           <Route path="/login" element={<Login />} />

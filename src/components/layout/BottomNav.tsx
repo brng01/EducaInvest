@@ -10,6 +10,7 @@ export function BottomNav() {
         { path: "/aprender", label: "Aprender", icon: BookOpen },
         { path: "/simular", label: "Simular", icon: Calculator },
         { path: "/praticar", label: "Praticar", icon: Gamepad2 },
+        { path: "/ranking", label: "Ranking", icon: Trophy },
         { path: "/perfil", label: "Perfil", icon: User },
     ];
 
