@@ -208,18 +208,26 @@ export const EmpireBuilder = ({ onBack }: Props) => {
                 </div>
 
                 {/* Shop Sidebar */}
-                <div className="bg-slate-900/50 border-l border-white/10 overflow-y-auto max-h-[600px] rounded-xl">
-                    <div className="p-4 border-b border-white/10 sticky top-0 bg-slate-900/90 backdrop-blur z-10">
+                <div className="bg-slate-900/50 border-l border-white/10 overflow-y-auto max-h-[600px] rounded-xl scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+                    <div className="p-4 border-b border-white/10 sticky top-0 bg-slate-900/90 backdrop-blur z-10 flex items-center justify-between">
                         <h3 className="font-bold text-white flex items-center gap-2">
                             <Building className="w-4 h-4" /> Loja de Investimentos
                         </h3>
+                        {passiveIncome > 0 && (
+                            <span className="text-[10px] text-emerald-400 font-mono animate-pulse">RENDENDO...</span>
+                        )}
                     </div>
 
-                    <div className="p-2 space-y-2">
+                    <div className="p-2 space-y-3">
                         {items.map(item => {
                             const count = ownedItems[item.id] || 0;
                             const cost = getCost(item, count);
                             const canAfford = balance >= cost;
+                            const isPassive = item.type === 'passive';
+
+                            // Visual accents
+                            const accentClass = isPassive ? 'border-emerald-500/20 hover:border-emerald-500/50' : 'border-amber-500/20 hover:border-amber-500/50';
+                            const glowClass = isPassive ? 'group-hover:bg-emerald-500/5' : 'group-hover:bg-amber-500/5';
 
                             return (
                                 <button
@@ -227,36 +235,63 @@ export const EmpireBuilder = ({ onBack }: Props) => {
                                     onClick={() => buyItem(item)}
                                     disabled={!canAfford}
                                     className={`
-                     w-full text-left p-3 rounded-lg border transition-all relative group
-                     ${canAfford
-                                            ? 'bg-slate-800 border-white/10 hover:border-primary/50 hover:bg-slate-800'
-                                            : 'bg-slate-900/50 border-transparent opacity-60 cursor-not-allowed'
+                                        w-full text-left p-4 rounded-xl border transition-all relative group overflow-hidden
+                                        ${canAfford
+                                            ? `bg-slate-800/40 ${accentClass} ${glowClass}`
+                                            : 'bg-slate-950/50 border-white/5 opacity-50 cursor-not-allowed'
                                         }
-                   `}
+                                    `}
                                 >
-                                    <div className="flex justify-between items-start mb-1">
-                                        <span className="font-bold text-white text-sm">{item.name}</span>
-                                        <span className="text-xs font-mono bg-white/10 px-1.5 py-0.5 rounded text-white">
-                                            Lvl {count}
-                                        </span>
+                                    {/* Type indicator bubble */}
+                                    <div className={`absolute -right-1 -top-1 w-12 h-12 blur-2xl opacity-20 ${isPassive ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+
+                                    <div className="flex justify-between items-start mb-1 relative z-10">
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-white text-sm group-hover:text-primary transition-colors">{item.name}</span>
+                                            <span className={`text-[10px] uppercase font-bold tracking-wider ${isPassive ? 'text-emerald-500/70' : 'text-amber-500/70'}`}>
+                                                {isPassive ? 'Renda Passiva' : 'Renda Ativa'}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-[10px] font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-white/70">
+                                                Nível {count}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+                                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed relative z-10">
                                         {item.description}
                                     </p>
 
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-1 text-xs font-mono text-amber-500">
-                                            <Coins className="w-3 h-3" />
-                                            {cost.toLocaleString()}
+                                    <div className="flex items-center justify-between relative z-10 pt-2 border-t border-white/5">
+                                        <div className="flex flex-col">
+                                            <span className="text-[9px] text-muted-foreground uppercase font-bold">Custo</span>
+                                            <div className={`flex items-center gap-1 text-sm font-bold font-mono ${canAfford ? 'text-amber-400' : 'text-slate-500'}`}>
+                                                <Coins className="w-3.5 h-3.5" />
+                                                {cost.toLocaleString()}
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-1 text-xs font-mono text-emerald-500">
-                                            {item.type === 'active' ? <Zap className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
-                                            +{item.base_income}
+
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-[9px] text-muted-foreground uppercase font-bold">Bônus</span>
+                                            <div className={`flex items-center gap-1 text-sm font-bold font-mono ${isPassive ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                                {isPassive ? <TrendingUp className="w-3.5 h-3.5" /> : <Zap className="w-3.5 h-3.5" />}
+                                                +{item.base_income}
+                                                {count > 0 && (
+                                                    <span className="text-[10px] opacity-60 ml-1">
+                                                        (Total: {item.base_income * count})
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* Progress bar visual for next buy? maybe later */}
+                                    {/* Next level preview for owned items */}
+                                    {count > 0 && (
+                                        <div className={`mt-2 py-1 px-2 rounded-md text-[10px] font-medium text-center relative z-10 ${isPassive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                                            Próximo Nível: +{item.base_income} per {isPassive ? 'sec' : 'click'}
+                                        </div>
+                                    )}
                                 </button>
                             );
                         })}
