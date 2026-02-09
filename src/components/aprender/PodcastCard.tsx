@@ -198,9 +198,9 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
 
           termReplacements.push({
             placeholder: uniquePlaceholder,
-            // AJUSTE VISUAL: Reduzido tamanho da fonte e padding para não quebrar tabelas
+            // AJUSTE VISUAL: Botão ultra-compacto para caber em tabelas (font 10px, padding mínimo)
             html: `<button
-              class="term-link inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 rounded-md text-[11px] md:text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-400 hover:text-slate-900 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(16,185,129,0.1)] whitespace-nowrap"
+              class="term-link inline-flex items-center justify-center px-1 py-0.5 mx-[1px] rounded text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-400 hover:text-slate-900 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-sm whitespace-nowrap align-middle leading-none h-[18px]"
               data-term-id="${termo.id}"
               title="Clique para ver a explicação"
             >
