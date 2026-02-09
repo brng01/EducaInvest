@@ -15,6 +15,8 @@ interface QuestionContent {
     type: 'good' | 'bad';
     explanation: string;
     icon?: string;
+    leftLabel?: string;
+    rightLabel?: string;
 }
 
 export const OConsultor = ({ onBack }: Props) => {
@@ -161,6 +163,10 @@ export const OConsultor = ({ onBack }: Props) => {
     const content = currentQuestion.content as QuestionContent;
     const progress = ((currentIndex) / questions.length) * 100;
 
+    // Default labels
+    const leftLabel = content?.leftLabel || "Recusar";
+    const rightLabel = content?.rightLabel || "Aceitar";
+
     return (
         <div className="flex flex-col h-full min-h-[500px] max-w-md mx-auto">
             {/* Header */}
@@ -232,9 +238,9 @@ export const OConsultor = ({ onBack }: Props) => {
                             </h3>
 
                             <div className="flex gap-4 items-center text-[10px] uppercase font-bold tracking-widest text-white/30">
-                                <span className="flex items-center gap-1"><ArrowLeft className="w-3 h-3" /> Recusar</span>
+                                <span className="flex items-center gap-1"><ArrowLeft className="w-3 h-3" /> {leftLabel}</span>
                                 <span className="w-1 h-1 rounded-full bg-white/10" />
-                                <span className="flex items-center gap-1">Aceitar <ThumbsUp className="w-3 h-3 rotate-180" /></span>
+                                <span className="flex items-center gap-1">{rightLabel} <ArrowLeft className="w-3 h-3 rotate-180" /></span>
                             </div>
                         </motion.div>
                     ) : (
@@ -290,7 +296,7 @@ export const OConsultor = ({ onBack }: Props) => {
                     disabled={showFeedback}
                 >
                     <ThumbsDown className="w-6 h-6" />
-                    <span className="text-[10px] uppercase font-black">Recusar</span>
+                    <span className="text-[10px] uppercase font-black">{leftLabel}</span>
                 </Button>
                 <Button
                     variant="ghost"
@@ -300,7 +306,7 @@ export const OConsultor = ({ onBack }: Props) => {
                     disabled={showFeedback}
                 >
                     <ThumbsUp className="w-6 h-6" />
-                    <span className="text-[10px] uppercase font-black">Aceitar</span>
+                    <span className="text-[10px] uppercase font-black">{rightLabel}</span>
                 </Button>
             </div>
         </div>
