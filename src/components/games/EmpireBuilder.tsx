@@ -152,8 +152,11 @@ export const EmpireBuilder = ({ onBack }: Props) => {
         );
     }
 
+    const passiveItems = items.filter(i => i.type === 'passive');
+    const activeItems = items.filter(i => i.type === 'active');
+
     return (
-        <div className="flex flex-col h-full min-h-[600px] max-w-4xl mx-auto">
+        <div className="flex flex-col h-full min-h-[600px] max-w-[1400px] mx-auto">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
@@ -180,30 +183,42 @@ export const EmpireBuilder = ({ onBack }: Props) => {
                 </div>
             </div>
 
-            <div className="grid md:grid-cols-[1fr_300px] gap-8 h-full">
-                {/* Main Area */}
-                <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-8 h-full">
+                {/* Left Column: Passive Income */}
+                <ShopColumn
+                    title="Renda Passiva"
+                    icon={<TrendingUp className="w-4 h-4" />}
+                    items={passiveItems}
+                    ownedItems={ownedItems}
+                    balance={balance}
+                    onBuy={buyItem}
+                    getCost={getCost}
+                    isPassive={true}
+                />
+
+                {/* Center Column: Main Game */}
+                <div className="flex flex-col gap-6 order-first lg:order-none">
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-slate-800/50 border border-white/10 p-4 rounded-xl flex flex-col items-center">
-                            <span className="text-muted-foreground text-sm uppercase font-bold mb-1">Renda Passiva</span>
+                            <span className="text-muted-foreground text-sm uppercase font-bold mb-1">Passiva</span>
                             <div className="flex items-center gap-2 text-emerald-400">
                                 <TrendingUp className="w-5 h-5" />
-                                <span className="text-2xl font-bold tabular-nums">+ED$ {formatNumber(passiveIncome)}/s</span>
+                                <span className="text-xl md:text-2xl font-bold tabular-nums">+{formatNumber(passiveIncome)}/s</span>
                             </div>
                         </div>
                         <div className="bg-slate-800/50 border border-white/10 p-4 rounded-xl flex flex-col items-center">
-                            <span className="text-muted-foreground text-sm uppercase font-bold mb-1">Renda Ativa</span>
+                            <span className="text-muted-foreground text-sm uppercase font-bold mb-1">Ativa</span>
                             <div className="flex items-center gap-2 text-amber-400">
                                 <Zap className="w-5 h-5" />
-                                <span className="text-2xl font-bold tabular-nums">+ED$ {formatNumber(clickValue)}/clique</span>
+                                <span className="text-xl md:text-2xl font-bold tabular-nums">+{formatNumber(clickValue)}/click</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Clicker Area */}
                     <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-                        <div className="text-4xl md:text-5xl font-bold text-white mb-8 tabular-nums">
+                        <div className="text-5xl md:text-6xl font-bold text-white mb-12 tabular-nums tracking-tight">
                             {formatED(balance)}
                         </div>
 
@@ -211,11 +226,11 @@ export const EmpireBuilder = ({ onBack }: Props) => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={handleWork}
-                            className="w-48 h-48 rounded-full bg-gradient-to-b from-primary to-primary/60 shadow-[0_0_50px_rgba(var(--primary-rgb),0.3)] border-4 border-white/10 flex flex-col items-center justify-center gap-2 relative overflow-hidden group"
+                            className="w-56 h-56 rounded-full bg-gradient-to-b from-primary to-primary/60 shadow-[0_0_60px_rgba(var(--primary-rgb),0.3)] border-4 border-white/10 flex flex-col items-center justify-center gap-3 relative overflow-hidden group"
                         >
                             <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <Briefcase className="w-16 h-16 text-white" />
-                            <span className="font-bold text-white text-lg uppercase tracking-wider">Trabalhar</span>
+                            <Briefcase className="w-20 h-20 text-white" />
+                            <span className="font-bold text-white text-xl uppercase tracking-wider">Trabalhar</span>
                         </motion.button>
 
                         {/* Floating text container */}
@@ -225,9 +240,9 @@ export const EmpireBuilder = ({ onBack }: Props) => {
                                     <motion.div
                                         key={click.id}
                                         initial={{ opacity: 1, y: 0, x: 0 }}
-                                        animate={{ opacity: 0, y: -100 }}
+                                        animate={{ opacity: 0, y: -120 }}
                                         exit={{ opacity: 0 }}
-                                        className="absolute font-bold text-emerald-400 text-xl"
+                                        className="absolute font-bold text-emerald-400 text-2xl drop-shadow-md"
                                         style={{
                                             left: '50%',
                                             top: '50%',
@@ -243,101 +258,107 @@ export const EmpireBuilder = ({ onBack }: Props) => {
                     </div>
                 </div>
 
-                {/* Shop Sidebar */}
-                <div className="relative bg-slate-900/50 border-l border-white/10 overflow-y-auto max-h-[600px] rounded-xl 
-                    [&::-webkit-scrollbar]:w-2
-                    [&::-webkit-scrollbar-track]:bg-transparent
-                    [&::-webkit-scrollbar-thumb]:bg-white/10
-                    [&::-webkit-scrollbar-thumb]:rounded-full
-                    hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
-                    <div className="p-4 border-b border-white/10 sticky top-0 bg-slate-950 z-50 flex items-center justify-between">
-                        <h3 className="font-bold text-white flex items-center gap-2">
-                            <Building className="w-4 h-4" /> Loja de Investimentos
-                        </h3>
-                        {passiveIncome > 0 && (
-                            <span className="text-[10px] text-emerald-400 font-mono animate-pulse">RENDENDO...</span>
-                        )}
-                    </div>
+                {/* Right Column: Active Income */}
+                <ShopColumn
+                    title="Renda Ativa"
+                    icon={<Zap className="w-4 h-4" />}
+                    items={activeItems}
+                    ownedItems={ownedItems}
+                    balance={balance}
+                    onBuy={buyItem}
+                    getCost={getCost}
+                    isPassive={false}
+                />
+            </div>
+        </div>
+    );
+};
 
-                    <div className="p-2 space-y-3">
-                        {items.map(item => {
-                            const count = ownedItems[item.id] || 0;
-                            const cost = getCost(item, count);
-                            const canAfford = balance >= cost;
-                            const isPassive = item.type === 'passive';
+// Helper Component for Shop Columns
+const ShopColumn = ({ title, icon, items, ownedItems, balance, onBuy, getCost, isPassive }: any) => {
+    return (
+        <div className="relative bg-slate-900/50 border border-white/10 overflow-y-auto max-h-[600px] rounded-xl flex flex-col
+            [&::-webkit-scrollbar]:w-2
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:bg-white/10
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
 
-                            // Visual accents
-                            const accentClass = isPassive ? 'border-emerald-500/20 hover:border-emerald-500/50' : 'border-amber-500/20 hover:border-amber-500/50';
-                            const glowClass = isPassive ? 'group-hover:bg-emerald-500/5' : 'group-hover:bg-amber-500/5';
+            <div className="p-4 border-b border-white/10 sticky top-0 bg-slate-950 z-50 flex items-center justify-between shadow-lg">
+                <h3 className="font-bold text-white flex items-center gap-2 uppercase tracking-wide text-sm">
+                    {icon} {title}
+                </h3>
+                {isPassive && (
+                    <span className="text-[10px] text-emerald-400 font-mono animate-pulse">RENDENDO...</span>
+                )}
+            </div>
 
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => buyItem(item)}
-                                    disabled={!canAfford}
-                                    className={`
-                                        w-full text-left p-4 rounded-xl border transition-all relative group overflow-hidden
-                                        ${canAfford
-                                            ? `bg-slate-800/40 ${accentClass} ${glowClass}`
-                                            : 'bg-slate-950/50 border-white/5 opacity-50 cursor-not-allowed'
-                                        }
-                                    `}
-                                >
-                                    {/* Type indicator bubble */}
-                                    <div className={`absolute -right-1 -top-1 w-12 h-12 blur-2xl opacity-20 ${isPassive ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+            <div className="p-3 space-y-3 flex-1">
+                {items.map((item: EmpireItem) => {
+                    const count = ownedItems[item.id] || 0;
+                    const cost = getCost(item, count);
+                    const canAfford = balance >= cost;
 
-                                    <div className="flex justify-between items-start mb-1 relative z-10">
-                                        <div className="flex flex-col">
-                                            <span className="font-bold text-white text-sm group-hover:text-primary transition-colors">{item.name}</span>
-                                            <span className={`text-[10px] uppercase font-bold tracking-wider ${isPassive ? 'text-emerald-500/70' : 'text-amber-500/70'}`}>
-                                                {isPassive ? 'Renda Passiva' : 'Renda Ativa'}
-                                            </span>
-                                        </div>
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-[10px] font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-white/70">
-                                                Nível {count}
-                                            </span>
-                                        </div>
+                    // Visual accents
+                    const accentClass = isPassive ? 'border-emerald-500/20 hover:border-emerald-500/50' : 'border-amber-500/20 hover:border-amber-500/50';
+                    const glowClass = isPassive ? 'group-hover:bg-emerald-500/5' : 'group-hover:bg-amber-500/5';
+                    const textAccent = isPassive ? 'text-emerald-400' : 'text-amber-400';
+
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => onBuy(item)}
+                            disabled={!canAfford}
+                            className={`
+                                w-full text-left p-4 rounded-xl border transition-all relative group overflow-hidden
+                                ${canAfford
+                                    ? `bg-slate-800/40 ${accentClass} ${glowClass}`
+                                    : 'bg-slate-950/50 border-white/5 opacity-50 cursor-not-allowed'
+                                }
+                            `}
+                        >
+                            {/* Type indicator bubble */}
+                            <div className={`absolute -right-5 -top-5 w-16 h-16 blur-2xl opacity-10 transition-opacity group-hover:opacity-30 ${isPassive ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+
+                            <div className="flex justify-between items-start mb-2 relative z-10">
+                                <span className="font-bold text-white text-sm group-hover:text-primary transition-colors pr-2">{item.name}</span>
+                                <span className="text-[10px] font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-white/70 whitespace-nowrap">
+                                    Nível {count}
+                                </span>
+                            </div>
+
+                            <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed relative z-10 h-8">
+                                {item.description}
+                            </p>
+
+                            <div className="flex items-center justify-between relative z-10 pt-2 border-t border-white/5">
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] text-muted-foreground uppercase font-bold">Custo</span>
+                                    <div className={`flex items-center gap-1 text-sm font-bold tabular-nums ${canAfford ? 'text-white' : 'text-red-400'}`}>
+                                        <Coins className="w-3 h-3 text-amber-400" />
+                                        {formatNumber(cost)}
                                     </div>
+                                </div>
 
-                                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed relative z-10">
-                                        {item.description}
-                                    </p>
-
-                                    <div className="flex items-center justify-between relative z-10 pt-2 border-t border-white/5">
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] text-muted-foreground uppercase font-bold">Custo</span>
-                                            <div className={`flex items-center gap-1 text-sm font-bold tabular-nums ${canAfford ? 'text-amber-400' : 'text-slate-500'}`}>
-                                                <Coins className="w-3.5 h-3.5" />
-                                                {formatNumber(cost)}
-                                            </div>
-                                        </div>
-
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-[9px] text-muted-foreground uppercase font-bold">Bônus</span>
-                                            <div className={`flex items-center gap-1 text-sm font-bold tabular-nums ${isPassive ? 'text-emerald-400' : 'text-amber-400'}`}>
-                                                {isPassive ? <TrendingUp className="w-3.5 h-3.5" /> : <Zap className="w-3.5 h-3.5" />}
-                                                +{formatNumber(item.base_income)}
-                                                {count > 0 && (
-                                                    <span className="text-[10px] opacity-60 ml-1">
-                                                        (Total: {formatNumber(item.base_income * count)})
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[9px] text-muted-foreground uppercase font-bold">Bônus</span>
+                                    <div className={`flex items-center gap-1 text-sm font-bold tabular-nums ${textAccent}`}>
+                                        {isPassive ? <TrendingUp className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
+                                        +{formatNumber(item.base_income)}
                                     </div>
+                                </div>
+                            </div>
 
-                                    {/* Next level preview for owned items */}
-                                    {count > 0 && (
-                                        <div className={`mt-2 py-1 px-2 rounded-md text-[10px] font-medium text-center relative z-10 ${isPassive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
-                                            Próximo Nível: +{item.base_income} per {isPassive ? 'sec' : 'click'}
-                                        </div>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
+                            {/* Next level preview */}
+                            <div className={`mt-2 py-1 px-2 rounded-md text-[10px] font-medium text-center relative z-10 transition-colors ${count > 0 ? (isPassive ? 'bg-emerald-500/10 text-emerald-300' : 'bg-amber-500/10 text-amber-300') : 'text-muted-foreground/50'}`}>
+                                {count > 0
+                                    ? `Próximo: +${formatNumber(item.base_income * (count + 1))} total`
+                                    : 'Compre para desbloquear'
+                                }
+                            </div>
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );
