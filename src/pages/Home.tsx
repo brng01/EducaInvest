@@ -10,6 +10,8 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { UserProfile } from "@/lib/types";
 
+import { MarketTicker } from "@/components/home/MarketTicker";
+
 export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [perfil, setPerfil] = useState<UserProfile | null>(null);
@@ -112,6 +114,9 @@ export default function Home() {
 
   return (
     <Layout>
+      <div className="mb-0">
+        <MarketTicker />
+      </div>
       <motion.div
         variants={containerVariants}
         initial="hidden"

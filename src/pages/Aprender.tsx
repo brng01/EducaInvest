@@ -13,9 +13,17 @@ import { LessonSidebar } from "@/components/aprender/LessonSidebar";
 import { LessonContent } from "@/components/aprender/LessonContent";
 import { useLessonProgress } from "@/hooks/useLessonProgress";
 
+import { JourneyGrid } from "@/components/aprender/JourneyGrid";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+
 export default function Aprender() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
+
+  // View Mode: 'journey' (Grid) or 'player' (Lesson Content)
+  // Default to 'journey' for better UX
+  const [viewMode, setViewMode] = useState<'journey' | 'player'>('journey');
 
   // Real Data States
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -162,37 +170,71 @@ export default function Aprender() {
     );
   }
 
+  // Handle starting a lesson from the grid
+  const handleSelectLesson = (id: number) => {
+    handleLessonChange(id);
+    setViewMode('player');
+  };
+
   return (
     <Layout>
       <TooltipProvider>
-        <div className="flex flex-col lg:flex-row min-h-screen lg:h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 lg:overflow-hidden">
+        {viewMode === 'journey' ? (
+          <div className="min-h-screen bg-slate-950 pb-20">
+            <JourneyGrid
+              lessons={lessons}
+              completedLessonIds={completedLessonIds}
+              onSelectLesson={handleSelectLesson}
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col lg:flex-row min-h-screen lg:h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 lg:overflow-hidden relative">
 
-          <LessonSidebar
-            isMobileMenuOpen={isMobileMenuOpen}
-            setIsMobileMenuOpen={setIsMobileMenuOpen}
-            lessons={lessons}
-            currentAulaId={currentAulaId}
-            completedLessonIds={completedLessonIds}
-            handleLessonChange={handleLessonChange}
-            isAdmin={isAdmin}
-          />
+            {/* Back to Journey Button (Mobile/Desktop) */}
+            <div className="absolute top-4 left-4 z-50 lg:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode('journey')}
+                className="bg-slate-900/80 backdrop-blur-md border border-white/10 text-white"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Mapa
+              </Button>
+            </div>
 
-          <LessonContent
-            currentAula={currentAula}
-            totalLessons={lessons.length}
-            termosDaAula={termosDaAula}
-            handleLessonChange={handleLessonChange}
-            currentAulaId={currentAulaId}
-            canComplete={canComplete}
-            timeLeft={timeLeft}
-            timeLimit={TIME_LIMIT}
-            handleCompleteAndNext={handleCompleteAndNext}
-            xpAmount={xpAmount}
-            isAdmin={isAdmin}
-            aulaFinalizada={completedLessonIds.includes(currentAulaId)}
-          />
+            {/* Desktop Back Button inside Sidebar area usually, but sidebar handles navigation. 
+                We can add a "Back to Map" in the Sidebar header or just keep it as is. 
+                For now, let's rely on the Sidebar or a global back. 
+            */}
 
-        </div>
+            <LessonSidebar
+              isMobileMenuOpen={isMobileMenuOpen}
+              setIsMobileMenuOpen={setIsMobileMenuOpen}
+              lessons={lessons}
+              currentAulaId={currentAulaId}
+              completedLessonIds={completedLessonIds}
+              handleLessonChange={handleLessonChange}
+              isAdmin={isAdmin}
+              onBackToMap={() => setViewMode('journey')}
+            />
+
+            <LessonContent
+              currentAula={currentAula}
+              totalLessons={lessons.length}
+              termosDaAula={termosDaAula}
+              handleLessonChange={handleLessonChange}
+              currentAulaId={currentAulaId}
+              canComplete={canComplete}
+              timeLeft={timeLeft}
+              timeLimit={TIME_LIMIT}
+              handleCompleteAndNext={handleCompleteAndNext}
+              xpAmount={xpAmount}
+              isAdmin={isAdmin}
+              aulaFinalizada={completedLessonIds.includes(currentAulaId)}
+            />
+          </div>
+        )}
       </TooltipProvider>
     </Layout>
   );

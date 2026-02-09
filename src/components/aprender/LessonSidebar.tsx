@@ -11,6 +11,7 @@ interface LessonSidebarProps {
     completedLessonIds: number[];
     handleLessonChange: (id: number) => void;
     isAdmin?: boolean;
+    onBackToMap?: () => void;
 }
 
 export function LessonSidebar({
@@ -20,7 +21,8 @@ export function LessonSidebar({
     currentAulaId,
     completedLessonIds,
     handleLessonChange,
-    isAdmin = false
+    isAdmin = false,
+    onBackToMap
 }: LessonSidebarProps) {
 
     const scrollbarClass = "lg:overflow-y-auto lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:bg-slate-700/50 lg:[&::-webkit-scrollbar-thumb]:rounded-full hover:lg:[&::-webkit-scrollbar-thumb]:bg-slate-600 transition-colors";
@@ -51,17 +53,29 @@ export function LessonSidebar({
             isMobileMenuOpen ? "h-auto" : "h-auto"
         )}>
             <div className="p-4 lg:p-6">
-                <button
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="w-full flex items-center justify-between lg:justify-start gap-2 mb-2 lg:mb-6 text-primary sticky top-0 bg-slate-900/90 backdrop-blur-xl py-2 z-10 -mx-2 px-2 rounded-lg lg:cursor-default"
-                    aria-label="Menu de aulas"
-                >
-                    <div className="flex items-center gap-2">
-                        <BookOpen className="w-5 h-5" />
-                        <h2 className="font-display font-bold text-lg text-white">Cronograma</h2>
-                    </div>
-                    <ChevronDown className={cn("w-5 h-5 lg:hidden transition-transform", isMobileMenuOpen ? "rotate-180" : "")} />
-                </button>
+                <div className="sticky top-0 bg-slate-900/90 backdrop-blur-xl z-10 -mx-2 px-2 py-2 mb-2 lg:mb-6 rounded-lg space-y-2">
+                    {onBackToMap && (
+                        <button
+                            onClick={onBackToMap}
+                            className="hidden lg:flex w-full items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-white transition-colors p-2 rounded-md hover:bg-white/5 border border-transparent hover:border-white/5"
+                        >
+                            <ChevronDown className="w-4 h-4 rotate-90" />
+                            Voltar ao Mapa
+                        </button>
+                    )}
+
+                    <button
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="w-full flex items-center justify-between lg:justify-start gap-2 text-primary lg:cursor-default"
+                        aria-label="Menu de aulas"
+                    >
+                        <div className="flex items-center gap-2">
+                            <BookOpen className="w-5 h-5" />
+                            <h2 className="font-display font-bold text-lg text-white">Cronograma</h2>
+                        </div>
+                        <ChevronDown className={cn("w-5 h-5 lg:hidden transition-transform", isMobileMenuOpen ? "rotate-180" : "")} />
+                    </button>
+                </div>
 
                 <div className={cn(
                     "space-y-6 lg:block",

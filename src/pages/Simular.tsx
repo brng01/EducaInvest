@@ -9,55 +9,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { MarketRates } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
+import { useMarketData } from "@/hooks/useMarketData";
+
 export default function Simular() {
-  const [rates, setRates] = useState<MarketRates>({
-    selic: 0,
-    cdi: 0,
-    ipca: 0,
-    poupanca: 0
-  });
-  const [isLoading, setIsLoading] = useState(true);
+  const { rates, isLoading } = useMarketData();
   const { toast } = useToast();
-
-  // Busca dados do Supabase ao carregar
-  useEffect(() => {
-    async function fetchRates() {
-      try {
-        setIsLoading(true);
-        const { data, error } = await supabase.from('dados_mercado').select('*');
-
-        if (error) throw error;
-
-        if (data) {
-          // Transforma o array do banco em um objeto fácil de usar
-          const newRates = {
-            selic: data.find(d => d.ticker === 'SELIC')?.preco_atual || 0,
-            cdi: data.find(d => d.ticker === 'CDI')?.preco_atual || 0,
-            ipca: data.find(d => d.ticker === 'IPCA')?.preco_atual || 0,
-            poupanca: data.find(d => d.ticker === 'POUPANCA')?.preco_atual || 0,
-          };
-          setRates(newRates);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar taxas:", error);
-        toast({
-          title: "Erro ao carregar dados de mercado",
-          description: "Usando valores padrão de referência.",
-          variant: "destructive"
-        });
-        // Set defaults if failed
-        setRates({
-          selic: 10.75,
-          cdi: 10.65,
-          ipca: 4.5,
-          poupanca: 6.17
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchRates();
-  }, [toast]);
 
   if (isLoading) {
     return (

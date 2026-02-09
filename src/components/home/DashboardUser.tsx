@@ -139,12 +139,20 @@ export function DashboardUser({ user, perfil }: { user: any; perfil: any; progre
                 )}
               </div>
 
-              {nextLesson && (
+              {nextLesson ? (
                 <Button
                   onClick={() => navigate('/aprender')}
                   className="rounded-full bg-primary hover:bg-primary/90 text-white font-bold px-8 py-6 shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:shadow-primary/30 group/btn"
                 >
                   Continuar Jornada
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => navigate('/praticar')}
+                  className="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-8 py-6 shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 hover:shadow-emerald-500/30 group/btn"
+                >
+                  Explorar Jogos e Desafios
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                 </Button>
               )}
