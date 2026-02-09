@@ -12,7 +12,6 @@ import { Lesson, Term } from "@/lib/types";
 import { LessonSidebar } from "@/components/aprender/LessonSidebar";
 import { LessonContent } from "@/components/aprender/LessonContent";
 import { LessonList } from "@/components/aprender/LessonList";
-import { LessonIntroModal } from "@/components/aprender/LessonIntroModal";
 import { useLessonProgress } from "@/hooks/useLessonProgress";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -174,16 +173,8 @@ export default function Aprender() {
 
   // Handle clicking a lesson in the list
   const handleLessonListClick = (lesson: Lesson) => {
-    setSelectedLessonForIntro(lesson);
-  };
-
-  // Handle confirming start from Modal
-  const handleStartLesson = () => {
-    if (selectedLessonForIntro) {
-      handleLessonChange(selectedLessonForIntro.id);
-      setViewMode('player');
-      setSelectedLessonForIntro(null);
-    }
+    handleLessonChange(lesson.id);
+    setViewMode('player');
   };
 
   return (
@@ -198,16 +189,7 @@ export default function Aprender() {
               onSelectLesson={handleLessonListClick}
             />
 
-            {/* Intro Modal */}
-            {selectedLessonForIntro && (
-              <LessonIntroModal
-                isOpen={!!selectedLessonForIntro}
-                onClose={() => setSelectedLessonForIntro(null)}
-                onStart={handleStartLesson}
-                lesson={selectedLessonForIntro}
-                isCompleted={completedLessonIds.includes(selectedLessonForIntro.id)}
-              />
-            )}
+            {/* Intro Modal Removed */}
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row min-h-screen lg:h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 lg:overflow-hidden relative">
