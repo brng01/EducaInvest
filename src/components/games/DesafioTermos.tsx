@@ -50,6 +50,8 @@ export const DesafioTermos = ({ onBack }: Props) => {
         return () => clearInterval(timer);
     }, [isPlaying, timeLeft]);
 
+    const isGameOver = timeLeft === 0 || matchedIds.length === items.terms.length;
+
     useEffect(() => {
         if (!isPlaying && isGameOver && score > 0) {
             saveXP(score);
@@ -128,8 +130,6 @@ export const DesafioTermos = ({ onBack }: Props) => {
             </div>
         );
     }
-
-    const isGameOver = timeLeft === 0 || matchedIds.length === items.terms.length;
 
     if (isGameOver && !isPlaying) {
         const isWin = matchedIds.length === items.terms.length;
