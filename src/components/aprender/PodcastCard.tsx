@@ -145,10 +145,10 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
 
     termos.forEach((termo) => {
       // Cria regex para encontrar o termo (sigla ou nome completo)
-      const patterns = [
-        new RegExp(`\\b${termo.sigla}\\b`, "gi"),
-        new RegExp(`\\b${termo.nome}\\b`, "gi"),
-      ];
+      // Filtra termos vazios ou muito curtos para evitar falsos positivos
+      const inputs = [termo.sigla, termo.nome].filter(t => t && t.trim().length > 1);
+
+      const patterns = inputs.map(t => new RegExp(`\\b${t}\\b`, "gi"));
 
       patterns.forEach((pattern) => {
         processedHtml = processedHtml.replace(
