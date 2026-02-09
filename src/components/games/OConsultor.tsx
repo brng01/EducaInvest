@@ -5,6 +5,7 @@ import { ArrowLeft, Check, X, ThumbsUp, ThumbsDown, AlertTriangle, TrendingUp, H
 import { gameService, GameQuestion } from "@/services/gameService";
 import { formatNumber, saveXP } from "@/lib/utils";
 import { GameHelp } from "./GameHelp";
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
     onBack: () => void;
@@ -20,6 +21,9 @@ interface QuestionContent {
 }
 
 export const OConsultor = ({ onBack }: Props) => {
+    const { toast } = useToast();
+    const { play } = useSound();
+
     const [questions, setQuestions] = useState<GameQuestion[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [score, setScore] = useState(0);
@@ -87,6 +91,7 @@ export const OConsultor = ({ onBack }: Props) => {
     const handleSwipe = (swipeDir: 'left' | 'right') => {
         if (showFeedback) return;
 
+        play('pop');
         setDirection(swipeDir);
         const currentQuestion = questions[currentIndex];
         const content = currentQuestion.content as QuestionContent;
@@ -96,7 +101,15 @@ export const OConsultor = ({ onBack }: Props) => {
             (swipeDir === 'right' && content.type === 'good');
 
         setLastAnswerCorrect(isCorrect);
-        if (isCorrect) setScore(s => s + 1);
+        if (isCorrect) {
+            play('success');
+            setScore(s => s + 1);
+            // Combo logic could go here
+        } else {
+            play('error');
+            // Vibrate if mobile
+            if (navigator.vibrate) navigator.vibrate(200);
+        }
 
         // Small delay to ensure exit animation sees the updated direction
         setTimeout(() => {

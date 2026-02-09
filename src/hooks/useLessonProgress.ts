@@ -1,6 +1,7 @@
 import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useSound } from "./useSound";
 
 import { Lesson } from '@/lib/types';
 
@@ -14,6 +15,7 @@ export function useLessonProgress(
     isAdmin: boolean = false
 ) {
     const { toast } = useToast();
+    const { play } = useSound();
 
     // State for current lesson
     const [currentAulaId, setCurrentAulaId] = useState(() => {

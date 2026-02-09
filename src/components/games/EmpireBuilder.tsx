@@ -5,12 +5,16 @@ import { ArrowLeft, Briefcase, TrendingUp, Zap, Coins, Building, HelpCircle } fr
 import { gameService, EmpireItem } from "@/services/gameService";
 import { formatNumber, formatED, saveXP } from "@/lib/utils";
 import { GameHelp } from "./GameHelp";
+import { useSound } from "@/hooks/useSound";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Props {
     onBack: () => void;
 }
 
 export const EmpireBuilder = ({ onBack }: Props) => {
+    const { toast } = useToast();
+    const { play } = useSound();
     const [balance, setBalance] = useState(0);
     const [clickValue, setClickValue] = useState(1);
     const [passiveIncome, setPassiveIncome] = useState(0);
@@ -108,6 +112,7 @@ export const EmpireBuilder = ({ onBack }: Props) => {
     };
 
     const handleWork = (e: React.MouseEvent<HTMLButtonElement>) => {
+        play('click');
         // Add balance
         setBalance(b => b + clickValue);
 
@@ -135,11 +140,19 @@ export const EmpireBuilder = ({ onBack }: Props) => {
         const cost = getCost(item, count);
 
         if (balance >= cost) {
+            play('coins');
             setBalance(b => b - cost);
             setOwnedItems(prev => ({
                 ...prev,
                 [item.id]: (prev[item.id] || 0) + 1
             }));
+        } else {
+            play('error');
+            toast({
+                title: "Saldo insuficiente",
+                description: `Você precisa de ED$ ${formatNumber(cost)}`,
+                variant: "destructive"
+            });
         }
     };
 
