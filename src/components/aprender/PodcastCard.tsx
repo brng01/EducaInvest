@@ -148,7 +148,18 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
     tempHtml = tempHtml.replace(/Tesouro Selic/gi, "Taxa Selic");
     tempHtml = tempHtml.replace(/Tesouro\s+Selic/gi, "Taxa Selic"); // Garante com múltiplos espaços
 
-    const replacements: { placeholder: string; html: string }[] = [];
+    // 1. PROTEGER TAGS HTML:
+    // Identifica todas as tags HTML e as substitui por placeholders seguros para evitar que
+    // o regex de termos (ex: "PL") substitua classes (ex: "pl-2") e quebre o layout.
+    const tagPlaceholders: { placeholder: string; tag: string }[] = [];
+    tempHtml = tempHtml.replace(/<[^>]+>/g, (match) => {
+      const placeholder = `__HTML_TAG_${tagPlaceholders.length}_${Math.random().toString(36).substr(2, 5)}__`;
+      tagPlaceholders.push({ placeholder, tag: match });
+      return placeholder;
+    });
+
+    // 2. SUBSTITUIÇÃO DE TERMOS (no texto sem tags)
+    const termReplacements: { placeholder: string; html: string }[] = [];
 
     termos.forEach((termo) => {
       // Deduplica e filtra inputs
@@ -158,6 +169,7 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
         .sort((a, b) => b.length - a.length);
 
       inputs.forEach((input) => {
+        // Regex com Word Boundaries
         const regex = new RegExp(`\\b${input}\\b`, "gi");
 
         // Use a temporary array to store matches and their positions
@@ -172,7 +184,7 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
           const { match: originalMatch, index } = matches[i];
           const uniquePlaceholder = `__TERM_PLACEHOLDER_${termo.id}_${Math.random().toString(36).substr(2, 9)}__`;
 
-          replacements.push({
+          termReplacements.push({
             placeholder: uniquePlaceholder,
             html: `<button
               class="term-link inline-flex items-center justify-center px-2 py-0.5 mx-0.5 rounded-md text-base font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-400 hover:text-slate-900 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(16,185,129,0.1)]"
@@ -188,8 +200,14 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
       });
     });
 
-    // 2. Aplica as substituições finais (placeholders -> botões)
-    replacements.forEach(({ placeholder, html }) => {
+    // 3. RESTAURAR TAGS HTML ORIGINAIS
+    // Fazemos isso ANTES de expandir os botões, para garantir que os placeholders de tag não se misturem
+    tagPlaceholders.forEach(({ placeholder, tag }) => {
+      tempHtml = tempHtml.replace(placeholder, tag);
+    });
+
+    // 4. APLICA AS SUBSTITUIÇÕES FINAIS (Term Placeholders -> Botões)
+    termReplacements.forEach(({ placeholder, html }) => {
       tempHtml = tempHtml.replace(new RegExp(placeholder.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), html);
     });
 
