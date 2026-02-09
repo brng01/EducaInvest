@@ -116,10 +116,32 @@ export default function Aprender() {
   }, [toast]);
 
   // ========== FILTER TERMS ==========
+  // ========== FILTER TERMS ==========
   const termosDaAula = useMemo(() => {
-    if (!allTerms.length) return [];
-    return allTerms.filter(t => t.aulaAssociadaId === currentAulaId);
-  }, [currentAulaId, allTerms]);
+    if (!allTerms.length || !currentAula) return [];
+
+    // Normaliza o texto da aula para busca
+    const transcriptLower = (currentAula.transcricaoCompleta || "").toLowerCase();
+
+    return allTerms.filter(term => {
+      // 1. Prioridade: Se o termo pertence explicitamente à aula
+      if (term.aulaAssociadaId === currentAulaId) return true;
+
+      // 2. Busca Dinâmica: Se o termo é mencionado no texto da aula
+      const name = term.nome?.toLowerCase();
+      const acronym = term.sigla?.toLowerCase();
+
+      // Verifica se o NOME do termo aparece (com word boundaries para evitar parciais)
+      // Ex: "Renda" não deve dar match em "Renda Fixa" se "Renda" for um termo separado (mas aqui queremos inclusão)
+      // Usaremos includes simples primeiro para performance, mas validação mais robusta seria regex
+      // Regex: \btermo\b
+
+      const hasName = name && new RegExp(`\\b${name}\\b`, 'i').test(transcriptLower);
+      const hasAcronym = acronym && new RegExp(`\\b${acronym}\\b`, 'i').test(transcriptLower);
+
+      return hasName || hasAcronym;
+    });
+  }, [currentAulaId, currentAula, allTerms]);
 
   // ========== LOADING STATE ==========
   if (isLoading || !currentAula) {
