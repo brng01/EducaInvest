@@ -151,9 +151,11 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
     // 1. PROTEGER TAGS HTML:
     // Identifica todas as tags HTML e as substitui por placeholders seguros para evitar que
     // o regex de termos (ex: "PL") substitua classes (ex: "pl-2") e quebre o layout.
+    // IMPORTANTE: Usamos caracteres não-alfabéticos (###) nas pontas para garantir que o regex \b (word boundary)
+    // funcione corretamente quando o texto estiver colado numa tag (ex: <span>Termo</span> viraria ###TAG###Termo###TAG###)
     const tagPlaceholders: { placeholder: string; tag: string }[] = [];
     tempHtml = tempHtml.replace(/<[^>]+>/g, (match) => {
-      const placeholder = `__HTML_TAG_${tagPlaceholders.length}_${Math.random().toString(36).substr(2, 5)}__`;
+      const placeholder = `###HTML_TAG_${tagPlaceholders.length}_${Math.random().toString(36).substr(2, 5)}###`;
       tagPlaceholders.push({ placeholder, tag: match });
       return placeholder;
     });
@@ -182,12 +184,13 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
         // Replace from end to start to avoid index issues
         for (let i = matches.length - 1; i >= 0; i--) {
           const { match: originalMatch, index } = matches[i];
-          const uniquePlaceholder = `__TERM_PLACEHOLDER_${termo.id}_${Math.random().toString(36).substr(2, 9)}__`;
+          // Placeholder também usa caracteres especiais para não confundir
+          const uniquePlaceholder = `###TERM_PLACEHOLDER_${termo.id}_${Math.random().toString(36).substr(2, 9)}###`;
 
           termReplacements.push({
             placeholder: uniquePlaceholder,
             html: `<button
-              class="term-link inline-flex items-center justify-center px-2 py-0.5 mx-0.5 rounded-md text-base font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-400 hover:text-slate-900 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(16,185,129,0.1)]"
+              class="term-link inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 rounded-md text-base font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-400 hover:text-slate-900 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(16,185,129,0.1)] whitespace-nowrap"
               data-term-id="${termo.id}"
               title="Clique para ver a explicação"
             >
