@@ -126,23 +126,25 @@ export default function Aprender() {
   const termosDaAula = useMemo(() => {
     if (!allTerms.length || !currentAula) return [];
 
-    const escapeRegExp = (string: string) => {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Strip HTML tags to avoid matching class names (e.g. "pl-4" for padding-left matching "PL")
+    const stripHtml = (html: string) => {
+      const tmp = document.createElement("DIV");
+      tmp.innerHTML = html;
+      return tmp.textContent || tmp.innerText || "";
     };
 
-    const transcriptLower = (currentAula.transcricaoCompleta || "").toLowerCase();
+    const cleanTranscript = stripHtml(currentAula.transcricaoCompleta || "").toLowerCase();
 
     return allTerms.filter(term => {
-      // Check if term appears in text
+      // Check if term appears in CLEAN text (no HTML tags)
       const name = term.nome?.toLowerCase();
       const acronym = term.sigla?.toLowerCase();
 
-      const hasName = name && new RegExp(`\\b${escapeRegExp(name)}\\b`, 'i').test(transcriptLower);
-      const hasAcronym = acronym && new RegExp(`\\b${escapeRegExp(acronym)}\\b`, 'i').test(transcriptLower);
+      // Use word boundaries. For very short acronyms (2 chars), enforce stricter matching if needed, 
+      // but stripping HTML usually solves the "pl-4" issue.
+      const hasName = name && new RegExp(`\\b${escapeRegExp(name)}\\b`, 'i').test(cleanTranscript);
+      const hasAcronym = acronym && new RegExp(`\\b${escapeRegExp(acronym)}\\b`, 'i').test(cleanTranscript);
 
-      // User requested that terms MUST be cited in the lesson to appear.
-      // Previously, we allowed terms linked by ID (term.aulaAssociadaId === currentAulaId) to appear even if not in text.
-      // Now, we require appearance in text for all terms.
       return hasName || hasAcronym;
     });
   }, [currentAulaId, currentAula, allTerms]);
