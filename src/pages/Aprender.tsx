@@ -133,14 +133,16 @@ export default function Aprender() {
     const transcriptLower = (currentAula.transcricaoCompleta || "").toLowerCase();
 
     return allTerms.filter(term => {
-      if (term.aulaAssociadaId === currentAulaId) return true;
-
+      // Check if term appears in text
       const name = term.nome?.toLowerCase();
       const acronym = term.sigla?.toLowerCase();
 
       const hasName = name && new RegExp(`\\b${escapeRegExp(name)}\\b`, 'i').test(transcriptLower);
       const hasAcronym = acronym && new RegExp(`\\b${escapeRegExp(acronym)}\\b`, 'i').test(transcriptLower);
 
+      // User requested that terms MUST be cited in the lesson to appear.
+      // Previously, we allowed terms linked by ID (term.aulaAssociadaId === currentAulaId) to appear even if not in text.
+      // Now, we require appearance in text for all terms.
       return hasName || hasAcronym;
     });
   }, [currentAulaId, currentAula, allTerms]);
