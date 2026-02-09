@@ -8,7 +8,6 @@ interface Props {
     onBack: () => void;
 }
 
-import confetti from "canvas-confetti";
 
 interface TermContent {
     term: string;
@@ -65,11 +64,6 @@ export const DesafioTermos = ({ onBack }: Props) => {
                 // Check win condition
                 if (matchedIds.length + 1 === items.terms.length) {
                     setIsPlaying(false);
-                    confetti({
-                        particleCount: 150,
-                        spread: 70,
-                        origin: { y: 0.6 }
-                    });
                 }
             } else {
                 // Mismatch
