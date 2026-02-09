@@ -164,8 +164,17 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
     const termReplacements: { placeholder: string; html: string }[] = [];
 
     termos.forEach((termo) => {
+      // Cria lista de termos base (Sigla + Nome)
+      let rawInputs = [termo.sigla, termo.nome];
+
+      // Se a sigla tiver barra (ex: "LCI/LCA"), divide e adiciona as partes individualmente
+      if (termo.sigla && termo.sigla.includes('/')) {
+        const parts = termo.sigla.split('/').map(p => p.trim());
+        rawInputs = [...rawInputs, ...parts];
+      }
+
       // Deduplica e filtra inputs
-      const inputs = [...new Set([termo.sigla, termo.nome])]
+      const inputs = [...new Set(rawInputs)]
         .filter(t => t && t.trim().length > 1)
         // Ordena por tamanho decrescente para evitar que "Renda" substitua "Renda Fixa" parcialmente
         .sort((a, b) => b.length - a.length);
@@ -189,8 +198,9 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
 
           termReplacements.push({
             placeholder: uniquePlaceholder,
+            // AJUSTE VISUAL: Reduzido tamanho da fonte e padding para não quebrar tabelas
             html: `<button
-              class="term-link inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 rounded-md text-base font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-400 hover:text-slate-900 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(16,185,129,0.1)] whitespace-nowrap"
+              class="term-link inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 rounded-md text-[11px] md:text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-400 hover:text-slate-900 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(16,185,129,0.1)] whitespace-nowrap"
               data-term-id="${termo.id}"
               title="Clique para ver a explicação"
             >
