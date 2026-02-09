@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Clock, RefreshCw, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { gameService, GameQuestion } from "@/services/gameService";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
     onBack: () => void;
@@ -150,9 +151,28 @@ export const DesafioTermos = ({ onBack }: Props) => {
         <div className="flex flex-col h-full min-h-[500px] max-w-4xl mx-auto px-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
-                <Button variant="ghost" onClick={onBack} size="sm" className="gap-2 text-white/70 hover:text-white hover:bg-white/10">
-                    <ArrowLeft className="w-4 h-4" /> Sair
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" onClick={onBack} size="sm" className="gap-2 text-white/70 hover:text-white hover:bg-white/10">
+                        <ArrowLeft className="w-4 h-4" /> Sair
+                    </Button>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 p-0">
+                                <HelpCircle className="w-4 h-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-xs p-4 bg-slate-800 border-slate-700">
+                            <div className="space-y-2">
+                                <p className="font-bold text-sm text-primary">Como Jogar</p>
+                                <p className="text-xs leading-relaxed">
+                                    Conecte os conceitos bancários e financeiros às suas definições corretas o mais rápido possível!
+                                    Selecione um termo de um lado e sua definição do outro.
+                                    Ganhe bônus de <span className="text-amber-400">tempo</span> ao acertar rapidamente.
+                                </p>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                </div>
                 <div className="flex items-center gap-6">
                     <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border-2 transition-colors ${timeLeft < 10 ? 'border-red-500/50 bg-red-500/10 text-red-400 animate-pulse' : 'border-white/10 bg-white/5 text-white'}`}>
                         <Clock className="w-4 h-4" />

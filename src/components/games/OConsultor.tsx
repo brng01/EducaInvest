@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, X, ThumbsUp, ThumbsDown, AlertTriangle, TrendingUp } from "lucide-react";
+import { ArrowLeft, Check, X, ThumbsUp, ThumbsDown, AlertTriangle, TrendingUp, HelpCircle } from "lucide-react";
 import { gameService, GameQuestion } from "@/services/gameService";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
     onBack: () => void;
@@ -135,8 +136,27 @@ export const OConsultor = ({ onBack }: Props) => {
                 <Button variant="ghost" onClick={onBack} size="sm" className="gap-2 text-white/70 hover:text-white hover:bg-white/10">
                     <ArrowLeft className="w-4 h-4" /> Sair
                 </Button>
-                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    Cenário {currentIndex + 1} de {questions.length}
+                <div className="flex items-center gap-3">
+                    <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                        Cenário {currentIndex + 1} de {questions.length}
+                    </div>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 p-0">
+                                <HelpCircle className="w-4 h-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-xs p-4 bg-slate-800 border-slate-700">
+                            <div className="space-y-2">
+                                <p className="font-bold text-sm text-primary">Como Jogar</p>
+                                <p className="text-xs leading-relaxed">
+                                    Analise o cenário e decida: é uma boa oportunidade financeira ou um golpe?
+                                    Arraste para a <span className="text-emerald-400 font-bold">DIREITA</span> se for bom,
+                                    ou para a <span className="text-red-400 font-bold">ESQUERDA</span> se for ruim/golpe.
+                                </p>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
                 </div>
             </div>
 

@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Briefcase, TrendingUp, Zap, Coins, Building } from "lucide-react";
+import { ArrowLeft, Briefcase, TrendingUp, Zap, Coins, Building, HelpCircle } from "lucide-react";
 import { gameService, EmpireItem } from "@/services/gameService";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
     onBack: () => void;
@@ -139,9 +140,28 @@ export const EmpireBuilder = ({ onBack }: Props) => {
         <div className="flex flex-col h-full min-h-[600px] max-w-4xl mx-auto">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <Button variant="ghost" onClick={onBack} size="sm" className="gap-2 text-white hover:text-primary hover:bg-white/10">
-                    <ArrowLeft className="w-4 h-4" /> Sair
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" onClick={onBack} size="sm" className="gap-2 text-white hover:text-primary hover:bg-white/10">
+                        <ArrowLeft className="w-4 h-4" /> Sair
+                    </Button>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 p-0">
+                                <HelpCircle className="w-4 h-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-xs p-4 bg-slate-800 border-slate-700">
+                            <div className="space-y-2">
+                                <p className="font-bold text-sm text-primary">Como Jogar</p>
+                                <p className="text-xs leading-relaxed">
+                                    Comece gerando <span className="text-amber-400 font-bold">Renda Ativa</span> clicando no botão "Trabalhar".
+                                    Use seu saldo na loja lateral para comprar investimentos que geram <span className="text-emerald-400 font-bold">Renda Passiva</span> automática.
+                                    O objetivo é construir seu império e ver o poder dos juros compostos!
+                                </p>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                </div>
             </div>
 
             <div className="grid md:grid-cols-[1fr_300px] gap-8 h-full">
