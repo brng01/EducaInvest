@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, X, ThumbsUp, ThumbsDown, AlertTriangle, TrendingUp, HelpCircle } from "lucide-react";
 import { gameService, GameQuestion } from "@/services/gameService";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, saveXP } from "@/lib/utils";
 
 interface Props {
     onBack: () => void;
@@ -29,6 +29,12 @@ export const OConsultor = ({ onBack }: Props) => {
     useEffect(() => {
         loadQuestions();
     }, []);
+
+    useEffect(() => {
+        if (currentIndex >= questions.length && questions.length > 0) {
+            saveXP(score * 10);
+        }
+    }, [currentIndex, questions.length]);
 
     const loadQuestions = async () => {
         try {

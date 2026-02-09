@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, RefreshCw, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { gameService, GameQuestion } from "@/services/gameService";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, saveXP } from "@/lib/utils";
 
 interface Props {
     onBack: () => void;
@@ -49,6 +49,12 @@ export const DesafioTermos = ({ onBack }: Props) => {
         }
         return () => clearInterval(timer);
     }, [isPlaying, timeLeft]);
+
+    useEffect(() => {
+        if (!isPlaying && isGameOver && score > 0) {
+            saveXP(score);
+        }
+    }, [isPlaying, isGameOver]);
 
     // Check match
     useEffect(() => {

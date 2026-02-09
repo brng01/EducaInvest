@@ -8,6 +8,8 @@ import { useState } from "react";
 import { OConsultor } from "@/components/games/OConsultor";
 import { DesafioTermos } from "@/components/games/DesafioTermos";
 import { EmpireBuilder } from "@/components/games/EmpireBuilder";
+import { getTotalXP, getLevelInfo, formatNumber } from "@/lib/utils";
+import { useEffect } from "react";
 
 const games = [
   {
@@ -47,6 +49,16 @@ const games = [
 
 export default function Arcade() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
+  const [xp, setXP] = useState(0);
+
+  useEffect(() => {
+    setXP(getTotalXP());
+  }, [activeGame]);
+
+  const { name: levelName, nextLevel } = getLevelInfo(xp);
+  const xpToNext = nextLevel ? nextLevel.min - xp : 0;
+  const progressToNext = nextLevel ? ((xp - getLevelInfo(xp).min) / (nextLevel.min - getLevelInfo(xp).min)) * 100 : 100;
+
 
   return (
     <Layout>
@@ -118,8 +130,13 @@ export default function Arcade() {
                       <Star className="w-7 h-7 text-amber-500" />
                     </div>
                     <div className="text-left">
-                      <p className="text-3xl font-display font-bold text-white">0<span className="text-lg text-muted-foreground font-normal">/300</span></p>
-                      <p className="text-sm text-muted-foreground font-medium">Seus Pontos</p>
+                      <p className="text-3xl font-display font-bold text-white tabular-nums">
+                        {formatNumber(xp)}
+                        {nextLevel && (
+                          <span className="text-lg text-muted-foreground font-normal">/{formatNumber(nextLevel.min)}</span>
+                        )}
+                      </p>
+                      <p className="text-sm text-muted-foreground font-medium">Seus Pontos XP</p>
                     </div>
                   </div>
 
@@ -130,7 +147,7 @@ export default function Arcade() {
                       <Zap className="w-7 h-7 text-emerald-500" />
                     </div>
                     <div className="text-left">
-                      <p className="text-3xl font-display font-bold text-white">Iniciante</p>
+                      <p className="text-3xl font-display font-bold text-white">{levelName}</p>
                       <p className="text-sm text-muted-foreground font-medium">Seu Nível</p>
                     </div>
                   </div>

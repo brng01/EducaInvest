@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Briefcase, TrendingUp, Zap, Coins, Building, HelpCircle } from "lucide-react";
 import { gameService, EmpireItem } from "@/services/gameService";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatNumber, formatED } from "@/lib/utils";
+import { formatNumber, formatED, saveXP } from "@/lib/utils";
 
 interface Props {
     onBack: () => void;
@@ -17,6 +17,7 @@ export const EmpireBuilder = ({ onBack }: Props) => {
     const [items, setItems] = useState<EmpireItem[]>([]);
     const [ownedItems, setOwnedItems] = useState<Record<number, number>>({});
     const [isLoading, setIsLoading] = useState(true);
+    const lastXpAwardedBalance = useRef(0);
 
     // Floating texts
     const [clicks, setClicks] = useState<{ id: number; x: number; y: number; val: number }[]>([]);
@@ -31,8 +32,7 @@ export const EmpireBuilder = ({ onBack }: Props) => {
                 const parsed = JSON.parse(saved);
                 setBalance(parsed.balance || 0);
                 setOwnedItems(parsed.ownedItems || {});
-                // Recalculate rates based on loaded items is tricky because we need `items` first
-                // So we do it in loadGame after fetching items
+                lastXpAwardedBalance.current = parsed.balance || 0;
             } catch (e) {
                 console.error("Failed to load save", e);
             }
@@ -64,22 +64,37 @@ export const EmpireBuilder = ({ onBack }: Props) => {
     useEffect(() => {
         const timer = setInterval(() => {
             if (passiveIncome > 0) {
-                setBalance(b => b + passiveIncome);
+                setBalance(b => {
+                    const newBalance = b + passiveIncome;
+                    // Check for XP milestones (every 10k)
+                    const milestones = Math.floor(newBalance / 10000) - Math.floor(lastXpAwardedBalance.current / 10000);
+                    if (milestones > 0) {
+                        saveXP(milestones);
+                        lastXpAwardedBalance.current = newBalance;
+                    }
+                    return newBalance;
+                });
             }
         }, 1000);
         return () => clearInterval(timer);
     }, [passiveIncome]);
 
     useEffect(() => {
-        // Auto-save every 5s
+        // Auto-save every 5s - stable interval
         const timer = setInterval(() => {
-            localStorage.setItem('empireSave', JSON.stringify({
-                balance,
-                ownedItems
-            }));
+            setBalance(currentBalance => {
+                setOwnedItems(currentItems => {
+                    localStorage.setItem('empireSave', JSON.stringify({
+                        balance: currentBalance,
+                        ownedItems: currentItems
+                    }));
+                    return currentItems;
+                });
+                return currentBalance;
+            });
         }, 5000);
         return () => clearInterval(timer);
-    }, [balance, ownedItems]);
+    }, []);
 
     const loadGame = async () => {
         try {
