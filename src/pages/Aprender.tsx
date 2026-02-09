@@ -152,13 +152,26 @@ export default function Aprender() {
   }, [currentAulaId, currentAula, allTerms]);
 
   // ========== LOADING STATE ==========
-  if (isLoading || !currentAula) {
+  if (isLoading) {
     return (
       <Layout>
         <div className="min-h-screen bg-slate-950 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground animate-pulse">Carregando conteúdo...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!currentAula) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <p className="text-lg text-muted-foreground">Nenhuma aula encontrada.</p>
+            <p className="text-sm text-muted-foreground/50">Tente recarregar a página ou contate o suporte.</p>
           </div>
         </div>
       </Layout>
