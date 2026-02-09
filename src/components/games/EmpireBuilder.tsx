@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Briefcase, TrendingUp, Zap, Coins, Building, HelpCircle } from "lucide-react";
 import { gameService, EmpireItem } from "@/services/gameService";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatNumber, formatED } from "@/lib/utils";
 
 interface Props {
     onBack: () => void;
@@ -173,22 +174,22 @@ export const EmpireBuilder = ({ onBack }: Props) => {
                             <span className="text-muted-foreground text-sm uppercase font-bold mb-1">Renda Passiva</span>
                             <div className="flex items-center gap-2 text-emerald-400">
                                 <TrendingUp className="w-5 h-5" />
-                                <span className="text-2xl font-bold font-mono">+ED$ {passiveIncome}/s</span>
+                                <span className="text-2xl font-bold tabular-nums">+ED$ {formatNumber(passiveIncome)}/s</span>
                             </div>
                         </div>
                         <div className="bg-slate-800/50 border border-white/10 p-4 rounded-xl flex flex-col items-center">
                             <span className="text-muted-foreground text-sm uppercase font-bold mb-1">Renda Ativa</span>
                             <div className="flex items-center gap-2 text-amber-400">
                                 <Zap className="w-5 h-5" />
-                                <span className="text-2xl font-bold font-mono">+ED$ {clickValue}/clique</span>
+                                <span className="text-2xl font-bold tabular-nums">+ED$ {formatNumber(clickValue)}/clique</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Clicker Area */}
                     <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-                        <div className="text-4xl md:text-5xl font-mono font-bold text-white mb-8">
-                            ED$ {Math.floor(balance).toLocaleString()}
+                        <div className="text-4xl md:text-5xl font-bold text-white mb-8 tabular-nums">
+                            {formatED(balance)}
                         </div>
 
                         <motion.button
@@ -291,20 +292,20 @@ export const EmpireBuilder = ({ onBack }: Props) => {
                                     <div className="flex items-center justify-between relative z-10 pt-2 border-t border-white/5">
                                         <div className="flex flex-col">
                                             <span className="text-[9px] text-muted-foreground uppercase font-bold">Custo</span>
-                                            <div className={`flex items-center gap-1 text-sm font-bold font-mono ${canAfford ? 'text-amber-400' : 'text-slate-500'}`}>
+                                            <div className={`flex items-center gap-1 text-sm font-bold tabular-nums ${canAfford ? 'text-amber-400' : 'text-slate-500'}`}>
                                                 <Coins className="w-3.5 h-3.5" />
-                                                {cost.toLocaleString()}
+                                                {formatNumber(cost)}
                                             </div>
                                         </div>
 
                                         <div className="flex flex-col items-end">
                                             <span className="text-[9px] text-muted-foreground uppercase font-bold">Bônus</span>
-                                            <div className={`flex items-center gap-1 text-sm font-bold font-mono ${isPassive ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                            <div className={`flex items-center gap-1 text-sm font-bold tabular-nums ${isPassive ? 'text-emerald-400' : 'text-amber-400'}`}>
                                                 {isPassive ? <TrendingUp className="w-3.5 h-3.5" /> : <Zap className="w-3.5 h-3.5" />}
-                                                +{item.base_income}
+                                                +{formatNumber(item.base_income)}
                                                 {count > 0 && (
                                                     <span className="text-[10px] opacity-60 ml-1">
-                                                        (Total: {item.base_income * count})
+                                                        (Total: {formatNumber(item.base_income * count)})
                                                     </span>
                                                 )}
                                             </div>

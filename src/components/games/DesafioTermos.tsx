@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, RefreshCw, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { gameService, GameQuestion } from "@/services/gameService";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatNumber } from "@/lib/utils";
 
 interface Props {
     onBack: () => void;
@@ -132,8 +133,8 @@ export const DesafioTermos = ({ onBack }: Props) => {
                     {isWin ? <CheckCircle2 className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
                 </div>
                 <h2 className="text-3xl font-bold mb-4">{isWin ? "Mestre dos Termos!" : "Tempo Esgotado!"}</h2>
-                <p className="text-xl mb-6 text-muted-foreground">
-                    Você acumulou <span className="text-primary font-bold">{score}</span> pontos de experiência.
+                <p className="text-xl mb-6 text-muted-foreground tabular-nums">
+                    Você acumulou <span className="text-primary font-bold">{formatNumber(score)}</span> pontos de experiência.
                 </p>
                 <div className="flex gap-4 w-full max-w-xs">
                     <Button onClick={loadGame} className="flex-1 gap-2" size="lg">
@@ -180,8 +181,8 @@ export const DesafioTermos = ({ onBack }: Props) => {
                     </div>
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] uppercase font-black text-muted-foreground leading-none">Score</span>
-                        <div className="text-primary font-black text-2xl font-mono">
-                            {score} <span className="text-xs">ED$</span>
+                        <div className="text-primary font-black text-2xl tabular-nums">
+                            {formatNumber(score)} <span className="text-xs">ED$</span>
                         </div>
                     </div>
                 </div>

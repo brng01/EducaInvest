@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, X, ThumbsUp, ThumbsDown, AlertTriangle, TrendingUp, HelpCircle } from "lucide-react";
 import { gameService, GameQuestion } from "@/services/gameService";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatNumber } from "@/lib/utils";
 
 interface Props {
     onBack: () => void;
@@ -97,11 +98,11 @@ export const OConsultor = ({ onBack }: Props) => {
                 <p className="text-xl mb-6 text-muted-foreground">
                     Você analisou todos os cenários e teve um desempenho de:
                 </p>
-                <div className="text-5xl font-bold text-primary mb-8">
-                    {Math.round((score / questions.length) * 100)}%
+                <div className="text-5xl font-bold text-primary mb-8 tabular-nums">
+                    {formatNumber(Math.round((score / questions.length) * 100))}%
                 </div>
-                <p className="mb-8 text-white/80">
-                    Acertos: <span className="font-bold text-emerald-400">{score}</span> / {questions.length}
+                <p className="mb-8 text-white/80 tabular-nums">
+                    Acertos: <span className="font-bold text-emerald-400">{formatNumber(score)}</span> / {formatNumber(questions.length)}
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
