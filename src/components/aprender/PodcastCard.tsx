@@ -141,31 +141,53 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
   const processTranscript = (html: string) => {
     if (!termos.length || !html) return html;
 
-    let processedHtml = html;
+    let tempHtml = html;
+    const replacements: { placeholder: string; html: string }[] = [];
 
     termos.forEach((termo) => {
-      // Cria regex para encontrar o termo (sigla ou nome completo)
-      // Filtra termos vazios ou muito curtos para evitar falsos positivos
-      const inputs = [termo.sigla, termo.nome].filter(t => t && t.trim().length > 1);
+      // Deduplica e filtra inputs
+      const inputs = [...new Set([termo.sigla, termo.nome])]
+        .filter(t => t && t.trim().length > 1)
+        // Ordena por tamanho decrescente para evitar que "Renda" substitua "Renda Fixa" parcialmente
+        .sort((a, b) => b.length - a.length);
 
-      const patterns = inputs.map(t => new RegExp(`\\b${t}\\b`, "gi"));
+      inputs.forEach((input) => {
+        const regex = new RegExp(`\\b${input}\\b`, "gi");
 
-      patterns.forEach((pattern) => {
-        processedHtml = processedHtml.replace(
-          pattern,
-          (match) =>
-            `<button
+        // Use a temporary array to store matches and their positions
+        const matches: { match: string; index: number }[] = [];
+        let match;
+        while ((match = regex.exec(tempHtml)) !== null) {
+          matches.push({ match: match[0], index: match.index });
+        }
+
+        // Replace from end to start to avoid index issues
+        for (let i = matches.length - 1; i >= 0; i--) {
+          const { match: originalMatch, index } = matches[i];
+          const uniquePlaceholder = `__TERM_PLACEHOLDER_${termo.id}_${Math.random().toString(36).substr(2, 9)}__`;
+
+          replacements.push({
+            placeholder: uniquePlaceholder,
+            html: `<button
               class="term-link inline-flex items-center justify-center px-2 py-0.5 mx-0.5 rounded-md text-base font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-400 hover:text-slate-900 cursor-pointer transition-all duration-300 transform hover:scale-105 shadow-[0_0_10px_rgba(16,185,129,0.1)]"
               data-term-id="${termo.id}"
               title="Clique para ver a explicação"
             >
-              ${match}
+              ${originalMatch}
             </button>`
-        );
+          });
+
+          tempHtml = tempHtml.substring(0, index) + uniquePlaceholder + tempHtml.substring(index + originalMatch.length);
+        }
       });
     });
 
-    return processedHtml;
+    // 2. Aplica as substituições finais (placeholders -> botões)
+    replacements.forEach(({ placeholder, html }) => {
+      tempHtml = tempHtml.replace(new RegExp(placeholder.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), html);
+    });
+
+    return tempHtml;
   };
 
   useEffect(() => {
