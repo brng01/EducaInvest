@@ -8,6 +8,8 @@ interface Props {
     onBack: () => void;
 }
 
+import confetti from "canvas-confetti";
+
 interface TermContent {
     term: string;
     definition: string;
@@ -25,6 +27,7 @@ export const DesafioTermos = ({ onBack }: Props) => {
     const [selectedTerm, setSelectedTerm] = useState<string | null>(null);
     const [selectedDef, setSelectedDef] = useState<string | null>(null);
     const [matchedIds, setMatchedIds] = useState<number[]>([]);
+    const [mismatchPairs, setMismatchPairs] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [timeLeft, setTimeLeft] = useState(60);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -55,20 +58,27 @@ export const DesafioTermos = ({ onBack }: Props) => {
             if (termId === defId) {
                 // Match!
                 setMatchedIds(prev => [...prev, termId]);
-                setScore(s => s + 10 + Math.floor(timeLeft / 2)); // Bonus for speed
+                setScore(s => s + 10 + Math.floor(timeLeft / 2));
                 setSelectedTerm(null);
                 setSelectedDef(null);
 
                 // Check win condition
                 if (matchedIds.length + 1 === items.terms.length) {
                     setIsPlaying(false);
+                    confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
                 }
             } else {
-                // Mismatch - wait a bit then reset
+                // Mismatch
+                setMismatchPairs([selectedTerm, selectedDef]);
                 const t = setTimeout(() => {
+                    setMismatchPairs([]);
                     setSelectedTerm(null);
                     setSelectedDef(null);
-                }, 500);
+                }, 600);
                 return () => clearTimeout(t);
             }
         }
@@ -78,21 +88,20 @@ export const DesafioTermos = ({ onBack }: Props) => {
         setIsLoading(true);
         try {
             const data = await gameService.getTermPairs();
-            // Take random 5 pairs to avoid display overflow
             const selected = data.sort(() => Math.random() - 0.5).slice(0, 5);
 
             const terms: GameItem[] = selected.map(q => ({
                 id: `term-${q.id}`,
                 originalId: q.id,
                 text: (q.content as TermContent).term,
-                type: 'term'
+                type: 'term' as const
             })).sort(() => Math.random() - 0.5);
 
             const defs: GameItem[] = selected.map(q => ({
                 id: `def-${q.id}`,
                 originalId: q.id,
                 text: (q.content as TermContent).definition,
-                type: 'def'
+                type: 'def' as const
             })).sort(() => Math.random() - 0.5);
 
             setItems({ terms, defs });
@@ -124,16 +133,19 @@ export const DesafioTermos = ({ onBack }: Props) => {
         const isWin = matchedIds.length === items.terms.length;
         return (
             <div className="flex flex-col h-full min-h-[500px] items-center justify-center text-center p-6 text-white">
-                <h2 className="text-3xl font-bold mb-4">{isWin ? "Você Venceu!" : "Tempo Esgotado!"}</h2>
-                <p className="text-xl mb-6">
-                    Sua pontuação final: <span className="text-primary font-bold">{score}</span>
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 ${isWin ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                    {isWin ? <CheckCircle2 className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
+                </div>
+                <h2 className="text-3xl font-bold mb-4">{isWin ? "Mestre dos Termos!" : "Tempo Esgotado!"}</h2>
+                <p className="text-xl mb-6 text-muted-foreground">
+                    Você acumulou <span className="text-primary font-bold">{score}</span> pontos de experiência.
                 </p>
-                <div className="flex gap-4">
-                    <Button onClick={onBack} variant="secondary">
-                        Voltar
+                <div className="flex gap-4 w-full max-w-xs">
+                    <Button onClick={loadGame} className="flex-1 gap-2" size="lg">
+                        <RefreshCw className="w-4 h-4" /> Jogar
                     </Button>
-                    <Button onClick={loadGame} className="gap-2">
-                        <RefreshCw className="w-4 h-4" /> Jogar Novamente
+                    <Button onClick={onBack} variant="outline" size="lg" className="flex-1">
+                        Sair
                     </Button>
                 </div>
             </div>
@@ -141,85 +153,99 @@ export const DesafioTermos = ({ onBack }: Props) => {
     }
 
     return (
-        <div className="flex flex-col h-full min-h-[500px]">
+        <div className="flex flex-col h-full min-h-[500px] max-w-4xl mx-auto px-4">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <Button variant="ghost" onClick={onBack} size="sm" className="gap-2 text-white hover:text-primary hover:bg-white/10">
+            <div className="flex items-center justify-between mb-8">
+                <Button variant="ghost" onClick={onBack} size="sm" className="gap-2 text-white/70 hover:text-white hover:bg-white/10">
                     <ArrowLeft className="w-4 h-4" /> Sair
                 </Button>
-                <div className="flex items-center gap-4">
-                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${timeLeft < 10 ? 'border-red-500 text-red-500' : 'border-white/10 text-white'}`}>
+                <div className="flex items-center gap-6">
+                    <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border-2 transition-colors ${timeLeft < 10 ? 'border-red-500/50 bg-red-500/10 text-red-400 animate-pulse' : 'border-white/10 bg-white/5 text-white'}`}>
                         <Clock className="w-4 h-4" />
-                        <span className="font-mono font-bold">{timeLeft}s</span>
+                        <span className="font-mono font-bold text-lg">{timeLeft}s</span>
                     </div>
-                    <div className="text-white font-bold">
-                        Pts: {score}
+                    <div className="flex flex-col items-end">
+                        <span className="text-[10px] uppercase font-black text-muted-foreground leading-none">Score</span>
+                        <div className="text-primary font-black text-2xl font-mono">
+                            {score} <span className="text-xs">ED$</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Game Board */}
-            <div className="flex-1 grid grid-cols-2 gap-8 md:gap-12 relative">
-                {/* Connectors Layer (if implemented in V2) */}
+            <div className="flex-1 grid grid-cols-2 gap-6 md:gap-12 relative overflow-y-auto pr-2 
+                [&::-webkit-scrollbar]:w-1.5
+                [&::-webkit-scrollbar-track]:bg-transparent
+                [&::-webkit-scrollbar-thumb]:bg-white/10
+                [&::-webkit-scrollbar-thumb]:rounded-full">
 
                 {/* Definitions Column */}
-                <div className="flex flex-col justify-center gap-4">
-                    <h3 className="text-center text-sm uppercase text-muted-foreground font-bold mb-2">Definições</h3>
+                <div className="flex flex-col gap-4 py-2">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="w-1 h-4 bg-emerald-500 rounded-full" />
+                        <span className="text-xs uppercase font-black tracking-widest text-emerald-500/70">Definições</span>
+                    </div>
                     {items.defs.map(def => {
                         const isMatched = matchedIds.includes(def.originalId);
                         const isSelected = selectedDef === def.id;
+                        const isMismatch = mismatchPairs.includes(def.id);
 
                         return (
                             <motion.button
                                 key={def.id}
-                                layoutId={def.id}
                                 className={`
-                            p-4 rounded-xl text-sm md:text-base font-medium text-left transition-all relative border overflow-hidden
-                            ${isMatched
-                                        ? 'bg-emerald-900/20 border-emerald-500/50 text-emerald-500 opacity-50'
-                                        : isSelected
-                                            ? 'bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)]'
-                                            : 'bg-slate-800/50 border-white/10 text-slate-200 hover:border-white/30 hover:bg-slate-800'
+                                    p-4 rounded-xl text-sm md:text-base font-medium text-left transition-all relative border-2 min-h-[80px] flex items-center
+                                    ${isMatched
+                                        ? 'bg-emerald-900/10 border-emerald-500/20 text-emerald-500/40 cursor-default'
+                                        : isMismatch
+                                            ? 'bg-red-500/20 border-red-500 text-red-500 animate-shake'
+                                            : isSelected
+                                                ? 'bg-primary/20 border-primary text-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] animate-pulse'
+                                                : 'bg-slate-900 border-white/5 text-slate-300 hover:border-emerald-500/30 hover:bg-slate-800'
                                     }
-                        `}
-                                onClick={() => !isMatched && setSelectedDef(def.id)}
-                                disabled={isMatched}
-                                whileHover={!isMatched ? { scale: 1.02 } : {}}
-                                whileTap={!isMatched ? { scale: 0.98 } : {}}
+                                `}
+                                onClick={() => !isMatched && isPlaying && setSelectedDef(def.id)}
+                                disabled={isMatched || !isPlaying}
+                                whileHover={!isMatched && isPlaying ? { x: 5 } : {}}
                             >
-                                {def.text}
-                                {isMatched && <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4" />}
+                                <span className="relative z-10">{def.text}</span>
+                                {isMatched && <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500/50" />}
                             </motion.button>
                         )
                     })}
                 </div>
 
                 {/* Terms Column */}
-                <div className="flex flex-col justify-center gap-4">
-                    <h3 className="text-center text-sm uppercase text-muted-foreground font-bold mb-2">Termos</h3>
+                <div className="flex flex-col gap-4 py-2">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="w-1 h-4 bg-amber-500 rounded-full" />
+                        <span className="text-xs uppercase font-black tracking-widest text-amber-500/70">Termos</span>
+                    </div>
                     {items.terms.map(term => {
                         const isMatched = matchedIds.includes(term.originalId);
                         const isSelected = selectedTerm === term.id;
+                        const isMismatch = mismatchPairs.includes(term.id);
 
                         return (
                             <motion.button
                                 key={term.id}
-                                layoutId={term.id}
                                 className={`
-                            p-4 rounded-xl text-base md:text-lg font-bold text-center transition-all relative border h-full flex items-center justify-center
-                            ${isMatched
-                                        ? 'bg-emerald-900/20 border-emerald-500/50 text-emerald-500 opacity-50'
-                                        : isSelected
-                                            ? 'bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)]'
-                                            : 'bg-slate-800/50 border-white/10 text-white hover:border-white/30 hover:bg-slate-800'
+                                    p-4 rounded-xl text-base md:text-lg font-bold text-center transition-all relative border-2 h-full min-h-[80px] flex items-center justify-center
+                                    ${isMatched
+                                        ? 'bg-emerald-900/10 border-emerald-500/20 text-emerald-500/40 cursor-default'
+                                        : isMismatch
+                                            ? 'bg-red-500/20 border-red-500 text-red-500 animate-shake'
+                                            : isSelected
+                                                ? 'bg-primary/20 border-primary text-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] animate-pulse'
+                                                : 'bg-slate-900 border-white/5 text-white hover:border-amber-500/30 hover:bg-slate-800'
                                     }
-                        `}
-                                onClick={() => !isMatched && setSelectedTerm(term.id)}
-                                disabled={isMatched}
-                                whileHover={!isMatched ? { scale: 1.02 } : {}}
-                                whileTap={!isMatched ? { scale: 0.98 } : {}}
+                                `}
+                                onClick={() => !isMatched && isPlaying && setSelectedTerm(term.id)}
+                                disabled={isMatched || !isPlaying}
+                                whileHover={!isMatched && isPlaying ? { x: -5 } : {}}
                             >
-                                {term.text}
+                                <span className="relative z-10">{term.text}</span>
                             </motion.button>
                         )
                     })}
