@@ -148,6 +148,20 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
     tempHtml = tempHtml.replace(/Tesouro Selic/gi, "Taxa Selic");
     tempHtml = tempHtml.replace(/Tesouro\s+Selic/gi, "Taxa Selic"); // Garante com múltiplos espaços
 
+    // CORREÇÃO PONTUAL: Impede que "Tesouro Nacional" vire botão (apenas "Tesouro Direto" deve ser)
+    // Substituímos por um placeholder temporário que não será afetado pelo regex de termos
+    const placeholderTesouro = "###PROTECTED_TESOURO_NACIONAL###";
+    tempHtml = tempHtml.replace(/Tesouro Nacional/g, placeholderTesouro);
+
+    // CORREÇÃO VISUAL: Centralizar a coluna "Garantia" na tabela
+    // Tentativa de forçar alinhamento no cabeçalho. O conteúdo das células pode exigir CSS específico de tabela.
+    tempHtml = tempHtml.replace(/<th>\s*Garantia\s*<\/th>/gi, '<th class="text-center">Garantia</th>');
+    // Tenta cobrir caso tenha classes já
+    tempHtml = tempHtml.replace(/<th([^>]*)>\s*Garantia\s*<\/th>/gi, (match, attrs) => {
+      if (attrs.includes('text-center')) return match;
+      return `<th${attrs} class="text-center">Garantia</th>`;
+    });
+
     // 1. PROTEGER TAGS HTML:
     // Identifica todas as tags HTML e as substitui por placeholders seguros para evitar que
     // o regex de termos (ex: "PL") substitua classes (ex: "pl-2") e quebre o layout.
@@ -223,6 +237,9 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
     termReplacements.forEach(({ placeholder, html }) => {
       tempHtml = tempHtml.replace(new RegExp(placeholder.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), html);
     });
+
+    // RESTAURA PROTEÇÕES (Tesouro Nacional)
+    tempHtml = tempHtml.replace(new RegExp("###PROTECTED_TESOURO_NACIONAL###", 'g'), "Tesouro Nacional");
 
     return tempHtml;
   };
