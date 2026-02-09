@@ -11,9 +11,9 @@ import { Lesson, Term } from "@/lib/types";
 // New Components and Hooks
 import { LessonSidebar } from "@/components/aprender/LessonSidebar";
 import { LessonContent } from "@/components/aprender/LessonContent";
+import { LessonList } from "@/components/aprender/LessonList";
+import { LessonIntroModal } from "@/components/aprender/LessonIntroModal";
 import { useLessonProgress } from "@/hooks/useLessonProgress";
-
-import { JourneyGrid } from "@/components/aprender/JourneyGrid";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
@@ -21,9 +21,11 @@ export default function Aprender() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
 
-  // View Mode: 'journey' (Grid) or 'player' (Lesson Content)
-  // Default to 'journey' for better UX
+  // View Mode: 'journey' (List) or 'player' (Lesson Content)
   const [viewMode, setViewMode] = useState<'journey' | 'player'>('journey');
+
+  // Modal State
+  const [selectedLessonForIntro, setSelectedLessonForIntro] = useState<Lesson | null>(null);
 
   // Real Data States
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -157,23 +159,23 @@ export default function Aprender() {
     );
   }
 
-  if (!currentAula) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <p className="text-lg text-muted-foreground">Nenhuma aula encontrada.</p>
-            <p className="text-sm text-muted-foreground/50">Tente recarregar a página ou contate o suporte.</p>
-          </div>
-        </div>
-      </Layout>
-    );
+  if (!currentAula && viewMode === 'player') {
+    // If no lesson is selected but we are in player mode, fallback to journey
+    setViewMode('journey');
   }
 
-  // Handle starting a lesson from the grid
-  const handleSelectLesson = (id: number) => {
-    handleLessonChange(id);
-    setViewMode('player');
+  // Handle clicking a lesson in the list
+  const handleLessonListClick = (lesson: Lesson) => {
+    setSelectedLessonForIntro(lesson);
+  };
+
+  // Handle confirming start from Modal
+  const handleStartLesson = () => {
+    if (selectedLessonForIntro) {
+      handleLessonChange(selectedLessonForIntro.id);
+      setViewMode('player');
+      setSelectedLessonForIntro(null);
+    }
   };
 
   return (
@@ -181,11 +183,23 @@ export default function Aprender() {
       <TooltipProvider>
         {viewMode === 'journey' ? (
           <div className="min-h-screen bg-slate-950 pb-20">
-            <JourneyGrid
+            {/* New List Layout */}
+            <LessonList
               lessons={lessons}
               completedLessonIds={completedLessonIds}
-              onSelectLesson={handleSelectLesson}
+              onSelectLesson={handleLessonListClick}
             />
+
+            {/* Intro Modal */}
+            {selectedLessonForIntro && (
+              <LessonIntroModal
+                isOpen={!!selectedLessonForIntro}
+                onClose={() => setSelectedLessonForIntro(null)}
+                onStart={handleStartLesson}
+                lesson={selectedLessonForIntro}
+                isCompleted={completedLessonIds.includes(selectedLessonForIntro.id)}
+              />
+            )}
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row min-h-screen lg:h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 lg:overflow-hidden relative">
@@ -202,11 +216,6 @@ export default function Aprender() {
                 Mapa
               </Button>
             </div>
-
-            {/* Desktop Back Button inside Sidebar area usually, but sidebar handles navigation. 
-                We can add a "Back to Map" in the Sidebar header or just keep it as is. 
-                For now, let's rely on the Sidebar or a global back. 
-            */}
 
             <LessonSidebar
               isMobileMenuOpen={isMobileMenuOpen}
