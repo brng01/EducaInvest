@@ -69,7 +69,7 @@ export function JourneyGrid({ lessons, completedLessonIds, onSelectLesson }: Jou
                             <div className="p-6 flex-1 flex flex-col">
                                 <div className="mb-4">
                                     <h3 className="font-display text-xl font-bold text-white mb-2 line-clamp-2 min-h-[3.5rem]">
-                                        {lesson.title_short || lesson.title}
+                                        {lesson.title_short || lesson.titulo || "Aula"}
                                     </h3>
                                     <p className="text-sm text-muted-foreground line-clamp-3">
                                         {lesson.description || "Domine este conceito financeiro essencial."}
@@ -94,7 +94,7 @@ export function JourneyGrid({ lessons, completedLessonIds, onSelectLesson }: Jou
                                                 <span>Concluído</span>
                                                 <span>100%</span>
                                             </div>
-                                            <Progress value={100} className="h-1.5 bg-emerald-950" indicatorClassName="bg-emerald-500" />
+                                            <Progress value={100} className="h-1.5 bg-emerald-950 [&>div]:bg-emerald-500" />
                                         </div>
                                     ) : (
                                         <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
