@@ -25,15 +25,32 @@ export function ChatWidget() {
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const lastAssistantMessageRef = useRef<HTMLDivElement>(null);
 
     const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || "";
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+        messagesEndRef.current?.scrollIntoView({ behavior });
     };
 
+    const scrollToAssistantMessage = () => {
+        lastAssistantMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    // Use a flag to track if the last message was from assistant
+    const isLastMessageAssistant = messages.length > 0 && messages[messages.length - 1].role === 'assistant';
+    const isInitialWelcome = messages.length === 1 && messages[0].id === 'welcome';
+
     useEffect(() => {
-        scrollToBottom();
+        if (!isOpen) return;
+
+        if (isLastMessageAssistant && !isInitialWelcome) {
+            // Give a tiny delay for ReactMarkdown to render before scrolling
+            const timeout = setTimeout(scrollToAssistantMessage, 100);
+            return () => clearTimeout(timeout);
+        } else {
+            scrollToBottom(isInitialWelcome ? "auto" : "smooth");
+        }
     }, [messages, isOpen]);
 
     const handleSendMessage = async () => {
@@ -198,11 +215,12 @@ export function ChatWidget() {
                             </div>
 
                             {/* Messages Area */}
-                            <ScrollArea className="flex-1 p-4">
+                            <ScrollArea className="flex-1 p-4 overscroll-contain">
                                 <div className="space-y-4">
-                                    {messages.map((msg) => (
+                                    {messages.map((msg, index) => (
                                         <motion.div
                                             key={msg.id}
+                                            ref={index === messages.length - 1 && msg.role === 'assistant' ? lastAssistantMessageRef : null}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             className={cn(
