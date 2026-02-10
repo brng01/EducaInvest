@@ -169,7 +169,7 @@ export default function Ranking() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="bg-slate-900/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm relative"
+                        className="bg-slate-900/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm relative min-h-[400px]"
                     >
                         {/* Guest Overlay */}
                         {!currentUser && !loading && (
@@ -192,35 +192,37 @@ export default function Ranking() {
                                 </Button>
                             </div>
                         )}
-                        {restOfUsers.map((user, index) => (
+
+                        {/* Real List or Dummy List for Guests */}
+                        {(currentUser ? restOfUsers : (users.length > 0 ? restOfUsers : Array(10).fill(null))).map((user, index) => (
                             <div
-                                key={user.id}
-                                className={`flex items-center gap-4 p-4 border-b border-white/5 hover:bg-white/5 transition-colors ${currentUser?.id === user.id ? "bg-primary/10 hover:bg-primary/20" : ""}`}
+                                key={user?.id || index}
+                                className={`flex items-center gap-4 p-4 border-b border-white/5 ${!currentUser ? 'opacity-50 blur-sm' : 'hover:bg-white/5 transition-colors'} ${currentUser?.id === user?.id ? "bg-primary/10 hover:bg-primary/20" : ""}`}
                             >
                                 <div className="w-8 flex justify-center shrink-0">
                                     <span className="font-bold text-slate-500">{index + 4}</span>
                                 </div>
                                 <Avatar className="w-10 h-10 border border-white/10">
-                                    <AvatarImage src={user.avatar_url} />
+                                    <AvatarImage src={user?.avatar_url} />
                                     <AvatarFallback className="bg-slate-800 text-slate-400">
-                                        {user.email?.charAt(0).toUpperCase()}
+                                        {user?.email?.charAt(0).toUpperCase() || "?"}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
-                                    <p className={`font-medium truncate ${currentUser?.id === user.id ? "text-primary" : "text-slate-200"}`}>
-                                        {user.full_name || "Investidor Anônimo"}
-                                        {currentUser?.id === user.id && <span className="ml-2 text-[10px] uppercase bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold">Você</span>}
+                                    <p className={`font-medium truncate ${currentUser?.id === user?.id ? "text-primary" : "text-slate-200"}`}>
+                                        {user?.full_name || "Investidor Anônimo"}
+                                        {currentUser?.id === user?.id && <span className="ml-2 text-[10px] uppercase bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold">Você</span>}
                                     </p>
-                                    <p className="text-xs text-slate-500">{user.current_level || "Iniciante"}</p>
+                                    <p className="text-xs text-slate-500">{user?.current_level || "Iniciante"}</p>
                                 </div>
                                 <div className="text-right shrink-0">
-                                    <span className="font-bold text-white font-mono">{user.xp_total}</span>
+                                    <span className="font-bold text-white font-mono">{user?.xp_total || "---"}</span>
                                     <span className="text-xs text-slate-500 ml-1">XP</span>
                                 </div>
                             </div>
                         ))}
 
-                        {users.length === 0 && !loading && (
+                        {users.length === 0 && currentUser && !loading && (
                             <div className="p-8 text-center text-muted-foreground">
                                 Nenhum competidor encontrado ainda.
                             </div>
