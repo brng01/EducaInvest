@@ -67,7 +67,11 @@ export function LessonContent({
     const scrollbarClass = "lg:overflow-y-auto lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:bg-slate-700/50 lg:[&::-webkit-scrollbar-thumb]:rounded-full hover:lg:[&::-webkit-scrollbar-thumb]:bg-slate-600 transition-colors";
 
     return (
-        <main className={cn("flex-1 relative bg-slate-950/30 lg:h-full lg:overflow-y-auto", scrollbarClass)}>
+        <main className={cn(
+            "flex-1 relative bg-slate-950/30 lg:h-full transition-all duration-300",
+            showIntro ? "overflow-hidden" : "lg:overflow-y-auto",
+            scrollbarClass
+        )}>
             <div className="p-4 md:p-10 max-w-5xl mx-auto space-y-8 pb-32 min-h-full flex flex-col justify-center">
 
                 {/* ========== INTRO OVERLAY (Enrichment) ========== */}
@@ -75,7 +79,7 @@ export function LessonContent({
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center"
+                        className="fixed inset-0 z-[60] bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center"
                     >
                         <motion.div
                             initial={{ scale: 0.9, y: 20 }}
