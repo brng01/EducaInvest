@@ -216,6 +216,7 @@ export default function Aprender() {
               lessons={lessons}
               completedLessonIds={completedLessonIds}
               onSelectLesson={handleLessonListClick}
+              user={user}
             />
 
             {/* Intro Modal Removed */}
