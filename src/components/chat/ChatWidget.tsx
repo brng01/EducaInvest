@@ -55,7 +55,6 @@ export function ChatWidget() {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const messagesEndRef = useRef<HTMLDivElement>(null);
     const lastAssistantMessageRef = useRef<HTMLDivElement>(null);
 
     const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || "";
