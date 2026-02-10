@@ -1,9 +1,12 @@
+import React from "react";
 import { Header } from "./Header";
 import { BottomNav } from "./BottomNav";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
+
+import { ChatWidget } from "../chat/ChatWidget";
 
 export function Layout({ children }: LayoutProps) {
   return (
@@ -19,6 +22,7 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </footer>
       <BottomNav />
+      <ChatWidget />
     </div>
   );
 }
