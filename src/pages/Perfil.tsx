@@ -9,7 +9,9 @@ import {
     Star,
     Target,
     Clock,
-    CheckCircle2
+    CheckCircle2,
+    RefreshCw,
+    AlertCircle
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +20,8 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserProfile, UserProgress } from "@/lib/types";
+import { gameService } from "@/services/gameService";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Perfil() {
     const [loading, setLoading] = useState(true);
@@ -30,6 +34,8 @@ export default function Perfil() {
         totalXp: 0
     });
     const [history, setHistory] = useState<any[]>([]);
+    const { toast } = useToast();
+    const [isResetting, setIsResetting] = useState(false);
 
     useEffect(() => {
         fetchProfileData();
@@ -98,6 +104,37 @@ export default function Perfil() {
             console.error("Erro ao carregar perfil:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleResetProgress = async () => {
+        if (!user) return;
+
+        const confirmed = window.confirm("Tem certeza que deseja resetar todo o seu progresso? Esta ação é irreversível e zerará seu XP e nível.");
+
+        if (!confirmed) return;
+
+        setIsResetting(true);
+        try {
+            const result = await gameService.resetUserProgress(user.id);
+            if (result?.success) {
+                toast({
+                    title: "Progresso Resetado",
+                    description: "Seu XP e conquistas foram zerados com sucesso.",
+                });
+                // Reload data
+                fetchProfileData();
+            } else {
+                throw new Error("Falha ao resetar");
+            }
+        } catch (error) {
+            toast({
+                title: "Erro ao resetar",
+                description: "Não foi possível completar a operação. Tente novamente.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsResetting(false);
         }
     };
 
@@ -322,6 +359,27 @@ export default function Perfil() {
                                     Nenhuma atividade recente encontrada.
                                 </div>
                             )}
+                        </div>
+                    </section>
+
+                    {/* DANGER ZONE */}
+                    <section className="pt-8 border-t border-white/5">
+                        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6">
+                            <h3 className="text-lg font-bold text-red-400 mb-2 flex items-center gap-2">
+                                <AlertCircle className="w-5 h-5" /> Zona de Perigo
+                            </h3>
+                            <p className="text-sm text-slate-400 mb-4">
+                                Deseja começar sua jornada do zero? Ao resetar, você perderá todo o seu XP acumulado, nível e histórico de aulas concluídas.
+                            </p>
+                            <Button
+                                variant="destructive"
+                                className="w-full md:w-auto gap-2"
+                                onClick={handleResetProgress}
+                                disabled={isResetting}
+                            >
+                                <RefreshCw className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`} />
+                                {isResetting ? "Resetando..." : "Resetar todo o meu progresso"}
+                            </Button>
                         </div>
                     </section>
 

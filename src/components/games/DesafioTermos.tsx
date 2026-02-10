@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, RefreshCw, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { gameService, GameQuestion } from "@/services/gameService";
-import { formatNumber, saveXP } from "@/lib/utils";
+import { formatNumber } from "@/lib/utils";
 import { GameHelp } from "./GameHelp";
 
 
@@ -69,9 +69,6 @@ export const DesafioTermos = ({ onBack, user }: Props) => {
 
     useEffect(() => {
         if (!isPlaying && isGameOver && score > 0 && !xpSaved) {
-            // Save Local
-            saveXP(score);
-
             // Save Server (REAL)
             if (user) {
                 gameService.addUserXP(user.id, score);
@@ -81,12 +78,10 @@ export const DesafioTermos = ({ onBack, user }: Props) => {
         }
     }, [isPlaying, isGameOver, score, xpSaved]);
 
-    // Save on unmount
+    // Save on unmount removed as handled by game termination logic or server-side if needed
     useEffect(() => {
         return () => {
-            if (!xpSavedRef.current && scoreRef.current > 0) {
-                saveXP(scoreRef.current);
-            }
+            // No-op for now to avoid side effects
         };
     }, []);
 

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Briefcase, TrendingUp, Zap, Coins, Building, HelpCircle } from "lucide-react";
 import { gameService, EmpireItem } from "@/services/gameService";
-import { formatNumber, formatED, saveXP } from "@/lib/utils";
+import { formatNumber, formatED } from "@/lib/utils";
 import { GameHelp } from "./GameHelp";
 
 import { useToast } from "@/components/ui/use-toast";
@@ -76,7 +76,6 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
                     const milestones = Math.floor(newBalance / MILESTONE) - Math.floor(lastXpAwardedBalance.current / MILESTONE);
                     if (milestones > 0) {
                         const xpAmount = milestones;
-                        saveXP(xpAmount);
                         if (user) {
                             gameService.addUserXP(user.id, xpAmount);
                         }

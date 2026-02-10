@@ -21,15 +21,6 @@ export const LEVELS = [
   { min: 1000, name: "Mestre das Finanças", color: "text-purple-400" },
 ];
 
-export function saveXP(gain: number) {
-  const current = Number(localStorage.getItem('totalXP') || '0');
-  localStorage.setItem('totalXP', (current + gain).toString());
-}
-
-export function getTotalXP(): number {
-  return Number(localStorage.getItem('totalXP') || '0');
-}
-
 export function getLevelInfo(xp: number) {
   const level = [...LEVELS].reverse().find(l => xp >= l.min) || LEVELS[0];
   const nextLevel = LEVELS[LEVELS.indexOf(level) + 1] || null;

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, X, ThumbsUp, ThumbsDown, AlertTriangle, TrendingUp, HelpCircle } from "lucide-react";
 import { gameService, GameQuestion } from "@/services/gameService";
-import { formatNumber, saveXP } from "@/lib/utils";
+import { formatNumber } from "@/lib/utils";
 import { GameHelp } from "./GameHelp";
 import { useToast } from "@/hooks/use-toast";
 
@@ -62,9 +62,6 @@ export const OConsultor = ({ onBack, user }: Props) => {
 
         const xpAmount = score * 10;
 
-        // Save Local (visual fallback)
-        saveXP(xpAmount);
-
         // Save Server (REAL)
         if (user) {
             gameService.addUserXP(user.id, xpAmount);
@@ -78,12 +75,10 @@ export const OConsultor = ({ onBack, user }: Props) => {
         onBack();
     };
 
-    // Save on unmount if not already saved
+    // Save on unmount removed
     useEffect(() => {
         return () => {
-            if (!xpSavedRef.current && scoreRef.current > 0) {
-                saveXP(scoreRef.current * 10);
-            }
+            // Handled by handleSaveXP
         };
     }, []);
 

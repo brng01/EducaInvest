@@ -76,5 +76,37 @@ export const gameService = {
             // Emit event for UI updates (e.g. sidebar XP counter)
             window.dispatchEvent(new CustomEvent('educainvest_xp_updated'));
         }
+    },
+
+    async resetUserProgress(userId: string) {
+        if (!userId) return;
+
+        try {
+            // 1. Reset Profile XP and Level
+            const { error: profileError } = await supabase
+                .from('perfis')
+                .update({
+                    xp_total: 0,
+                    current_level: 'Iniciante'
+                })
+                .eq('id', userId);
+
+            if (profileError) throw profileError;
+
+            // 2. Clear Lesson Progress
+            const { error: progressError } = await supabase
+                .from('user_progress')
+                .delete()
+                .eq('user_id', userId);
+
+            if (progressError) throw progressError;
+
+            // 3. Notify UI
+            window.dispatchEvent(new CustomEvent('educainvest_xp_updated'));
+            return { success: true };
+        } catch (error) {
+            console.error("Error resetting user progress:", error);
+            return { success: false, error };
+        }
     }
 };

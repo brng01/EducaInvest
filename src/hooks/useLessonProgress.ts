@@ -18,10 +18,7 @@ export function useLessonProgress(
 
 
     // State for current lesson
-    const [currentAulaId, setCurrentAulaId] = useState(() => {
-        const saved = localStorage.getItem('educainvest_current_lesson');
-        return saved ? parseInt(saved, 10) : 1;
-    });
+    const [currentAulaId, setCurrentAulaId] = useState(1);
 
 
     // Timer state
@@ -59,7 +56,6 @@ export function useLessonProgress(
 
     const handleLessonChange = (newId: number) => {
         setCurrentAulaId(newId);
-        localStorage.setItem('educainvest_current_lesson', newId.toString());
         window.scrollTo(0, 0);
 
         if (user) {
