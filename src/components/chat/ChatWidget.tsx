@@ -15,13 +15,26 @@ interface Message {
 
 export function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([
-        {
+    const [messages, setMessages] = useState<Message[]>(() => {
+        const saved = localStorage.getItem('educainvest_chat_history');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error("Failed to parse chat history", e);
+            }
+        }
+        return [{
             id: "welcome",
             role: "assistant",
             content: "Olá! Sou seu Tutor Financeiro com IA.\n\nPosso te ajudar com dúvidas sobre investimentos, termos do mercado ou explicar o conteúdo das aulas.\n\nComo posso ajudar hoje?"
-        }
-    ]);
+        }];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('educainvest_chat_history', JSON.stringify(messages));
+    }, [messages]);
+
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
