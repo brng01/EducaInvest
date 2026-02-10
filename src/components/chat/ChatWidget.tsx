@@ -72,7 +72,22 @@ export function ChatWidget() {
             // Common n8n webhook response is often just the JSON data returned by the last node.
             // Assuming the last node returns a JSON with a field 'text' or 'output'.
             // Expecting { output: "answer text" } or { text: "answer text" } or { message: "answer text" }
-            const botResponseText = data.output || data.text || data.message || (typeof data === 'string' ? data : JSON.stringify(data));
+            // Robust parsing to avoid "Objects are not valid as a React child" error
+            let botResponseText = '';
+
+            // Prioritize specific fields if they exist and are strings
+            if (typeof data.output === 'string') botResponseText = data.output;
+            else if (typeof data.text === 'string') botResponseText = data.text;
+            else if (typeof data.message === 'string') botResponseText = data.message;
+            else if (typeof data.answer === 'string') botResponseText = data.answer;
+
+            // If still empty, handle objects/arrays/other types safety
+            else {
+                const content = data.output || data.text || data.message || data.answer || data;
+                botResponseText = typeof content === 'string'
+                    ? content
+                    : JSON.stringify(content, null, 2); // Pretty print for objects
+            }
 
             const botMessage: Message = {
                 id: (Date.now() + 1).toString(),
