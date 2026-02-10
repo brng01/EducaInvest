@@ -103,50 +103,55 @@ export function ChatWidget() {
                 }
             }
 
-            // Robust parsing to avoid "Objects are not valid as a React child" error
+            // Robust parsing to avoid technical output or silent failures
             let botResponseText = '';
+            const NO_RESULTS_FOUND = "Puxa, não encontrei informações específicas sobre isso na minha base de conhecimento atual sobre EducaInvest. 🧐\n\nPosso tentar ajudar com termos financeiros, dúvidas sobre as aulas ou explicar como os jogos funcionam. Poderia reformular sua pergunta?";
 
             // Helper function to extract text from OpenAI-like message structure
-            const extractTextFromOpenAIMessage = (item: any) => {
-                if (item?.content && Array.isArray(item.content) && item.content[0]?.text) {
+            const extractTextFromItem = (item: any) => {
+                if (!item) return null;
+                // n8n OpenAI message structure
+                if (item.content && Array.isArray(item.content) && item.content[0]?.text) {
                     return item.content[0].text;
                 }
-                if (item?.text) return item.text;
-                if (item?.output) return item.output;
+                if (typeof item === 'string') return item;
+                if (item.text && typeof item.text === 'string') return item.text;
+                if (item.output && typeof item.output === 'string') return item.output;
+                if (item.message && typeof item.message === 'string') return item.message;
                 return null;
             };
 
-            // 1. Handle if the root is an Array
-            if (Array.isArray(parsedData) && parsedData.length > 0) {
-                botResponseText = extractTextFromOpenAIMessage(parsedData[0]) || JSON.stringify(parsedData, null, 2);
+            // 1. Handle Array responses (common in n8n list-based nodes)
+            if (Array.isArray(parsedData)) {
+                if (parsedData.length === 0) {
+                    botResponseText = NO_RESULTS_FOUND;
+                } else {
+                    botResponseText = extractTextFromItem(parsedData[0]) || "";
+                }
             }
-            // 2. Handle if the root is an Object
+            // 2. Handle Object responses
             else if (typeof parsedData === 'object' && parsedData !== null) {
-                // Case A: 'output' field is an Array (match user screenshot)
-                if (Array.isArray(parsedData.output) && parsedData.output.length > 0) {
-                    botResponseText = extractTextFromOpenAIMessage(parsedData.output[0]) || JSON.stringify(parsedData.output, null, 2);
-                }
-                // Case B: 'output' field is a String
-                else if (typeof parsedData.output === 'string') {
-                    botResponseText = parsedData.output;
-                }
-                // Case C: Other fields
-                else if (typeof parsedData.text === 'string') botResponseText = parsedData.text;
-                else if (typeof parsedData.message === 'string') botResponseText = parsedData.message;
-                else if (typeof parsedData.answer === 'string') botResponseText = parsedData.answer;
-                else {
-                    botResponseText = JSON.stringify(parsedData, null, 2);
+                // Check common technical indicators of "no data"
+                const isEmpty = Object.keys(parsedData).length === 0;
+
+                if (isEmpty) {
+                    botResponseText = NO_RESULTS_FOUND;
+                } else if (Array.isArray(parsedData.output)) {
+                    botResponseText = parsedData.output.length > 0
+                        ? extractTextFromItem(parsedData.output[0]) || ""
+                        : NO_RESULTS_FOUND;
+                } else {
+                    botResponseText = extractTextFromItem(parsedData) || "";
                 }
             }
-            // 3. Handle String response
-            else if (typeof parsedData === 'string') {
+            // 3. Handle simple strings
+            else if (typeof parsedData === 'string' && parsedData.trim()) {
                 botResponseText = parsedData;
             }
 
-            // Final fallback
-            if (!botResponseText) {
-                botResponseText = "Recebi uma resposta vazia ou irreconhecível.";
-                console.warn("Unrecognized n8n response format:", data);
+            // Final fallback for technical results like "[]" or unrecognized objects
+            if (!botResponseText || botResponseText === "[]" || botResponseText === "{}" || botResponseText.trim() === "") {
+                botResponseText = NO_RESULTS_FOUND;
             }
 
             const botMessage: Message = {
