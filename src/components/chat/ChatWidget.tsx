@@ -19,7 +19,7 @@ export function ChatWidget() {
         {
             id: "welcome",
             role: "assistant",
-            content: "Olá! Sou seu Tutor Financeiro com IA. 🧠\n\nPosso te ajudar com dúvidas sobre investimentos, termos do mercado ou explicar o conteúdo das aulas.\n\nComo posso ajudar hoje?"
+            content: "Olá! Sou seu Tutor Financeiro com IA.\n\nPosso te ajudar com dúvidas sobre investimentos, termos do mercado ou explicar o conteúdo das aulas.\n\nComo posso ajudar hoje?"
         }
     ]);
     const [inputValue, setInputValue] = useState("");
