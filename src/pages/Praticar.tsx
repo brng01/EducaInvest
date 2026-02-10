@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { OConsultor } from "@/components/games/OConsultor";
 import { DesafioTermos } from "@/components/games/DesafioTermos";
 import { EmpireBuilder } from "@/components/games/EmpireBuilder";
@@ -50,9 +51,13 @@ const games = [
 export default function Arcade() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [xp, setXP] = useState(0);
+  const [user, setUser] = useState<any>(null);
   const location = useLocation();
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user);
+    });
     setActiveGame(null);
   }, [location.key]);
 
@@ -164,80 +169,110 @@ export default function Arcade() {
 
               {/* Games Grid */}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {games.map((game, index) => (
-                  <motion.div
-                    key={game.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-                    className="relative bg-slate-900/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden group hover:border-primary/40 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)] transition-all duration-300 flex flex-col h-full"
-                  >
-                    <div className={`h-28 bg-gradient-to-br ${game.gradient} flex items-center justify-center border-b border-white/5 relative overflow-hidden shrink-0`}>
-                      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
-                      <span className="text-6xl drop-shadow-md transform group-hover:scale-110 transition-transform duration-300">{game.emoji}</span>
-                    </div>
+                {games.map((game, index) => {
+                  // Restricted Games Logic
+                  const isRestricted = ['consultor', 'empire'].includes(game.id);
+                  const isLockedForGuest = isRestricted && !user;
 
-                    <div className="p-6 flex-1 flex flex-col">
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <h2 className="font-display text-xl font-bold text-white leading-tight">{game.title}</h2>
-                        {!game.available && (
-                          <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-slate-800 text-muted-foreground px-2 py-1 rounded-md border border-white/5 flex items-center gap-1">
-                            <Lock className="w-3 h-3" />
-                            Breve
-                          </span>
+                  // If locked for guest, it overrides "available". But we also respect original "available" false.
+                  // Actually, let's say "available" is about development status.
+                  // So if available=true BUT lockedForGuest, we show Lock.
+
+                  const showLock = !game.available || isLockedForGuest;
+
+                  return (
+                    <motion.div
+                      key={game.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
+                      className="relative bg-slate-900/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden group hover:border-primary/40 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)] transition-all duration-300 flex flex-col h-full"
+                    >
+                      <div className={`h-28 bg-gradient-to-br ${game.gradient} flex items-center justify-center border-b border-white/5 relative overflow-hidden shrink-0`}>
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+                        <span className="text-6xl drop-shadow-md transform group-hover:scale-110 transition-transform duration-300">{game.emoji}</span>
+
+                        {/* Overlay Lock for Guests */}
+                        {isLockedForGuest && (
+                          <div className="absolute inset-0 bg-slate-950/60 flex items-center justify-center backdrop-blur-[2px]">
+                            <Lock className="w-10 h-10 text-white/50" />
+                          </div>
                         )}
                       </div>
 
-                      <p className="text-sm text-muted-foreground mb-6 line-clamp-3 leading-relaxed">
-                        {game.description}
-                      </p>
+                      <div className="p-6 flex-1 flex flex-col">
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <h2 className="font-display text-xl font-bold text-white leading-tight">{game.title}</h2>
+                          {showLock && (
+                            <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide bg-slate-800 text-muted-foreground px-2 py-1 rounded-md border border-white/5 flex items-center gap-1">
+                              <Lock className="w-3 h-3" />
+                              {isLockedForGuest ? "Membros" : "Breve"}
+                            </span>
+                          )}
+                        </div>
 
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {game.skills.map((skill) => (
-                          <span
-                            key={skill}
-                            className="text-[10px] font-medium uppercase tracking-wide bg-white/5 text-muted-foreground border border-white/5 px-2 py-1 rounded-md"
-                          >
-                            {skill}
+                        <p className="text-sm text-muted-foreground mb-6 line-clamp-3 leading-relaxed">
+                          {game.description}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {game.skills.map((skill) => (
+                            <span
+                              key={skill}
+                              className="text-[10px] font-medium uppercase tracking-wide bg-white/5 text-muted-foreground border border-white/5 px-2 py-1 rounded-md"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-muted-foreground/80 mb-5 pt-4 border-t border-white/5 mt-auto">
+                          <span className="flex items-center gap-1.5">
+                            <Brain className="w-3.5 h-3.5" />
+                            {game.difficulty}
                           </span>
-                        ))}
-                      </div>
+                          <span className="flex items-center gap-1.5">
+                            ⏱️ {game.duration}
+                          </span>
+                        </div>
 
-                      <div className="flex items-center justify-between text-xs text-muted-foreground/80 mb-5 pt-4 border-t border-white/5 mt-auto">
-                        <span className="flex items-center gap-1.5">
-                          <Brain className="w-3.5 h-3.5" />
-                          {game.difficulty}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          ⏱️ {game.duration}
-                        </span>
+                        <Button
+                          className={`w-full gap-2 font-bold shadow-lg transition-all ${!showLock
+                            ? "shadow-primary/20 hover:shadow-primary/40"
+                            : "opacity-80"
+                            }`}
+                          disabled={!game.available && !isLockedForGuest} // Disable if dev status, enable if guest lock (to click)
+                          variant={!showLock ? "default" : "secondary"}
+                          size="lg"
+                          onClick={() => {
+                            if (isLockedForGuest) {
+                              window.location.href = '/login';
+                              return;
+                            }
+                            setActiveGame(game.id)
+                          }}
+                        >
+                          {!showLock ? (
+                            <>
+                              <Play className="w-4 h-4 fill-current" />
+                              Jogar Agora
+                            </>
+                          ) : isLockedForGuest ? (
+                            <>
+                              <Lock className="w-4 h-4" />
+                              Entrar para Jogar
+                            </>
+                          ) : (
+                            <>
+                              <Lock className="w-4 h-4" />
+                              Em Desenvolvimento
+                            </>
+                          )}
+                        </Button>
                       </div>
-
-                      <Button
-                        className={`w-full gap-2 font-bold shadow-lg transition-all ${game.available
-                          ? "shadow-primary/20 hover:shadow-primary/40"
-                          : "opacity-80"
-                          }`}
-                        disabled={!game.available}
-                        variant={game.available ? "default" : "secondary"}
-                        size="lg"
-                        onClick={() => setActiveGame(game.id)}
-                      >
-                        {game.available ? (
-                          <>
-                            <Play className="w-4 h-4 fill-current" />
-                            Jogar Agora
-                          </>
-                        ) : (
-                          <>
-                            <Lock className="w-4 h-4" />
-                            Em Desenvolvimento
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  )
+                })}
               </div>
             </>
           )}
