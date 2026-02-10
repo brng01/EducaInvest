@@ -55,8 +55,7 @@ export function ChatWidget() {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Don't render if not authenticated
-    if (!isAuthenticated) return null;
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const lastAssistantMessageRef = useRef<HTMLDivElement>(null);
 
     const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || "";
@@ -218,6 +217,9 @@ export function ChatWidget() {
             handleSendMessage();
         }
     };
+
+    // Don't render if not authenticated
+    if (!isAuthenticated) return null;
 
     return (
         <div className="fixed bottom-0 right-0 z-50 p-4 md:bottom-8 md:right-8 flex flex-col items-end pointer-events-none">
