@@ -176,44 +176,6 @@ export default function Perfil() {
         } finally { setIsResetting(false); }
     };
 
-    const handleResetLessons = async () => {
-        if (!user) return;
-        const confirmed = window.confirm("Tem certeza que deseja zerar seu progresso no Mapa de Aulas? Seu XP será mantido.");
-        if (!confirmed) return;
-
-        setIsResetting(true);
-        try {
-            const result = await gameService.resetLessons(user.id);
-            if (result?.success) {
-                toast({ title: "Mapa Resetado", description: "Seu progresso de aulas foi zerado." });
-                fetchProfileData();
-            } else throw new Error();
-        } catch (error) {
-            toast({ title: "Erro", description: "Falha ao resetar lições.", variant: "destructive" });
-        } finally { setIsResetting(false); }
-    };
-
-    const handleResetAll = async () => {
-        if (!user) return;
-        const confirmed = window.confirm("ATENÇÃO: Isso apagará TODO o seu progresso (XP + Aulas). Tem certeza?");
-        if (!confirmed) return;
-
-        setIsResetting(true);
-        try {
-            const result = await gameService.resetUserProgress(user.id);
-            if (result?.success) {
-                // Clear Local Stats too
-                localStorage.removeItem('empireSave');
-                localStorage.removeItem('consultorStats');
-                localStorage.removeItem('termoStats');
-
-                toast({ title: "Tudo Resetado", description: "Sua conta foi zerada com sucesso." });
-                fetchProfileData();
-            } else throw new Error();
-        } catch (error) {
-            toast({ title: "Erro", description: "Falha ao resetar tudo.", variant: "destructive" });
-        } finally { setIsResetting(false); }
-    };
 
     const handleResetEmpire = async () => {
         const confirmed = window.confirm("Deseja zerar seu progresso no Empire Builder (saldo, itens e renda)? O XP geral será mantido.");
@@ -489,30 +451,13 @@ export default function Perfil() {
                                 <Button
                                     variant="outline"
                                     className="flex-1 gap-2 border-red-500/30 text-red-400 hover:bg-red-500/10"
-                                    onClick={handleResetLessons}
-                                    disabled={isResetting}
-                                >
-                                    <BookOpen className="w-4 h-4" />
-                                    Zerar apenas Aulas
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    className="flex-1 gap-2 border-red-500/30 text-red-400 hover:bg-red-500/10"
                                     onClick={handleResetEmpire}
                                     disabled={isResetting}
                                 >
                                     <Gamepad2 className="w-4 h-4" />
                                     Zerar Empire Builder
                                 </Button>
-                                <Button
-                                    variant="destructive"
-                                    className="flex-1 gap-2"
-                                    onClick={handleResetAll}
-                                    disabled={isResetting}
-                                >
-                                    <RefreshCw className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`} />
-                                    Zerar Tudo
-                                </Button>
+                                {/* Removed Reset Lessons and Reset All to prevent user lock-out */}
                             </div>
                         </div>
                     </section>
