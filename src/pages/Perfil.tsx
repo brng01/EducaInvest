@@ -11,7 +11,8 @@ import {
     Clock,
     CheckCircle2,
     RefreshCw,
-    AlertCircle
+    AlertCircle,
+    Gamepad2
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -156,6 +157,21 @@ export default function Perfil() {
             } else throw new Error();
         } catch (error) {
             toast({ title: "Erro", description: "Falha ao resetar tudo.", variant: "destructive" });
+        } finally { setIsResetting(false); }
+    };
+
+    const handleResetEmpire = async () => {
+        const confirmed = window.confirm("Deseja zerar seu progresso no Empire Builder (saldo, itens e renda)? O XP geral será mantido.");
+        if (!confirmed) return;
+
+        setIsResetting(true);
+        try {
+            const result = await gameService.resetEmpireBuilder();
+            if (result?.success) {
+                toast({ title: "Jogo Resetado", description: "Seu progresso no Empire Builder foi zerado." });
+            } else throw new Error();
+        } catch (error) {
+            toast({ title: "Erro", description: "Falha ao resetar jogo.", variant: "destructive" });
         } finally { setIsResetting(false); }
     };
 
@@ -410,6 +426,15 @@ export default function Perfil() {
                                 >
                                     <BookOpen className="w-4 h-4" />
                                     Zerar apenas Aulas
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="flex-1 gap-2 border-red-500/30 text-red-400 hover:bg-red-500/10"
+                                    onClick={handleResetEmpire}
+                                    disabled={isResetting}
+                                >
+                                    <Gamepad2 className="w-4 h-4" />
+                                    Zerar Empire Builder
                                 </Button>
                                 <Button
                                     variant="destructive"

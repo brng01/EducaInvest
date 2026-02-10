@@ -114,6 +114,16 @@ export const gameService = {
         }
     },
 
+    async resetEmpireBuilder() {
+        try {
+            localStorage.removeItem('empireSave');
+            return { success: true };
+        } catch (error) {
+            console.error("Error resetting Empire Builder:", error);
+            return { success: false, error };
+        }
+    },
+
     async resetUserProgress(userId: string) {
         if (!userId) return { success: false };
 
