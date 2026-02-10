@@ -34,7 +34,13 @@ export function ChatWidget() {
     };
 
     const scrollToAssistantMessage = () => {
-        lastAssistantMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (lastAssistantMessageRef.current) {
+            lastAssistantMessageRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+                inline: "nearest"
+            });
+        }
     };
 
     // Use a flag to track if the last message was from assistant
@@ -45,8 +51,8 @@ export function ChatWidget() {
         if (!isOpen) return;
 
         if (isLastMessageAssistant && !isInitialWelcome) {
-            // Give a tiny delay for ReactMarkdown to render before scrolling
-            const timeout = setTimeout(scrollToAssistantMessage, 100);
+            // Increased delay to 300ms to ensure ReactMarkdown and animations are complete
+            const timeout = setTimeout(scrollToAssistantMessage, 300);
             return () => clearTimeout(timeout);
         } else {
             scrollToBottom(isInitialWelcome ? "auto" : "smooth");
