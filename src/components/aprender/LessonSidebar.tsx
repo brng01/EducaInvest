@@ -22,8 +22,9 @@ export function LessonSidebar({
     completedLessonIds,
     handleLessonChange,
     isAdmin = false,
-    onBackToMap
-}: LessonSidebarProps) {
+    onBackToMap,
+    user
+}: LessonSidebarProps & { user?: any }) {
 
     const scrollbarClass = "lg:overflow-y-auto lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:bg-slate-700/50 lg:[&::-webkit-scrollbar-thumb]:rounded-full hover:lg:[&::-webkit-scrollbar-thumb]:bg-slate-600 transition-colors";
 
@@ -90,12 +91,26 @@ export function LessonSidebar({
                                 {modulo.aulas.map((aula) => {
                                     const isActive = currentAulaId === aula.id;
                                     const aulaFinalizada = completedLessonIds.includes(aula.id);
-                                    const isLocked = !isAdmin && aula.id > (maxCompletedId + 1);
+
+                                    // Freemium Logic for Sidebar
+                                    let isLocked = !isAdmin && aula.id > (maxCompletedId + 1);
+
+                                    if (!user) {
+                                        // Guest Mode: Lock everything except Lesson 1
+                                        if (aula.id === 1) isLocked = false;
+                                        else isLocked = true;
+                                    }
 
                                     const buttonContent = (
                                         <button
                                             disabled={isLocked}
-                                            onClick={() => !isLocked && handleLessonChange(aula.id)}
+                                            onClick={() => {
+                                                if (isLocked && !user) {
+                                                    window.location.href = '/login';
+                                                    return;
+                                                }
+                                                !isLocked && handleLessonChange(aula.id)
+                                            }}
                                             className={cn(
                                                 "w-full text-left px-3 py-2.5 rounded-lg text-xs font-medium transition-all flex items-center gap-3 group relative",
                                                 isActive

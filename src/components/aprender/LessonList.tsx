@@ -7,9 +7,10 @@ interface LessonListProps {
     lessons: Lesson[];
     completedLessonIds: number[];
     onSelectLesson: (lesson: Lesson) => void;
+    user?: any;
 }
 
-export function LessonList({ lessons, completedLessonIds, onSelectLesson }: LessonListProps) {
+export function LessonList({ lessons, completedLessonIds, onSelectLesson, user }: LessonListProps) {
     return (
         <div className="container mx-auto px-4 py-8 md:py-12 max-w-3xl">
             <div className="text-left mb-10 space-y-2">
@@ -27,8 +28,22 @@ export function LessonList({ lessons, completedLessonIds, onSelectLesson }: Less
 
                 {lessons.map((lesson, index) => {
                     const isCompleted = completedLessonIds.includes(lesson.id);
-                    // Unlock logic: First lesson is always unlocked, or if previous is completed
-                    const isUnlocked = index === 0 || completedLessonIds.includes(lessons[index - 1].id);
+
+                    // Freemium Logic:
+                    // If User: Standard progression (Previous completed OR First lesson)
+                    // If Guest: Only First lesson is unlocked.
+                    const isFirstLesson = index === 0;
+                    const previousLessonCompleted = index > 0 && completedLessonIds.includes(lessons[index - 1].id);
+
+                    let isUnlocked = false;
+
+                    if (user) {
+                        isUnlocked = isFirstLesson || previousLessonCompleted;
+                    } else {
+                        // Guest Mode: Only Lesson 1 is open
+                        isUnlocked = isFirstLesson;
+                    }
+
                     const isLocked = !isUnlocked && !isCompleted;
 
                     // Current active lesson logic (first unlocked but not completed)
@@ -40,7 +55,17 @@ export function LessonList({ lessons, completedLessonIds, onSelectLesson }: Less
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            onClick={() => !isLocked && onSelectLesson(lesson)}
+                            onClick={() => {
+                                if (isLocked) {
+                                    if (!user) {
+                                        // Specific prompt for Guests clicking locked lessons
+                                        window.location.href = '/login';
+                                        return;
+                                    }
+                                    return; // Locked for user (progression)
+                                }
+                                onSelectLesson(lesson);
+                            }}
                             className={cn(
                                 "relative group flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 md:ml-0",
                                 isLocked

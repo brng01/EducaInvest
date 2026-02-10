@@ -182,6 +182,33 @@ export default function Aprender() {
       <TooltipProvider>
         {viewMode === 'journey' ? (
           <div className="min-h-screen bg-slate-950 pb-20">
+
+            {/* Guest Banner */}
+            {!user && (
+              <div className="max-w-5xl mx-auto px-4 pt-6">
+                <div className="bg-gradient-to-r from-primary/10 to-blue-600/10 border border-primary/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="space-y-2 text-center md:text-left">
+                    <h3 className="text-lg font-bold text-white flex items-center justify-center md:justify-start gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                      Modo Visitante
+                    </h3>
+                    <p className="text-sm text-slate-300 max-w-xl">
+                      Você está explorando o conteúdo livremente. Para <strong>salvar seu progresso</strong>, ganhar XP e subir no ranking, você precisa entrar na sua conta.
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="secondary"
+                      onClick={() => window.location.href = '/login'}
+                      className="font-bold shadow-lg hover:scale-105 transition-transform"
+                    >
+                      Entrar Agora
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* New List Layout */}
             <LessonList
               lessons={lessons}
@@ -207,6 +234,26 @@ export default function Aprender() {
               </Button>
             </div>
 
+
+            {/* Guest Banner (Player Mode - Floating) */}
+            {!user && (
+              <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-md">
+                <div className="bg-slate-900/90 backdrop-blur-xl border border-primary/30 p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
+                  <div className="text-xs text-slate-300">
+                    <span className="block font-bold text-white mb-0.5">Progresso não salvo</span>
+                    Entre para garantir seus pontos.
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => window.location.href = '/login'}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
+                  >
+                    Entrar
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <LessonSidebar
               isMobileMenuOpen={isMobileMenuOpen}
               setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -216,7 +263,9 @@ export default function Aprender() {
               handleLessonChange={handleLessonChange}
               isAdmin={isAdmin}
               onBackToMap={() => setViewMode('journey')}
+              user={user}
             />
+
 
             <LessonContent
               currentAula={currentAula}

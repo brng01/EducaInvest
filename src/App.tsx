@@ -22,10 +22,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/aprender" element={
-            <AuthGuard>
-              <Aprender />
-            </AuthGuard>} />
+          <Route path="/aprender" element={<Aprender />} />
           <Route path="/" element={<Home />} />
           <Route path="/simular" element={<Simular />} />
           <Route path="/praticar" element={<Arcade />} />
