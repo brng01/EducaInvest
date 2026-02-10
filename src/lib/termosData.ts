@@ -30,3 +30,4 @@ export interface Termo {
 export const aulas: Aula[] = [];
 
 export const listaCompletaTermos: Termo[] = [];
+
