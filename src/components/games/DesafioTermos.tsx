@@ -27,10 +27,10 @@ interface GameItem {
 
 const MATCH_STYLES = [
     { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400", glow: "shadow-[0_0_20px_rgba(16,185,129,0.2)]" },
-    { bg: "bg-teal-500/10", border: "border-teal-500/30", text: "text-teal-400", glow: "shadow-[0_0_20px_rgba(20,184,166,0.2)]" },
-    { bg: "bg-cyan-500/10", border: "border-cyan-500/30", text: "text-cyan-400", glow: "shadow-[0_0_20px_rgba(6,182,212,0.2)]" },
-    { bg: "bg-lime-500/10", border: "border-lime-500/30", text: "text-lime-400", glow: "shadow-[0_0_20px_rgba(132,204,22,0.2)]" },
-    { bg: "bg-green-500/10", border: "border-green-500/30", text: "text-green-400", glow: "shadow-[0_0_20px_rgba(34,197,94,0.2)]" },
+    { bg: "bg-indigo-500/10", border: "border-indigo-500/30", text: "text-indigo-400", glow: "shadow-[0_0_20px_rgba(99,102,241,0.2)]" },
+    { bg: "bg-violet-500/10", border: "border-violet-500/30", text: "text-violet-400", glow: "shadow-[0_0_20px_rgba(139,92,246,0.2)]" },
+    { bg: "bg-rose-500/10", border: "border-rose-500/30", text: "text-rose-400", glow: "shadow-[0_0_20px_rgba(244,63,94,0.2)]" },
+    { bg: "bg-sky-500/10", border: "border-sky-500/30", text: "text-sky-400", glow: "shadow-[0_0_20px_rgba(14,165,233,0.2)]" },
 ];
 
 export const DesafioTermos = ({ onBack, user }: Props) => {
