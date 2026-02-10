@@ -14,6 +14,8 @@ interface LessonContentProps {
     handleLessonChange: (id: number) => void;
     currentAulaId: number;
     canComplete: boolean;
+    isStarted: boolean;
+    startLesson: () => void;
     timeLeft: number;
     timeLimit: number;
     handleCompleteAndNext: () => void;
@@ -44,6 +46,8 @@ export function LessonContent({
     handleLessonChange,
     currentAulaId,
     canComplete,
+    isStarted,
+    startLesson,
     timeLeft,
     timeLimit,
     handleCompleteAndNext,
@@ -111,7 +115,10 @@ export function LessonContent({
 
                             <Button
                                 size="lg"
-                                onClick={() => setShowIntro(false)}
+                                onClick={() => {
+                                    setShowIntro(false);
+                                    startLesson();
+                                }}
                                 className="w-full md:w-auto px-12 h-16 text-lg font-bold rounded-full bg-primary hover:bg-primary/90 shadow-[0_0_40px_rgba(37,99,235,0.3)] hover:scale-105 transition-all"
                             >
                                 <Play className="w-6 h-6 mr-2 fill-current" />
@@ -179,7 +186,10 @@ export function LessonContent({
                 </div>
 
                 {/* ========== NAVIGATION WITH XP BUTTON AND TIMER ========== */}
-                <div className="pt-10 border-t border-white/10 flex flex-col-reverse gap-4 md:flex-row justify-between items-center">
+                <div className={cn(
+                    "pt-10 border-t border-white/10 flex flex-col-reverse gap-4 md:flex-row justify-between items-center transition-all duration-500",
+                    showIntro ? "opacity-0 translate-y-10 pointer-events-none" : "opacity-100 translate-y-0"
+                )}>
                     <Button
                         variant="ghost"
                         onClick={() => handleLessonChange(currentAulaId - 1)}

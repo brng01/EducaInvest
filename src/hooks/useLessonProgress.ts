@@ -21,9 +21,10 @@ export function useLessonProgress(
     const [currentAulaId, setCurrentAulaId] = useState(1);
 
 
-    // Timer state
+    // Timer and state
     const [timeLeft, setTimeLeft] = useState(isAdmin ? 0 : TIME_LIMIT);
     const [canComplete, setCanComplete] = useState(isAdmin);
+    const [isStarted, setIsStarted] = useState(false);
 
     // Computed current lesson object
     // Mapped Lesson structure to match what UI expects from the DB mapping in the original file
@@ -39,6 +40,11 @@ export function useLessonProgress(
 
         setTimeLeft(TIME_LIMIT);
         setCanComplete(false);
+        setIsStarted(false); // Reset on lesson change
+    }, [currentAulaId, isAdmin]);
+
+    useEffect(() => {
+        if (isAdmin || !isStarted) return;
 
         const interval = setInterval(() => {
             setTimeLeft((prev) => {
@@ -52,7 +58,11 @@ export function useLessonProgress(
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [currentAulaId, isAdmin]);
+    }, [isStarted, isAdmin]);
+
+    const startLesson = () => {
+        setIsStarted(true);
+    };
 
     const handleLessonChange = (newId: number) => {
         setCurrentAulaId(newId);
@@ -101,16 +111,8 @@ export function useLessonProgress(
 
         if (!canComplete || !user) return;
 
-        // Check if it's the last lesson of a module or the entire course
-        // Need to handle the mapped 'nivel' property vs 'level' from DB if lessons are mixed types
-        // Assuming 'lessons' passed here already has 'nivel' mapped or we use 'level'
         const currentLevel = currentAula.nivel || currentAula.level;
-        const isLastOfModule = lessons.filter(l => (l.nivel || l.level) === currentLevel).pop()?.id === currentAulaId;
         const isLastOfCourse = currentAulaId === lessons.length;
-
-        // Confetti removed for professional look
-        // if (isLastOfModule || isLastOfCourse) { ... }
-
         const xpAmount = getXpReward(currentLevel);
 
         try {
@@ -131,7 +133,6 @@ export function useLessonProgress(
 
             await supabase.from('perfis').update({ xp_total: newTotal }).eq('id', user.id);
 
-            // Emit manual event for real-time UI updates
             window.dispatchEvent(new CustomEvent('educainvest_xp_updated'));
 
             toast({
@@ -160,6 +161,8 @@ export function useLessonProgress(
         currentAula,
         timeLeft,
         canComplete,
+        isStarted,
+        startLesson,
         handleLessonChange,
         handleCompleteAndNext,
         TIME_LIMIT,
