@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from 'react-markdown';
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
     id: string;
@@ -15,6 +16,7 @@ interface Message {
 
 export function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [messages, setMessages] = useState<Message[]>(() => {
         const saved = localStorage.getItem('educainvest_chat_history');
         if (saved) {
@@ -32,12 +34,29 @@ export function ChatWidget() {
     });
 
     useEffect(() => {
+        // Check initial session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setIsAuthenticated(!!session);
+        });
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setIsAuthenticated(!!session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    useEffect(() => {
         localStorage.setItem('educainvest_chat_history', JSON.stringify(messages));
     }, [messages]);
 
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // Don't render if not authenticated
+    if (!isAuthenticated) return null;
     const lastAssistantMessageRef = useRef<HTMLDivElement>(null);
 
     const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || "";
