@@ -64,7 +64,6 @@ export function Header() {
               filter: `id=eq.${currentUser.id}`,
             },
             (payload) => {
-              console.log("Perfil atualizado via realtime:", payload.new);
               setPerfil(payload.new);
             }
           )

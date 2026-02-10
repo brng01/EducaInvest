@@ -43,7 +43,6 @@ export function ChatWidget() {
         }
     };
 
-    // Use a flag to track if the last message was from assistant
     const isLastMessageAssistant = messages.length > 0 && messages[messages.length - 1].role === 'assistant';
     const isInitialWelcome = messages.length === 1 && messages[0].id === 'welcome';
 
@@ -51,7 +50,6 @@ export function ChatWidget() {
         if (!isOpen) return;
 
         if (isLastMessageAssistant && !isInitialWelcome) {
-            // Increased delay to 300ms to ensure ReactMarkdown and animations are complete
             const timeout = setTimeout(scrollToAssistantMessage, 300);
             return () => clearTimeout(timeout);
         } else {
