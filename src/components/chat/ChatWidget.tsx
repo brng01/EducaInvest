@@ -58,7 +58,7 @@ export function ChatWidget() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ question: userMessage.content }), // Adjust key based on n8n workflow expectation
+                body: JSON.stringify({ pergunta: userMessage.content }), // Matched with n8n workflow expectation {{ $json.body.pergunta }}
             });
 
             if (!response.ok) {
@@ -71,7 +71,8 @@ export function ChatWidget() {
             // If n8n returns simple text, handle that. If JSON object, access field.
             // Common n8n webhook response is often just the JSON data returned by the last node.
             // Assuming the last node returns a JSON with a field 'text' or 'output'.
-            const botResponseText = data.text || data.output || data.message || JSON.stringify(data);
+            // Expecting { output: "answer text" } or { text: "answer text" } or { message: "answer text" }
+            const botResponseText = data.output || data.text || data.message || (typeof data === 'string' ? data : JSON.stringify(data));
 
             const botMessage: Message = {
                 id: (Date.now() + 1).toString(),
