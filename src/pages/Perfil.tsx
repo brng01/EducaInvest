@@ -48,6 +48,8 @@ export default function Perfil() {
         totalItemsCount: 0,
         uniqueItemTypes: 0
     });
+    const [consultorStats, setConsultorStats] = useState({ totalAnalyzed: 0, bestStreak: 0 });
+    const [termoStats, setTermoStats] = useState({ totalMatched: 0, bestTimeLeft: 0 });
 
     useEffect(() => {
         fetchProfileData();
@@ -131,6 +133,22 @@ export default function Perfil() {
                     }
                 }
 
+                // 5. O Consultor Stats
+                const consultorSave = localStorage.getItem('consultorStats');
+                if (consultorSave) {
+                    try {
+                        setConsultorStats(JSON.parse(consultorSave));
+                    } catch (e) { console.error(e); }
+                }
+
+                // 6. Desafio Termos Stats
+                const termoSave = localStorage.getItem('termoStats');
+                if (termoSave) {
+                    try {
+                        setTermoStats(JSON.parse(termoSave));
+                    } catch (e) { console.error(e); }
+                }
+
             }
         } catch (error) {
             console.error("Erro ao carregar perfil:", error);
@@ -182,6 +200,11 @@ export default function Perfil() {
         try {
             const result = await gameService.resetUserProgress(user.id);
             if (result?.success) {
+                // Clear Local Stats too
+                localStorage.removeItem('empireSave');
+                localStorage.removeItem('consultorStats');
+                localStorage.removeItem('termoStats');
+
                 toast({ title: "Tudo Resetado", description: "Sua conta foi zerada com sucesso." });
                 fetchProfileData();
             } else throw new Error();
@@ -261,6 +284,12 @@ export default function Perfil() {
         { id: 6, title: "Grande Investidor", desc: "Saldo de R$ 10.000.000 no simulator", icon: TrendingUp, color: "text-purple-400", bg: "bg-purple-500/10", unlocked: empireData.balance >= 10000000 },
         { id: 7, title: "Colecionador", desc: "5 tipos de investimentos diferentes", icon: Briefcase, color: "text-cyan-400", bg: "bg-cyan-400/10", unlocked: empireData.uniqueItemTypes >= 5 },
         { id: 8, title: "Magnata", desc: "Possui 20+ ativos no simulador", icon: Building, color: "text-rose-400", bg: "bg-rose-400/10", unlocked: empireData.totalItemsCount >= 20 },
+        // O Consultor Achievements
+        { id: 9, title: "Olho Clínico", desc: "Streak de 10 acertos seguidos", icon: Target, color: "text-orange-400", bg: "bg-orange-400/10", unlocked: consultorStats.bestStreak >= 10 },
+        { id: 10, title: "Analista Sênior", desc: "50 cenários analisados", icon: TrendingUp, color: "text-blue-500", bg: "bg-blue-500/10", unlocked: consultorStats.totalAnalyzed >= 50 },
+        // Desafio Termos Achievements
+        { id: 11, title: "Dicionário Humano", desc: "50 termos acertados", icon: BookOpen, color: "text-emerald-400", bg: "bg-emerald-400/10", unlocked: termoStats.totalMatched >= 50 },
+        { id: 12, title: "Veloz e Furioso", desc: "Venceu com 40s+ no relógio", icon: Flame, color: "text-red-500", bg: "bg-red-500/10", unlocked: termoStats.bestTimeLeft >= 40 },
     ];
 
     if (loading) {

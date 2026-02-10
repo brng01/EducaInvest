@@ -99,10 +99,21 @@ export const DesafioTermos = ({ onBack, user }: Props) => {
                 setSelectedTerm(null);
                 setSelectedDef(null);
 
+                // Update Permanent Stats (Total Matched)
+                const stats = JSON.parse(localStorage.getItem('termoStats') || '{"totalMatched":0,"bestTimeLeft":0}');
+                stats.totalMatched += 1;
+                localStorage.setItem('termoStats', JSON.stringify(stats));
+
                 // Check win condition
                 if (matchedIds.length + 1 === items.terms.length) {
-
                     setIsPlaying(false);
+
+                    // Update Permanent Stats (Best Time)
+                    const stats = JSON.parse(localStorage.getItem('termoStats') || '{"totalMatched":0,"bestTimeLeft":0}');
+                    if (timeLeft > stats.bestTimeLeft) {
+                        stats.bestTimeLeft = timeLeft;
+                        localStorage.setItem('termoStats', JSON.stringify(stats));
+                    }
                 }
             } else {
                 // Mismatch

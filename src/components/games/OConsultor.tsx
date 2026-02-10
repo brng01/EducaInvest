@@ -34,6 +34,7 @@ export const OConsultor = ({ onBack, user }: Props) => {
     const [isLoading, setIsLoading] = useState(true);
     const [direction, setDirection] = useState<'left' | 'right' | null>(null);
     const [xpSaved, setXpSaved] = useState(false);
+    const [currentStreak, setCurrentStreak] = useState(0);
 
     const scoreRef = useRef(0);
     const xpSavedRef = useRef(false);
@@ -68,6 +69,11 @@ export const OConsultor = ({ onBack, user }: Props) => {
         }
 
         setXpSaved(true);
+
+        // Update Permanent Stats
+        const stats = JSON.parse(localStorage.getItem('consultorStats') || '{"totalAnalyzed":0,"bestStreak":0}');
+        stats.totalAnalyzed += score;
+        localStorage.setItem('consultorStats', JSON.stringify(stats));
     };
 
     const handleExit = () => {
@@ -109,11 +115,19 @@ export const OConsultor = ({ onBack, user }: Props) => {
 
         setLastAnswerCorrect(isCorrect);
         if (isCorrect) {
-
             setScore(s => s + 1);
-            // Combo logic could go here
+            setCurrentStreak(s => {
+                const newStreak = s + 1;
+                // Update best streak immediately if higher
+                const stats = JSON.parse(localStorage.getItem('consultorStats') || '{"totalAnalyzed":0,"bestStreak":0}');
+                if (newStreak > stats.bestStreak) {
+                    stats.bestStreak = newStreak;
+                    localStorage.setItem('consultorStats', JSON.stringify(stats));
+                }
+                return newStreak;
+            });
         } else {
-
+            setCurrentStreak(0);
             // Vibrate if mobile
             if (navigator.vibrate) navigator.vibrate(200);
         }
