@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { Layers, ChevronLeft, ChevronRight, Timer, Info, Lock, CheckCircle2, Trophy, Clock, Play } from "lucide-react";
-import { PodcastCard } from "@/components/aprender/PodcastCard";
+import { PodcastCard, PodcastCardHandle } from "@/components/aprender/PodcastCard";
 import { TermCard } from "@/components/aprender/TermCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Lesson, Term } from "@/lib/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface LessonContentProps {
     currentAula: Lesson;
@@ -22,17 +22,44 @@ interface LessonContentProps {
     aulaFinalizada?: boolean;
 }
 
-const ProgressBar = ({ timeLeft, total }: { timeLeft: number; total: number }) => {
-    const percentage = ((total - timeLeft) / total) * 100;
+const ProgressBar = ({ currentTime, duration, onSeek }: { currentTime: number; duration: number; onSeek: (time: number) => void }) => {
+    const percentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+    const progressBarRef = useRef<HTMLDivElement>(null);
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!progressBarRef.current || duration <= 0) return;
+
+        const rect = progressBarRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const width = rect.width;
+        const newPercentage = Math.min(Math.max(0, x / width), 1);
+        const newTime = newPercentage * duration;
+
+        onSeek(newTime);
+    };
 
     return (
-        <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
-            <motion.div
-                className="h-full bg-gradient-to-r from-primary via-blue-500 to-emerald-500"
-                initial={{ width: 0 }}
-                animate={{ width: `${percentage}%` }}
-                transition={{ duration: 0.5 }}
-            />
+        <div
+            ref={progressBarRef}
+            className="w-full h-4 flex items-center cursor-pointer group relative"
+            onClick={handleClick}
+            title="Clique para avançar/voltar"
+        >
+            {/* Visual Bar */}
+            <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden group-hover:h-2 transition-all duration-300">
+                <motion.div
+                    className="h-full bg-gradient-to-r from-primary via-blue-500 to-emerald-500 relative"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${percentage}%` }}
+                    transition={{ duration: 0.1, ease: "linear" }}
+                >
+                    {/* Glow effect at the tip */}
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.8)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.div>
+            </div>
+
+            {/* Invisble Hit Area for easier clicking */}
+            <div className="absolute inset-0 z-10" />
         </div>
     );
 };
