@@ -11,20 +11,12 @@ import { Lesson, Term } from "@/lib/types";
 // New Components and Hooks
 import { LessonSidebar } from "@/components/aprender/LessonSidebar";
 import { LessonContent } from "@/components/aprender/LessonContent";
-import { LessonList } from "@/components/aprender/LessonList";
 import { useLessonProgress } from "@/hooks/useLessonProgress";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 
 export default function Aprender() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
-
-  // View Mode: 'journey' (List) or 'player' (Lesson Content)
-  const [viewMode, setViewMode] = useState<'journey' | 'player'>('journey');
-
-  // Modal State
-  const [selectedLessonForIntro, setSelectedLessonForIntro] = useState<Lesson | null>(null);
 
   // Real Data States
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -167,124 +159,60 @@ export default function Aprender() {
     );
   }
 
-  if (!currentAula && viewMode === 'player') {
-    // If no lesson is selected but we are in player mode, fallback to journey
-    setViewMode('journey');
-  }
 
-  // Handle clicking a lesson in the list
-  const handleLessonListClick = (lesson: Lesson) => {
-    handleLessonChange(lesson.id);
-    setViewMode('player');
-  };
 
   return (
     <Layout>
       <TooltipProvider>
-        {viewMode === 'journey' ? (
-          <div className="min-h-screen bg-slate-950 pb-20">
+        <div className="flex flex-col lg:flex-row min-h-screen lg:h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 lg:overflow-hidden relative">
 
-            {/* Guest Banner */}
-            {!user && (
-              <div className="max-w-5xl mx-auto px-4 pt-6">
-                <div className="bg-gradient-to-r from-primary/10 to-blue-600/10 border border-primary/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="space-y-2 text-center md:text-left">
-                    <h3 className="text-lg font-bold text-white flex items-center justify-center md:justify-start gap-2">
-                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                      Modo Visitante
-                    </h3>
-                    <p className="text-sm text-slate-300 max-w-xl">
-                      Você está explorando o conteúdo livremente. Para <strong>salvar seu progresso</strong>, ganhar XP e subir no ranking, você precisa entrar na sua conta.
-                    </p>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button
-                      variant="secondary"
-                      onClick={() => window.location.href = '/login'}
-                      className="font-bold shadow-lg hover:scale-105 transition-transform"
-                    >
-                      Entrar Agora
-                    </Button>
-                  </div>
+          {/* Guest Banner (Player Mode - Floating) */}
+          {!user && (
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-md">
+              <div className="bg-slate-900/90 backdrop-blur-xl border border-primary/30 p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
+                <div className="text-xs text-slate-300">
+                  <span className="block font-bold text-white mb-0.5">Progresso não salvo</span>
+                  Entre para garantir seus pontos.
                 </div>
+                <Button
+                  size="sm"
+                  onClick={() => window.location.href = '/login'}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
+                >
+                  Entrar
+                </Button>
               </div>
-            )}
-
-            {/* New List Layout */}
-            <LessonList
-              lessons={lessons}
-              completedLessonIds={completedLessonIds}
-              onSelectLesson={handleLessonListClick}
-              user={user}
-            />
-
-            {/* Intro Modal Removed */}
-          </div>
-        ) : (
-          <div className="flex flex-col lg:flex-row min-h-screen lg:h-[calc(100vh-80px)] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 lg:overflow-hidden relative">
-
-            {/* Back to Journey Button (Mobile/Desktop) */}
-            <div className="absolute top-4 left-4 z-50 lg:hidden">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setViewMode('journey')}
-                className="bg-slate-900/80 backdrop-blur-md border border-white/10 text-white"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Mapa
-              </Button>
             </div>
+          )}
+
+          <LessonSidebar
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
+            lessons={lessons}
+            currentAulaId={currentAulaId}
+            completedLessonIds={completedLessonIds}
+            handleLessonChange={handleLessonChange}
+            isAdmin={isAdmin}
+            onBackToMap={() => { }} // No more journey map
+            user={user}
+          />
 
 
-            {/* Guest Banner (Player Mode - Floating) */}
-            {!user && (
-              <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-md">
-                <div className="bg-slate-900/90 backdrop-blur-xl border border-primary/30 p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
-                  <div className="text-xs text-slate-300">
-                    <span className="block font-bold text-white mb-0.5">Progresso não salvo</span>
-                    Entre para garantir seus pontos.
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => window.location.href = '/login'}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
-                  >
-                    Entrar
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            <LessonSidebar
-              isMobileMenuOpen={isMobileMenuOpen}
-              setIsMobileMenuOpen={setIsMobileMenuOpen}
-              lessons={lessons}
-              currentAulaId={currentAulaId}
-              completedLessonIds={completedLessonIds}
-              handleLessonChange={handleLessonChange}
-              isAdmin={isAdmin}
-              onBackToMap={() => setViewMode('journey')}
-              user={user}
-            />
-
-
-            <LessonContent
-              currentAula={currentAula}
-              totalLessons={lessons.length}
-              termosDaAula={termosDaAula}
-              handleLessonChange={handleLessonChange}
-              currentAulaId={currentAulaId}
-              canComplete={canComplete}
-              timeLeft={timeLeft}
-              timeLimit={TIME_LIMIT}
-              handleCompleteAndNext={handleCompleteAndNext}
-              xpAmount={xpAmount}
-              isAdmin={isAdmin}
-              aulaFinalizada={completedLessonIds.includes(currentAulaId)}
-            />
-          </div>
-        )}
+          <LessonContent
+            currentAula={currentAula}
+            totalLessons={lessons.length}
+            termosDaAula={termosDaAula}
+            handleLessonChange={handleLessonChange}
+            currentAulaId={currentAulaId}
+            canComplete={canComplete}
+            timeLeft={timeLeft}
+            timeLimit={TIME_LIMIT}
+            handleCompleteAndNext={handleCompleteAndNext}
+            xpAmount={xpAmount}
+            isAdmin={isAdmin}
+            aulaFinalizada={completedLessonIds.includes(currentAulaId)}
+          />
+        </div>
       </TooltipProvider>
     </Layout>
   );

@@ -136,7 +136,9 @@ export function LessonContent({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {termosDaAula.map((termo) => (
-                        <TermCard key={termo.id} term={termo as any} />
+                        <div key={termo.id} id={`term-${termo.id}`}>
+                            <TermCard term={termo as any} />
+                        </div>
                     ))}
                 </div>
 
