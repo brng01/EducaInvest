@@ -113,15 +113,7 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
             // Rebalance values: Scale everything down
             // Passive: /10
             // Active: /50 (Significant nerf to make passive the focus)
-            const balancedData = data.map(item => ({
-                ...item,
-                base_cost: item.base_cost / 10,
-                base_income: item.type === 'active'
-                    ? item.base_income / 50
-                    : item.base_income / 10
-            }));
-
-            setItems(balancedData);
+            setItems(data);
         } catch (e) {
             console.error(e);
         } finally {
