@@ -35,7 +35,7 @@ export default function Aprender() {
 
   // Admin detection (memoized or calculated once)
   const isAdmin = useMemo(() => {
-    return localStorage.getItem('educainvest_admin') === 'true' || user?.email === 'brunogd964@gmail.com';
+    return localStorage.getItem('educainvest_admin') === 'true' || user?.email === 'user@gmail.com';
   }, [user]);
 
   // Use custom hook for progress logic
