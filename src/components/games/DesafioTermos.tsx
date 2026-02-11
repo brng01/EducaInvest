@@ -215,7 +215,7 @@ export const DesafioTermos = ({ onBack, user }: Props) => {
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] uppercase font-black text-muted-foreground leading-none">Score</span>
                         <div className="text-primary font-black text-2xl tabular-nums">
-                            {formatNumber(score)} <span className="text-xs">ED$</span>
+                            {formatNumber(score)} <span className="text-xs">XP</span>
                         </div>
                     </div>
                 </div>
