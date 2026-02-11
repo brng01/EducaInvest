@@ -106,11 +106,11 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
     };
 
     const handleSeeked = () => {
-      // Pequeno delay após o áudio confirmar que chegou para garantir consistência visual
+      // Pequeno delay para garantir que o estado do áudio estabilizou
       setTimeout(() => {
         isSeekingRef.current = false;
         setIsSeeking(false);
-      }, 50);
+      }, 150); // Aumentado para 150ms para maior segurança
     };
 
     audio.addEventListener("timeupdate", updateTime);
@@ -127,6 +127,17 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
       audio.removeEventListener("seeked", handleSeeked);
     };
   }, [onTimeUpdate, onEnded, estimatedDuration]);
+
+  // Reset de estado ao mudar de aula
+  useEffect(() => {
+    setCurrentTime(0);
+    setTempTime(0);
+    setIsSeeking(false);
+    isSeekingRef.current = false;
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+    }
+  }, [aula.id]);
 
   const togglePlayPause = () => {
     const audio = audioRef.current;
@@ -365,6 +376,13 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
 
   return (
     <div className="w-full perspective-1000">
+      {/* Áudio oculto - MOVIDO PARA FORA DO MOTION.DIV PARA SER ESTÁVEL */}
+      <audio
+        ref={audioRef}
+        src={`/audios/Aula-${aula.id}.mp3`}
+        preload="auto"
+      />
+
       <motion.div
         key={aula.id}
         initial={{ opacity: 0, y: 20 }}
@@ -378,13 +396,6 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
           "hover:shadow-2xl hover:-translate-y-1.5"
         )}
       >
-        {/* Áudio oculto */}
-        <audio
-          ref={audioRef}
-          src={`/audios/Aula-${aula.id}.mp3`}
-          preload="auto"
-        />
-
         {/* Camada Interna para Efeito de Vidro */}
         <div className="relative p-6 md:p-10 z-10">
 
