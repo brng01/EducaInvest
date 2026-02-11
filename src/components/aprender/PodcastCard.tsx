@@ -223,6 +223,8 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
     const termReplacements: { placeholder: string; html: string }[] = [];
 
     termos.forEach((termo) => {
+      if (!termo) return;
+
       // Cria lista de termos base (Sigla + Nome)
       let rawInputs = [termo.sigla, termo.nome];
 
