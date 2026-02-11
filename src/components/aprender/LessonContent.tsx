@@ -41,33 +41,7 @@ export function LessonContent({
 
     const scrollbarClass = "lg:overflow-y-auto lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:bg-slate-700/50 lg:[&::-webkit-scrollbar-thumb]:rounded-full hover:lg:[&::-webkit-scrollbar-thumb]:bg-slate-600 transition-colors";
 
-    // Audio State
-    const [audioCurrentTime, setAudioCurrentTime] = useState(0);
-    const [audioDuration, setAudioDuration] = useState(0);
-    const podcastRef = useRef<PodcastCardHandle>(null);
-    const [localCanComplete, setLocalCanComplete] = useState(initialCanComplete);
-
-    // Sync local completion state with props
-    useEffect(() => {
-        setLocalCanComplete(initialCanComplete);
-    }, [initialCanComplete]);
-
-    const handleAudioTimeUpdate = (current: number, total: number) => {
-        setAudioCurrentTime(current);
-        // Only update duration if it changes significantly or is 0
-        if (total > 0 && Math.abs(audioDuration - total) > 1) {
-            setAudioDuration(total);
-        }
-    };
-
-    const handleAudioEnded = () => {
-        // Reset progress bar visually
-        setAudioCurrentTime(0);
-    };
-
-    const handleSeek = (time: number) => {
-        podcastRef.current?.seek(time);
-    };
+    // Audio State & Handlers removed (Decoupled from timer)
 
     // Use admin bypass
     const processIsAdmin = isAdmin;
@@ -156,11 +130,8 @@ export function LessonContent({
             <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-8 pb-32">
                 {/* Podcast Card - Agora com Ref e Callbacks */}
                 <PodcastCard
-                    ref={podcastRef}
                     aula={currentAula}
                     termos={termosDaAula}
-                    onTimeUpdate={handleAudioTimeUpdate}
-                    onEnded={handleAudioEnded}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
