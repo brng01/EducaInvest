@@ -10,7 +10,7 @@ export function formatNumber(value: number) {
 }
 
 export function formatED(value: number) {
-  return `ED$ ${formatNumber(Math.floor(value))}`;
+  return `ED$ ${formatNumber(value)}`;
 }
 
 export const LEVELS = [

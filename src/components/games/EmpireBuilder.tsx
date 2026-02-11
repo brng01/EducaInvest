@@ -17,7 +17,7 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
     const { toast } = useToast();
 
     const [balance, setBalance] = useState(0);
-    const [clickValue, setClickValue] = useState(1);
+    const [clickValue, setClickValue] = useState(0.1);
     const [passiveIncome, setPassiveIncome] = useState(0);
     const [items, setItems] = useState<EmpireItem[]>([]);
     const [ownedItems, setOwnedItems] = useState<Record<number, number>>({});
@@ -47,7 +47,7 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
     useEffect(() => {
         if (items.length > 0) {
             // Recalculate rates
-            let newClickVal = 1;
+            let newClickVal = 0.1;
             let newPassive = 0;
 
             items.forEach(item => {
@@ -71,8 +71,8 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
             if (passiveIncome > 0) {
                 setBalance(b => {
                     const newBalance = b + passiveIncome;
-                    // Check for XP milestones (every 500k instead of 10k to balance)
-                    const MILESTONE = 500000;
+                    // Check for XP milestones (every 10k to compensate for 10x value reduction + active nerf)
+                    const MILESTONE = 10000;
                     const milestones = Math.floor(newBalance / MILESTONE) - Math.floor(lastXpAwardedBalance.current / MILESTONE);
                     if (milestones > 0) {
                         const xpAmount = milestones;
@@ -109,7 +109,19 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
     const loadGame = async () => {
         try {
             const data = await gameService.getEmpireItems();
-            setItems(data);
+
+            // Rebalance values: Scale everything down
+            // Passive: /10
+            // Active: /50 (Significant nerf to make passive the focus)
+            const balancedData = data.map(item => ({
+                ...item,
+                base_cost: item.base_cost / 10,
+                base_income: item.type === 'active'
+                    ? item.base_income / 50
+                    : item.base_income / 10
+            }));
+
+            setItems(balancedData);
         } catch (e) {
             console.error(e);
         } finally {
