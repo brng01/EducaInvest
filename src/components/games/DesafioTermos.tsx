@@ -228,6 +228,65 @@ export const DesafioTermos = ({ onBack, user }: Props) => {
                 [&::-webkit-scrollbar-thumb]:bg-white/10
                 [&::-webkit-scrollbar-thumb]:rounded-full">
 
+                {/* Terms Column */}
+                <div className="flex flex-col gap-4 py-2">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="w-1.5 h-4 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                        <span className="text-xs uppercase font-black tracking-widest text-amber-400">Termos</span>
+                    </div>
+                    {items.terms.map(term => {
+                        const isMatched = matchedIds.includes(term.originalId);
+                        const isSelected = selectedTerm === term.id;
+                        const isMismatch = mismatchPairs.includes(term.id);
+                        const colorIndex = matchedColors[term.originalId];
+                        const matchStyle = isMatched && colorIndex !== undefined ? MATCH_STYLES[colorIndex] : null;
+
+                        return (
+                            <motion.button
+                                key={term.id}
+                                className={cn(
+                                    "p-5 rounded-2xl text-base md:text-lg font-bold text-center transition-all relative border min-h-[90px] flex items-center justify-center backdrop-blur-md overflow-hidden",
+                                    isMatched && matchStyle
+                                        ? `${matchStyle.bg} ${matchStyle.border} ${matchStyle.text} ${matchStyle.glow} cursor-default`
+                                        : isMismatch
+                                            ? "bg-red-500/20 border-red-500/50 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                                            : isSelected
+                                                ? "bg-primary/30 border-primary text-white shadow-[0_0_25px_rgba(var(--primary-rgb),0.4)] ring-1 ring-primary/50"
+                                                : "bg-white/[0.03] border-white/10 text-white hover:border-amber-500/40 hover:bg-white/[0.08] hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] shadow-lg"
+                                )}
+                                onClick={() => !isMatched && isPlaying && setSelectedTerm(term.id)}
+                                disabled={isMatched || !isPlaying}
+                                whileHover={!isMatched && isPlaying ? { x: -5, scale: 1.02 } : {}}
+                                whileTap={!isMatched && isPlaying ? { scale: 0.98 } : {}}
+                            >
+                                {/* Selection Glow Effect */}
+                                {isSelected && !isMatched && (
+                                    <motion.div
+                                        layoutId="glow-term"
+                                        className="absolute inset-0 bg-gradient-to-l from-primary/20 to-transparent pointer-events-none"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                    />
+                                )}
+
+                                <span className="relative z-10">{term.text}</span>
+
+                                <AnimatePresence>
+                                    {isMatched && (
+                                        <motion.div
+                                            initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2"
+                                        >
+                                            <CheckCircle2 className={cn("w-5 h-5", matchStyle ? matchStyle.text : "text-emerald-400/60")} />
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.button>
+                        )
+                    })}
+                </div>
+
                 {/* Definitions Column */}
                 <div className="flex flex-col gap-4 py-2">
                     <div className="flex items-center gap-2 mb-2">
@@ -282,65 +341,6 @@ export const DesafioTermos = ({ onBack, user }: Props) => {
                                                 matchStyle ? `bg-white/10 ${matchStyle.border.replace('border-', 'border-')}` : "bg-emerald-500/20 border-emerald-500/30")}>
                                                 <CheckCircle2 className={cn("w-4 h-4", matchStyle ? matchStyle.text : "text-emerald-400")} />
                                             </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </motion.button>
-                        )
-                    })}
-                </div>
-
-                {/* Terms Column */}
-                <div className="flex flex-col gap-4 py-2">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="w-1.5 h-4 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                        <span className="text-xs uppercase font-black tracking-widest text-amber-400">Termos</span>
-                    </div>
-                    {items.terms.map(term => {
-                        const isMatched = matchedIds.includes(term.originalId);
-                        const isSelected = selectedTerm === term.id;
-                        const isMismatch = mismatchPairs.includes(term.id);
-                        const colorIndex = matchedColors[term.originalId];
-                        const matchStyle = isMatched && colorIndex !== undefined ? MATCH_STYLES[colorIndex] : null;
-
-                        return (
-                            <motion.button
-                                key={term.id}
-                                className={cn(
-                                    "p-5 rounded-2xl text-base md:text-lg font-bold text-center transition-all relative border min-h-[90px] flex items-center justify-center backdrop-blur-md overflow-hidden",
-                                    isMatched && matchStyle
-                                        ? `${matchStyle.bg} ${matchStyle.border} ${matchStyle.text} ${matchStyle.glow} cursor-default`
-                                        : isMismatch
-                                            ? "bg-red-500/20 border-red-500/50 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
-                                            : isSelected
-                                                ? "bg-primary/30 border-primary text-white shadow-[0_0_25px_rgba(var(--primary-rgb),0.4)] ring-1 ring-primary/50"
-                                                : "bg-white/[0.03] border-white/10 text-white hover:border-amber-500/40 hover:bg-white/[0.08] hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] shadow-lg"
-                                )}
-                                onClick={() => !isMatched && isPlaying && setSelectedTerm(term.id)}
-                                disabled={isMatched || !isPlaying}
-                                whileHover={!isMatched && isPlaying ? { x: -5, scale: 1.02 } : {}}
-                                whileTap={!isMatched && isPlaying ? { scale: 0.98 } : {}}
-                            >
-                                {/* Selection Glow Effect */}
-                                {isSelected && !isMatched && (
-                                    <motion.div
-                                        layoutId="glow-term"
-                                        className="absolute inset-0 bg-gradient-to-l from-primary/20 to-transparent pointer-events-none"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                    />
-                                )}
-
-                                <span className="relative z-10">{term.text}</span>
-
-                                <AnimatePresence>
-                                    {isMatched && (
-                                        <motion.div
-                                            initial={{ scale: 0, opacity: 0, rotate: -45 }}
-                                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2"
-                                        >
-                                            <CheckCircle2 className={cn("w-5 h-5", matchStyle ? matchStyle.text : "text-emerald-400/60")} />
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
