@@ -18,7 +18,8 @@ import {
     Briefcase,
     Building,
     Globe,
-    Crown
+    Crown,
+    LogOut
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { UserProfile, UserProgress } from "@/lib/types";
 import { gameService } from "@/services/gameService";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Perfil() {
     const [loading, setLoading] = useState(true);
@@ -43,6 +45,7 @@ export default function Perfil() {
     });
     const [history, setHistory] = useState<any[]>([]);
     const { toast } = useToast();
+    const navigate = useNavigate();
     const [isResetting, setIsResetting] = useState(false);
     const [empireData, setEmpireData] = useState({
         balance: 0,
@@ -192,6 +195,11 @@ export default function Perfil() {
         } finally { setIsResetting(false); }
     };
 
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate("/login");
+    };
+
     const calculateStreak = (progress: any[]) => {
         if (!progress || progress.length === 0) return 0;
 
@@ -308,27 +316,39 @@ export default function Perfil() {
                             </div>
                         </motion.div>
 
-                        <div className="text-center md:text-left space-y-2">
-                            <motion.h1
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                className="text-2xl md:text-3xl font-display font-bold text-white"
-                            >
-                                {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
-                            </motion.h1>
-                            <motion.div
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.1 }}
-                                className="flex flex-wrap justify-center md:justify-start gap-2"
-                            >
-                                <span className="px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-wider">
-                                    {perfil?.current_level || "Iniciante"}
-                                </span>
-                                <span className="px-3 py-1 rounded-full bg-white/5 text-muted-foreground border border-white/10 text-xs font-medium flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" /> Membro desde {new Date(user?.created_at).toLocaleDateString()}
-                                </span>
-                            </motion.div>
+                        <div className="text-center md:text-left space-y-2 flex-1">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <motion.h1
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        className="text-2xl md:text-3xl font-display font-bold text-white"
+                                    >
+                                        {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                                    </motion.h1>
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 0.1 }}
+                                        className="flex flex-wrap justify-center md:justify-start gap-2 mt-2"
+                                    >
+                                        <span className="px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-wider">
+                                            {perfil?.current_level || "Iniciante"}
+                                        </span>
+                                        <span className="px-3 py-1 rounded-full bg-white/5 text-muted-foreground border border-white/10 text-xs font-medium flex items-center gap-1">
+                                            <Calendar className="w-3 h-3" /> Membro desde {new Date(user?.created_at).toLocaleDateString()}
+                                        </span>
+                                    </motion.div>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 gap-2 self-center md:self-start"
+                                    onClick={handleLogout}
+                                >
+                                    <LogOut className="w-4 h-4" /> Sair
+                                </Button>
+                            </div>
                         </div>
 
                         <div className="md:ml-auto w-full md:w-64 bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
