@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 
 import { Lesson } from '@/lib/types';
 
-const TIME_LIMIT = 60; // 1 minute
+const TIME_LIMIT = 30; // 30 seconds
 
 export function useLessonProgress(
     lessons: Lesson[],
