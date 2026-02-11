@@ -221,7 +221,7 @@ export function ChatWidget() {
     if (!isAuthenticated) return null;
 
     return (
-        <div className="fixed bottom-0 right-0 z-50 p-4 md:bottom-8 md:right-8 flex flex-col items-end pointer-events-none">
+        <div className="fixed bottom-16 right-0 z-50 p-4 md:bottom-8 md:right-8 flex flex-col items-end pointer-events-none">
             <div className="pointer-events-auto">
                 <AnimatePresence>
                     {isOpen && (
