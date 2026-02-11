@@ -17,7 +17,7 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
     const { toast } = useToast();
 
     const [balance, setBalance] = useState(0);
-    const [clickValue, setClickValue] = useState(0.1);
+    const [clickValue, setClickValue] = useState(1);
     const [passiveIncome, setPassiveIncome] = useState(0);
     const [items, setItems] = useState<EmpireItem[]>([]);
     const [ownedItems, setOwnedItems] = useState<Record<number, number>>({});
@@ -47,7 +47,7 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
     useEffect(() => {
         if (items.length > 0) {
             // Recalculate rates
-            let newClickVal = 0.1;
+            let newClickVal = 1;
             let newPassive = 0;
 
             items.forEach(item => {
