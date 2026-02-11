@@ -22,7 +22,7 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
     const [items, setItems] = useState<EmpireItem[]>([]);
     const [ownedItems, setOwnedItems] = useState<Record<number, number>>({});
     const [isLoading, setIsLoading] = useState(true);
-    const lastXpAwardedBalance = useRef(0);
+    const xpProgressRef = useRef(0);
 
     // Floating texts
     const [clicks, setClicks] = useState<{ id: number; x: number; y: number; val: number }[]>([]);
@@ -37,7 +37,6 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
                 const parsed = JSON.parse(saved);
                 setBalance(parsed.balance || 0);
                 setOwnedItems(parsed.ownedItems || {});
-                lastXpAwardedBalance.current = parsed.balance || 0;
             } catch (e) {
                 console.error("Failed to load save", e);
             }
@@ -69,25 +68,12 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
     useEffect(() => {
         const timer = setInterval(() => {
             if (passiveIncome > 0) {
-                setBalance(b => {
-                    const newBalance = b + passiveIncome;
-                    // Check for XP milestones (every 10k to compensate for 10x value reduction + active nerf)
-                    const MILESTONE = 10000;
-                    const milestones = Math.floor(newBalance / MILESTONE) - Math.floor(lastXpAwardedBalance.current / MILESTONE);
-                    if (milestones > 0) {
-                        const xpAmount = milestones;
-                        if (user) {
-                            gameService.addUserXP(user.id, xpAmount);
-                        }
-
-                        lastXpAwardedBalance.current = newBalance;
-                    }
-                    return newBalance;
-                });
+                setBalance(b => b + passiveIncome);
+                checkXp(passiveIncome);
             }
         }, 1000);
         return () => clearInterval(timer);
-    }, [passiveIncome]);
+    }, [passiveIncome, clickValue]);
 
     useEffect(() => {
         // Auto-save every 5s - stable interval
@@ -121,10 +107,31 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
         }
     };
 
+    const checkXp = (amount: number) => {
+        xpProgressRef.current += amount;
+
+        // Threshold adjusts dynamically to current income level
+        // Formula: (Passive/sec + Active/click) * 10
+        // Means getting ~1 XP every 10 seconds of full production
+        const currentRate = Math.max(10, passiveIncome + clickValue);
+        const threshold = currentRate * 10;
+
+        if (xpProgressRef.current >= threshold) {
+            const xpToAward = Math.floor(xpProgressRef.current / threshold);
+            if (xpToAward > 0) {
+                xpProgressRef.current %= threshold;
+                if (user) {
+                    gameService.addUserXP(user.id, xpToAward);
+                }
+            }
+        }
+    };
+
     const handleWork = (e: React.MouseEvent<HTMLButtonElement>) => {
 
         // Add balance
         setBalance(b => b + clickValue);
+        checkXp(clickValue);
 
         // Add floating text
         const rect = e.currentTarget.getBoundingClientRect();
