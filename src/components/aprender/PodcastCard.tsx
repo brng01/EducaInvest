@@ -290,7 +290,7 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
         {/* Áudio oculto */}
         <audio
           ref={audioRef}
-          src={`/audio/aula-${aula.id}.mp3`}
+          src={`/audios/Aula-${aula.id}.mp3`}
           preload="metadata"
         />
 
