@@ -43,7 +43,8 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isSeeking, setIsSeeking] = useState(false);
   const isSeekingRef = useRef(false);
-  const [tempTime, setTempTime] = useState(0);
+  // Estado local para o slider, desacoplado do currentTime durante o drag
+  const [sliderValue, setSliderValue] = useState([0]);
 
   // Converte duração "6" ou "2:08" para segundos (estimado) para fallback
   const estimatedDuration = useMemo(() => {
@@ -80,6 +81,7 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
     const updateTime = () => {
       if (!isSeekingRef.current) {
         setCurrentTime(audio.currentTime);
+        setSliderValue([audio.currentTime]);
       }
       if (onTimeUpdate) {
         onTimeUpdate(audio.currentTime, audio.duration || estimatedDuration);
@@ -131,7 +133,7 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
   // Reset de estado ao mudar de aula
   useEffect(() => {
     setCurrentTime(0);
-    setTempTime(0);
+    setSliderValue([0]);
     setIsSeeking(false);
     isSeekingRef.current = false;
     if (audioRef.current) {
@@ -154,8 +156,8 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
   const handleValueChange = (value: number[]) => {
     isSeekingRef.current = true;
     setIsSeeking(true);
-    setTempTime(value[0]);
-    setCurrentTime(value[0]);
+    setSliderValue(value);
+    // Não atualizamos o currentTime do áudio aqui para evitar "briga"
   };
 
   const handleValueCommit = (value: number[]) => {
@@ -164,8 +166,10 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
 
     const newTime = value[0];
     isSeekingRef.current = true; // Garante o lock até o evento 'seeked'
+
     audio.currentTime = newTime;
     setCurrentTime(newTime);
+    setSliderValue([newTime]);
 
     // Safety timeout caso o evento 'seeked' demore ou não dispare
     setTimeout(() => {
@@ -450,7 +454,7 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
                 {/* Barra de Progresso */}
                 <div className="space-y-2 py-2 cursor-pointer">
                   <Slider
-                    value={[isSeeking ? tempTime : currentTime]}
+                    value={sliderValue}
                     max={duration || estimatedDuration}
                     step={0.1}
                     onValueChange={handleValueChange}
@@ -458,7 +462,7 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
                     className="cursor-pointer"
                   />
                   <div className="flex justify-between text-xs text-slate-400 font-mono">
-                    <span>{formatTime(isSeeking ? tempTime : currentTime)}</span>
+                    <span>{formatTime(sliderValue[0])}</span>
                     <span>{formatTime(duration || estimatedDuration)}</span>
                   </div>
                 </div>
