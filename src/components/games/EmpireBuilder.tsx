@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Briefcase, TrendingUp, Zap, Coins, Building, HelpCircle } from "lucide-react";
 import { gameService, EmpireItem } from "@/services/gameService";
-import { formatNumber, formatED } from "@/lib/utils";
+import { formatNumber, formatED, formatCompactNumber } from "@/lib/utils";
 import { GameHelp } from "./GameHelp";
 
 import { useToast } from "@/components/ui/use-toast";
@@ -239,7 +239,7 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
                     {/* Clicker Area */}
                     <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
                         <div className="text-5xl md:text-6xl font-bold text-white mb-12 tabular-nums tracking-tight">
-                            {formatED(balance)}
+                            ED$ {formatCompactNumber(balance)}
                         </div>
 
                         <motion.button

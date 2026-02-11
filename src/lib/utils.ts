@@ -13,6 +13,14 @@ export function formatED(value: number) {
   return `ED$ ${formatNumber(value)}`;
 }
 
+export function formatCompactNumber(value: number) {
+  if (value < 1000000) return formatNumber(value);
+  return new Intl.NumberFormat('pt-BR', {
+    notation: "compact",
+    maximumFractionDigits: 1
+  }).format(value);
+}
+
 export const LEVELS = [
   { min: 0, name: "Iniciante", color: "text-blue-400" },
   { min: 100, name: "Aprendiz", color: "text-cyan-400" },
