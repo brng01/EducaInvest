@@ -90,7 +90,7 @@ export function LessonSidebar({
                         <button
                             onClick={() => setActiveTab('modules')}
                             className={cn(
-                                "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap",
+                                "flex-auto flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap",
                                 activeTab === 'modules'
                                     ? "bg-primary text-primary-foreground shadow-lg"
                                     : "text-muted-foreground hover:text-white"
@@ -101,7 +101,7 @@ export function LessonSidebar({
                         <button
                             onClick={() => setActiveTab('specializations')}
                             className={cn(
-                                "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap",
+                                "flex-auto flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap",
                                 activeTab === 'specializations'
                                     ? "bg-emerald-600 text-white shadow-lg"
                                     : "text-muted-foreground hover:text-white"
