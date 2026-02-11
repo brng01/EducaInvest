@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Headphones,
@@ -17,12 +17,21 @@ import { Slider } from "@/components/ui/slider";
 import { Aula, Termo } from "@/lib/termosData";
 import { cn } from "@/lib/utils";
 
+export interface PodcastCardHandle {
+  play: () => void;
+  pause: () => void;
+  seek: (time: number) => void;
+  isPlaying: boolean;
+}
+
 interface PodcastCardProps {
   aula: Aula;
   termos?: Termo[];
+  onTimeUpdate?: (currentTime: number, duration: number) => void;
+  onEnded?: () => void;
 }
 
-export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
+export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ aula, termos = [], onTimeUpdate, onEnded }, ref) => {
   const [showTranscript, setShowTranscript] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -33,16 +42,52 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Converte duração "6" para segundos (estimado)
+  // Converte duração "6" para segundos (estimado) para fallback
   const estimatedDuration = parseInt(aula.duracao) * 60;
+
+  useImperativeHandle(ref, () => ({
+    play: () => {
+      audioRef.current?.play();
+      setIsPlaying(true);
+    },
+    pause: () => {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    },
+    seek: (time: number) => {
+      if (audioRef.current) {
+        audioRef.current.currentTime = time;
+        setCurrentTime(time);
+      }
+    },
+    isPlaying
+  }));
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
-    const handleEnded = () => setIsPlaying(false);
+    const updateTime = () => {
+      setCurrentTime(audio.currentTime);
+      if (onTimeUpdate) {
+        onTimeUpdate(audio.currentTime, audio.duration || estimatedDuration);
+      }
+    };
+
+    const updateDuration = () => {
+      setDuration(audio.duration);
+      // Chama onTimeUpdate uma vez para garantir que duração seja passada
+      if (onTimeUpdate) {
+        onTimeUpdate(audio.currentTime, audio.duration);
+      }
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+      audio.currentTime = 0; // Reset audio position
+      if (onEnded) onEnded();
+    };
 
     audio.addEventListener("timeupdate", updateTime);
     audio.addEventListener("loadedmetadata", updateDuration);
@@ -53,7 +98,7 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
       audio.removeEventListener("loadedmetadata", updateDuration);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, []);
+  }, [onTimeUpdate, onEnded, estimatedDuration]);
 
   const togglePlayPause = () => {
     const audio = audioRef.current;
@@ -477,4 +522,4 @@ export function PodcastCard({ aula, termos = [] }: PodcastCardProps) {
       </motion.div>
     </div>
   );
-}
+});
