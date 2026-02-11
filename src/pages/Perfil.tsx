@@ -296,6 +296,16 @@ export default function Perfil() {
 
                 {/* --- HEADER --- */}
                 <div className="relative bg-gradient-to-b from-primary/10 to-slate-950 pt-10 pb-20 px-4">
+                    {/* Logout Button - Absolute Top Right */}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-4 right-4 text-red-400 hover:bg-red-500/10 hover:text-red-300 gap-2 md:hidden"
+                        onClick={handleLogout}
+                    >
+                        <LogOut className="w-4 h-4" /> Sair
+                    </Button>
+
                     <div className="container mx-auto max-w-4xl flex flex-col md:flex-row items-center gap-6">
                         <motion.div
                             initial={{ scale: 0.5, opacity: 0 }}
@@ -317,37 +327,27 @@ export default function Perfil() {
                         </motion.div>
 
                         <div className="text-center md:text-left space-y-2 flex-1">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <div>
-                                    <motion.h1
-                                        initial={{ y: 20, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        className="text-2xl md:text-3xl font-display font-bold text-white"
-                                    >
-                                        {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
-                                    </motion.h1>
-                                    <motion.div
-                                        initial={{ y: 20, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 0.1 }}
-                                        className="flex flex-wrap justify-center md:justify-start gap-2 mt-2"
-                                    >
-                                        <span className="px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-wider">
-                                            {perfil?.current_level || "Iniciante"}
-                                        </span>
-                                        <span className="px-3 py-1 rounded-full bg-white/5 text-muted-foreground border border-white/10 text-xs font-medium flex items-center gap-1">
-                                            <Calendar className="w-3 h-3" /> Membro desde {new Date(user?.created_at).toLocaleDateString()}
-                                        </span>
-                                    </motion.div>
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 gap-2 self-center md:self-start"
-                                    onClick={handleLogout}
+                            <div>
+                                <motion.h1
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    className="text-2xl md:text-3xl font-display font-bold text-white"
                                 >
-                                    <LogOut className="w-4 h-4" /> Sair
-                                </Button>
+                                    {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                                </motion.h1>
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="flex flex-wrap justify-center md:justify-start gap-2 mt-2"
+                                >
+                                    <span className="px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-wider">
+                                        {perfil?.current_level || "Iniciante"}
+                                    </span>
+                                    <span className="px-3 py-1 rounded-full bg-white/5 text-muted-foreground border border-white/10 text-xs font-medium flex items-center gap-1">
+                                        <Calendar className="w-3 h-3" /> Membro desde {new Date(user?.created_at).toLocaleDateString()}
+                                    </span>
+                                </motion.div>
                             </div>
                         </div>
 
