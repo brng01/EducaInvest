@@ -80,6 +80,10 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
 
     const updateTime = () => {
       if (!isSeekingRef.current) {
+        // Proteção contra saltos para 0 inesperados do navegador durante transições de buffer
+        if (audio.currentTime === 0 && currentTime > 1 && !audio.paused) {
+          return;
+        }
         setCurrentTime(audio.currentTime);
         setSliderValue([audio.currentTime]);
       }
@@ -97,9 +101,11 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
     };
 
     const handleEnded = () => {
+      if (isSeekingRef.current) return; // Protege contra disparos falsos durante seek
       setIsPlaying(false);
       setCurrentTime(0);
-      audio.currentTime = 0; // Reset audio position
+      setSliderValue([0]);
+      audio.currentTime = 0;
       if (onEnded) onEnded();
     };
 
@@ -108,11 +114,11 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
     };
 
     const handleSeeked = () => {
-      // Pequeno delay para garantir que o estado do áudio estabilizou
+      // Delay maior para garantir que o buffer e o currentTime do navegador se estabilizaram
       setTimeout(() => {
         isSeekingRef.current = false;
         setIsSeeking(false);
-      }, 150); // Aumentado para 150ms para maior segurança
+      }, 300); // 300ms para maior segurança em conexões lentas ou buffers
     };
 
     audio.addEventListener("timeupdate", updateTime);
@@ -136,9 +142,7 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
     setSliderValue([0]);
     setIsSeeking(false);
     isSeekingRef.current = false;
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-    }
+    // Removido reset manual do audio.currentTime para evitar conflito com troca de src
   }, [aula.id]);
 
   const togglePlayPause = () => {
@@ -165,19 +169,25 @@ export const PodcastCard = forwardRef<PodcastCardHandle, PodcastCardProps>(({ au
     if (!audio) return;
 
     const newTime = value[0];
+    console.log("Handle Value Commit:", newTime);
     isSeekingRef.current = true; // Garante o lock até o evento 'seeked'
 
     audio.currentTime = newTime;
     setCurrentTime(newTime);
     setSliderValue([newTime]);
 
-    // Safety timeout caso o evento 'seeked' demore ou não dispare
+    // Tenta forçar o play caso o navegador tenha pausado durante o seek
+    if (isPlaying) {
+      audio.play().catch(() => { });
+    }
+
+    // Safety timeout aumentado
     setTimeout(() => {
       if (isSeekingRef.current) {
         isSeekingRef.current = false;
         setIsSeeking(false);
       }
-    }, 1000);
+    }, 2000);
   };
 
   const handleVolumeChange = (value: number[]) => {
