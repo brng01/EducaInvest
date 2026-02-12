@@ -96,9 +96,6 @@ export const EmpireBuilder = ({ onBack, user }: Props) => {
         try {
             const data = await gameService.getEmpireItems();
 
-            // Rebalance values: Scale everything down
-            // Passive: /10
-            // Active: /50 (Significant nerf to make passive the focus)
             setItems(data);
         } catch (e) {
             console.error(e);
