@@ -134,7 +134,7 @@ export function LessonContent({
                     termos={termosDaAula as any[]}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                     {termosDaAula.map((termo) => (
                         <div key={termo.id} id={`term-${termo.id}`}>
                             <TermCard term={termo as any} />

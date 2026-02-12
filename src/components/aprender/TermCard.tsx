@@ -55,7 +55,7 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 cursor-pointer h-full",
+        "group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 cursor-pointer",
         "bg-gradient-to-b from-slate-800/50 to-slate-900/80",
         "border border-white/5",
         borderColor,

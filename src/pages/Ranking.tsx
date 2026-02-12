@@ -102,7 +102,7 @@ export default function Ranking() {
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="text-center">
-                                        <p className="font-bold text-white text-sm md:text-base max-w-[80px] truncate">{topThree[1].full_name || "Investidor"}</p>
+                                        <p className="font-bold text-white text-sm md:text-base max-w-[80px] truncate">{topThree[1].full_name || topThree[1].email?.split('@')[0] || "Investidor"}</p>
                                         <p className="text-xs text-slate-400 font-mono">{topThree[1].xp_total} XP</p>
                                     </div>
                                     <div className="h-24 w-16 md:w-20 bg-gradient-to-t from-slate-300/20 to-slate-300/5 rounded-t-lg mt-2 flex items-end justify-center pb-2">
@@ -129,7 +129,7 @@ export default function Ranking() {
                                         </Avatar>
                                     </div>
                                     <div className="text-center">
-                                        <p className="font-bold text-white text-base md:text-lg max-w-[100px] truncate">{topThree[0].full_name || "Mestre"}</p>
+                                        <p className="font-bold text-white text-base md:text-lg max-w-[100px] truncate">{topThree[0].full_name || topThree[0].email?.split('@')[0] || "Mestre"}</p>
                                         <p className="text-xs text-yellow-400 font-mono font-bold">{topThree[0].xp_total} XP</p>
                                     </div>
                                     <div className="h-32 w-20 md:w-24 bg-gradient-to-t from-yellow-400/20 to-yellow-400/5 rounded-t-lg mt-2 flex items-end justify-center pb-2 border-t border-yellow-400/20">
@@ -153,7 +153,7 @@ export default function Ranking() {
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="text-center">
-                                        <p className="font-bold text-white text-sm md:text-base max-w-[80px] truncate">{topThree[2].full_name || "Investidor"}</p>
+                                        <p className="font-bold text-white text-sm md:text-base max-w-[80px] truncate">{topThree[2].full_name || topThree[2].email?.split('@')[0] || "Investidor"}</p>
                                         <p className="text-xs text-slate-400 font-mono">{topThree[2].xp_total} XP</p>
                                     </div>
                                     <div className="h-20 w-16 md:w-20 bg-gradient-to-t from-amber-600/20 to-amber-600/5 rounded-t-lg mt-2 flex items-end justify-center pb-2">
@@ -223,7 +223,7 @@ export default function Ranking() {
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
                                     <p className={`font-medium truncate ${currentUser?.id === user?.id ? "text-primary" : "text-slate-200"}`}>
-                                        {user?.full_name || "Investidor Anônimo"}
+                                        {user?.full_name || user?.email?.split('@')[0] || "Investidor Anônimo"}
                                         {currentUser?.id === user?.id && <span className="ml-2 text-[10px] uppercase bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold">Você</span>}
                                     </p>
                                     <p className="text-xs text-slate-500">{user?.current_level || "Iniciante"}</p>
