@@ -124,7 +124,7 @@ export default function Perfil() {
                     try {
                         const parsed = JSON.parse(empireSave);
                         const items = parsed.ownedItems || {};
-                        const totalCount = Object.values(items).reduce((a: number, b: any) => a + (Number(b) || 0), 0);
+                        const totalCount = (Object.values(items) as unknown[]).reduce((a: number, b: unknown) => a + (Number(b) || 0), 0) as number;
                         const uniqueCount = Object.keys(items).length;
 
                         setEmpireData({
