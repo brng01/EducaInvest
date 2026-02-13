@@ -22,6 +22,8 @@ import { Termo } from "@/lib/termosData";
 interface TermCardProps {
   term: Termo;
   hideLevel?: boolean;
+  isExpanded?: boolean;
+  onToggle?: () => void;
 }
 
 const getTermIcon = (t: Termo) => {
@@ -42,9 +44,20 @@ const getTermIcon = (t: Termo) => {
   }
 };
 
-export function TermCard({ term, hideLevel }: TermCardProps) {
+export function TermCard({ term, hideLevel, isExpanded: controlledIsExpanded, onToggle }: TermCardProps) {
   if (!term) return null;
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [localIsExpanded, setLocalIsExpanded] = useState(false);
+
+  const isExpanded = controlledIsExpanded !== undefined ? controlledIsExpanded : localIsExpanded;
+
+  const handleToggle = () => {
+    if (onToggle) {
+      onToggle();
+    } else {
+      setLocalIsExpanded(!localIsExpanded);
+    }
+  };
+
   const Icon = getTermIcon(term);
 
   const borderColor =
@@ -62,7 +75,7 @@ export function TermCard({ term, hideLevel }: TermCardProps) {
         "hover:shadow-xl hover:-translate-y-1",
         isExpanded ? "ring-1 ring-primary/30 bg-slate-900/90 shadow-lg" : ""
       )}
-      onClick={() => setIsExpanded(!isExpanded)}
+      onClick={handleToggle}
     >
       <div className="flex items-start gap-4 p-5 relative z-10">
         <div className="shrink-0 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 p-2.5 text-primary ring-1 ring-primary/20 group-hover:ring-primary/50 transition-all shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]">

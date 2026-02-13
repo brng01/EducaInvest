@@ -5,7 +5,10 @@ import { TermCard } from "@/components/aprender/TermCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Lesson, Term } from "@/lib/types";
-import { useState, useEffect, useRef } from "react";
+import { Termo } from "@/lib/termosData";
+import { Category } from "@/components/aprender/CategoryFilter";
+import { Level } from "@/components/aprender/LevelFilter";
+import { useState, useEffect, useRef, useMemo } from "react";
 
 interface LessonContentProps {
     currentAula: Lesson;
@@ -22,7 +25,23 @@ interface LessonContentProps {
     aulaFinalizada?: boolean;
 }
 
-// ProgressBar removed
+// Helper to map API Term to Component Termo
+const mapTermToTermo = (term: Term): Termo => {
+    return {
+        id: term.id,
+        sigla: term.acronym || term.sigla || "",
+        nome: term.name || term.nome || "",
+        explicacaoCompleta: term.explanation_full || term.explicacaoCompleta || "",
+        explicacaoSimplificada: term.explanation_simple || term.explicacaoSimplificada || "",
+        exemplo: term.example || term.exemplo || "",
+        dicaComoComecar: term.tip || term.dicaComoComecar,
+        // Fallback for enums
+        categoria: (term.category as Category) || "conceitos",
+        nivelId: (term.nivelId as Level) || "fundamentos",
+        audioUrl: undefined,
+        aulaAssociadaId: term.lesson_id || term.aulaAssociadaId
+    };
+};
 
 export function LessonContent({
     currentAula,
@@ -30,8 +49,8 @@ export function LessonContent({
     termosDaAula,
     handleLessonChange,
     currentAulaId,
-    canComplete: initialCanComplete, // Rename to avoid conflict if we override logic locally
-    timeLeft: initialTimeLeft,       // Same here
+    canComplete: initialCanComplete,
+    timeLeft: initialTimeLeft,
     timeLimit,
     handleCompleteAndNext,
     xpAmount,
@@ -39,14 +58,17 @@ export function LessonContent({
     aulaFinalizada = false
 }: LessonContentProps) {
 
-    const scrollbarClass = "lg:overflow-y-auto lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:bg-slate-700/50 lg:[&::-webkit-scrollbar-thumb]:rounded-full hover:lg:[&::-webkit-scrollbar-thumb]:bg-slate-600 transition-colors";
+    const [expandedTermId, setExpandedTermId] = useState<number | null>(null);
 
-    // Audio State & Handlers removed (Decoupled from timer)
+    const scrollbarClass = "lg:overflow-y-auto lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-track]:bg-transparent lg:[&::-webkit-scrollbar-thumb]:bg-slate-700/50 lg:[&::-webkit-scrollbar-thumb]:rounded-full hover:lg:[&::-webkit-scrollbar-thumb]:bg-slate-600 transition-colors";
 
     // Use admin bypass
     const processIsAdmin = isAdmin;
 
     const finalCanComplete = processIsAdmin || aulaFinalizada || initialCanComplete;
+
+    // Map terms once
+    const mappedTerms = useMemo(() => termosDaAula.map(mapTermToTermo), [termosDaAula]);
 
     return (
         <main className={cn(
@@ -131,13 +153,17 @@ export function LessonContent({
                 {/* Podcast Card - Agora com Ref e Callbacks */}
                 <PodcastCard
                     aula={currentAula as any}
-                    termos={termosDaAula as any[]}
+                    termos={mappedTerms}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                    {termosDaAula.map((termo) => (
+                    {mappedTerms.map((termo) => (
                         <div key={termo.id} id={`term-${termo.id}`}>
-                            <TermCard term={termo as any} />
+                            <TermCard
+                                term={termo}
+                                isExpanded={expandedTermId === termo.id}
+                                onToggle={() => setExpandedTermId(expandedTermId === termo.id ? null : termo.id)}
+                            />
                         </div>
                     ))}
                 </div>
